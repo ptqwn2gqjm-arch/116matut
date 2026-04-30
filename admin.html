@@ -810,9 +810,13 @@
   window.saveSetting = function(type){
     var s = getSettings();
     if (type === 'line') {
-      s.lineUrl = (document.getElementById('s-line-url').value || '').trim();
+      var lineUrl = (document.getElementById('s-line-url').value || '').trim();
+      s.lineUrl = lineUrl;
       saveSettings(s);
-      showToast('Line 連結已儲存 ✓');
+      // 同步存到 Firebase
+      window.db.ref('settings/lineUrl').set(lineUrl).then(function(){
+        showToast('Line 連結已儲存 ✓');
+      }).catch(function(e){ showToast('儲存失敗: '+e.message, true); });
     } else if (type === 'pw') {
       var np = document.getElementById('s-new-pw').value;
       var cp = document.getElementById('s-confirm-pw').value;
