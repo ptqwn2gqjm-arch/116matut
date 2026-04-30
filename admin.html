@@ -423,7 +423,56 @@
   .cal-legend-item { display: flex; align-items: center; gap: 5px; }
   .cal-legend-dot { width: 10px; height: 10px; border-radius: 2px; }
 
-  @media (max-width: 900px) {
+  /* MOBILE TOPBAR */
+  .mobile-topbar {
+    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: var(--deep); height: 54px; padding: 0 16px;
+    align-items: center; justify-content: space-between;
+  }
+  .mobile-logo {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: 22px; color: white;
+  }
+  .mobile-logo span { opacity: 0.5; font-size: 12px; font-weight: 500; margin-left: 4px; }
+  .mobile-menu-btn {
+    width: 36px; height: 36px; border: none; background: rgba(255,255,255,0.1);
+    border-radius: 6px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: white;
+  }
+  .mobile-menu-btn svg { width: 18px; height: 18px; }
+
+  /* MOBILE DRAWER */
+  .mobile-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 300;
+  }
+  .mobile-overlay.show { display: block; }
+  .sidebar.mobile-open { transform: translateX(0) !important; }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 240px; transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      z-index: 400;
+    }
+    .main { margin-left: 0; padding: 70px 16px 32px; }
+    .mobile-topbar { display: flex; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+    .card { padding: 20px 16px; }
+    .page-title { font-size: 32px; }
+    .article-item { flex-wrap: wrap; }
+    .article-item-title { font-size: 14px; }
+    .btn-actions { flex-direction: column; }
+    .btn-actions .btn { width: 100%; justify-content: center; }
+    .cal-cell { min-height: 60px; padding: 4px; }
+    .cal-cell-num { font-size: 12px; }
+    .cal-event { font-size: 9px; padding: 1px 3px; }
+    .modal { padding: 24px 20px; }
+    .preview-body { padding: 20px 16px; }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
     .sidebar { width: 200px; }
     .main { margin-left: 200px; padding: 28px; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -461,7 +510,16 @@
 <body>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <div class="mobile-logo">116 <span>後台</span></div>
+  <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</div>
+<div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+<div class="sidebar" id="sidebar">
   <div class="sidebar-logo">116 <span class="lbl">後台</span></div>
   <nav class="sidebar-nav">
     <div class="nav-section">管理</div>
@@ -777,6 +835,12 @@
   var coverBase64  = null;
   var cachedArticles = [];
 
+  // Sync password from Firebase on load
+  window.db.ref('admin_config/pw').once('value').then(function(snap){
+    var fbPw = snap.val();
+    if (fbPw) localStorage.setItem(ADMIN_PW_KEY, fbPw);
+  });
+
   /* ── Firebase helpers ── */
   function getSettings(){ try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}'); } catch(e){ return {}; } }
   function saveSettings(obj){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(obj)); }
@@ -1075,10 +1139,13 @@
       if (!np) { showToast('請輸入新密碼', true); return; }
       if (np !== cp) { showToast('兩次密碼不一致', true); return; }
       if (np.length < 4) { showToast('密碼至少需要 4 個字元', true); return; }
+      // Save to both localStorage and Firebase
       localStorage.setItem(ADMIN_PW_KEY, np);
-      document.getElementById('s-new-pw').value = '';
-      document.getElementById('s-confirm-pw').value = '';
-      showToast('密碼已更新 ✓');
+      window.db.ref('admin_config/pw').set(np).then(function(){
+        document.getElementById('s-new-pw').value = '';
+        document.getElementById('s-confirm-pw').value = '';
+        showToast('密碼已更新 ✓（所有裝置生效）');
+      }).catch(function(){ showToast('密碼已在本機更新，但無法同步到其他裝置', true); });
     }
   };
 
@@ -1383,6 +1450,27 @@
   /* ── INIT ── */
   loadDashboard();
   loadSettings();
+
+  /* ── MOBILE MENU ── */
+  window.toggleMobileMenu = function(){
+    var sidebar  = document.getElementById('sidebar');
+    var overlay  = document.getElementById('mobile-overlay');
+    var isOpen   = sidebar.classList.contains('mobile-open');
+    sidebar.classList.toggle('mobile-open', !isOpen);
+    overlay.classList.toggle('show', !isOpen);
+  };
+
+  // Close drawer when nav item clicked on mobile
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      if (window.innerWidth <= 768) {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('mobile-overlay');
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('show');
+      }
+    });
+  });
 
 })();
 </script>
