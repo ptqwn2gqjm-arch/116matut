@@ -422,16 +422,8 @@
 
 <script>
 (function () {
-  var LINE_URL = '#';
-  // 從 Firebase 讀 Line 連結
-  window.db.ref('settings/lineUrl').once('value').then(function(snap){
-    var url = snap.val();
-    if (url) {
-      LINE_URL = url;
-      var lb = document.getElementById('line-btn');
-      if (lb) lb.href = url;
-    }
-  });
+  var LINE_URL = 'https://lin.ee/q9ZL8V2';
+
   // intro elements handled in runIntro()
 
   function showHero() {
