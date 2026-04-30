@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活動日曆 · 116 畢籌會</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+    authDomain: "bichoucui.firebaseapp.com",
+    databaseURL: "https://bichoucui-default-rtdb.firebaseio.com",
+    projectId: "bichoucui",
+    storageBucket: "bichoucui.firebasestorage.app",
+    messagingSenderId: "1035865429114",
+    appId: "1:1035865429114:web:c33daa36ffd04d736517c3"
+  });
+  window.db = firebase.database();
+</script>
+<style>
+  :root {
+    --deep:#0D3B5C; --mid:#1A6B9A; --light:#2E9BD4; --pale:#D6EAF8;
+    --bg:#F4F8FB; --white:#FFFFFF; --text:#0D1F2D; --muted:#7B9BB3; --border:#D0E4F0;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,248,251,0.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 40px;height:62px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;text-decoration:none;color:var(--deep);display:flex;align-items:baseline;gap:6px;}
+  .nav-logo .num{color:var(--mid);}
+  .nav-logo .lbl{font-size:13px;font-weight:500;color:var(--muted);}
+  .nav-link{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;}
+  .nav-link:hover{background:var(--pale);color:var(--deep);}
+  .nav-link svg{width:15px;height:15px;}
+  .main{max-width:900px;margin:0 auto;padding:90px 24px 80px;}
+  .page-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:52px;letter-spacing:-.01em;color:var(--deep);margin-bottom:4px;}
+  .page-title span{color:var(--mid);}
+  .page-sub{font-size:14px;color:var(--muted);margin-bottom:32px;}
+  .cal-wrap{background:var(--white);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:40px;}
+  .cal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);}
+  .cal-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--deep);}
+  .cal-nav-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .2s;}
+  .cal-nav-btn:hover{border-color:var(--mid);color:var(--mid);}
+  .cal-nav-btn svg{width:16px;height:16px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border-left:1px solid var(--border);}
+  .cal-dow{padding:12px 4px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg);}
+  .cal-cell{min-height:100px;padding:10px 8px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:background .15s;}
+  .cal-cell.other-month{background:#fafbfc;}
+  .cal-cell.today{background:rgba(26,107,154,.04);}
+  .cal-cell-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:6px;display:inline-block;}
+  .cal-cell.today .cal-cell-num{background:var(--deep);color:white;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
+  .cal-cell.other-month .cal-cell-num{color:var(--border);}
+  .cal-event{display:block;font-size:11px;font-weight:600;padding:3px 7px;border-radius:4px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;transition:opacity .2s;}
+  .cal-event:hover{opacity:.8;}
+  .cal-event.g0{background:rgba(26,107,154,.12);color:#1A6B9A;}
+  .cal-event.g1{background:rgba(39,174,96,.12);color:#27ae60;}
+  .cal-event.g2{background:rgba(230,126,34,.12);color:#e67e22;}
+  .cal-event.g3{background:rgba(155,89,182,.12);color:#8e44ad;}
+  .cal-event.g4{background:rgba(231,76,60,.12);color:#e74c3c;}
+  .cal-event.g5{background:rgba(52,152,219,.12);color:#2980b9;}
+  .cal-event.gx{background:var(--pale);color:var(--mid);}
+  .cal-more{font-size:10px;color:var(--muted);padding:1px 4px;}
+  .cal-legend{display:flex;gap:14px;flex-wrap:wrap;padding:14px 24px;border-top:1px solid var(--border);}
+  .cal-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
+  .cal-legend-dot{width:10px;height:10px;border-radius:3px;}
+  .upcoming-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:var(--deep);margin-bottom:20px;}
+  .upcoming-title span{color:var(--mid);}
+  .upcoming-list{display:flex;flex-direction:column;gap:12px;}
+  .upcoming-item{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;transition:all .2s;}
+  .upcoming-item:hover{border-color:var(--mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,59,92,.08);}
+  .upcoming-date-box{width:52px;flex-shrink:0;text-align:center;background:var(--pale);border-radius:8px;padding:8px 4px;}
+  .upcoming-date-month{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);}
+  .upcoming-date-day{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;line-height:1;color:var(--deep);}
+  .upcoming-info{flex:1;min-width:0;}
+  .upcoming-item-title{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .upcoming-item-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+  .upcoming-group{font-size:11px;font-weight:600;padding:1px 7px;border-radius:3px;background:rgba(46,155,212,.1);color:var(--light);}
+  .upcoming-countdown{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--mid);white-space:nowrap;flex-shrink:0;}
+  .upcoming-countdown.urgent{color:#e74c3c;}
+  .upcoming-countdown.done{color:var(--muted);font-size:13px;}
+  .line-float{position:fixed;bottom:80px;right:20px;z-index:200;}
+  .line-btn{width:48px;height:48px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 16px rgba(6,199,85,.4);transition:transform .2s;}
+  .line-btn:hover{transform:scale(1.08);}
+  .line-btn svg{width:26px;height:26px;fill:white;}
+  footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--deep);}
+  .footer-logo span{color:var(--mid);}
+  .footer-copy{font-size:12px;color:var(--muted);}
+  @media(max-width:768px){
+    nav{padding:0 16px;height:56px;}
+    .nav-logo .lbl{display:none;}
+    .main{padding:76px 16px 60px;}
+    .cal-cell{min-height:60px;padding:5px 3px;}
+    .cal-cell-num{font-size:12px;}
+    .cal-event{font-size:9px;padding:2px 3px;}
+    footer{padding:20px 16px;flex-direction:column;gap:8px;text-align:center;}
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><span class="num">116</span><span class="lbl">畢籌會</span></a>
+  <a href="index.html" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    回公告列表
+  </a>
+</nav>
+
+<div class="main">
+  <div class="page-title">活動<span>日曆</span></div>
+  <div class="page-sub">有設定活動時間的公告會顯示在日曆上</div>
+
+  <div class="cal-wrap">
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="calMove(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="cal-title" id="cal-title">載入中</div>
+      <button class="cal-nav-btn" onclick="calMove(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <div class="cal-grid" id="cal-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:14px">載入中⋯</div>
+    </div>
+    <div class="cal-legend" id="cal-legend"></div>
+  </div>
+
+  <div class="upcoming-title">即將到來<span>.</span></div>
+  <div class="upcoming-list" id="upcoming-list">
+    <div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">載入中⋯</div>
+  </div>
+</div>
+
+<div class="line-float">
+  <a href="#" class="line-btn" id="line-btn" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-logo"><span>116</span> 畢籌會</div>
+  <div class="footer-copy">© 2026 116級畢籌會</div>
+</footer>
+
+<script>
+(function(){
+  var GROUPS = ['行政組','場務組','公關組','美宣組','活動組','資訊組'];
+  var COLORS = ['#1A6B9A','#27ae60','#e67e22','#8e44ad','#e74c3c','#2980b9'];
+  var MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var calYear = new Date().getFullYear();
+  var calMonth = new Date().getMonth();
+  var articles = [];
+
+  function pad(n){ return (n+'').padStart(2,'0'); }
+
+  window.db.ref('settings/lineUrl').once('value').then(function(snap){
+    var url = snap.val();
+    if (url) { var lb=document.getElementById('line-btn'); if(lb) lb.href=url; }
+  });
+
+  window.db.ref('articles').once('value').then(function(snap){
+    var val = snap.val();
+    articles = val ? Object.values(val).filter(function(a){ return !a.draft; }) : [];
+    renderCalendar();
+    renderUpcoming();
+  });
+
+  function renderCalendar(){
+    var titleEl=document.getElementById('cal-title');
+    var gridEl=document.getElementById('cal-grid');
+    var legendEl=document.getElementById('cal-legend');
+    if(!titleEl||!gridEl) return;
+    titleEl.textContent = calYear+' · '+MONTHS[calMonth];
+    var dows=['日','一','二','三','四','五','六'];
+    var html=dows.map(function(d){ return '<div class="cal-dow">'+d+'</div>'; }).join('');
+    var first=new Date(calYear,calMonth,1);
+    var startDow=first.getDay();
+    var daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+    var daysInPrev=new Date(calYear,calMonth,0).getDate();
+    var today=new Date(); today.setHours(0,0,0,0);
+    var eventMap={};
+    articles.filter(function(a){ return a.eventTime; }).forEach(function(a){
+      var d=new Date(a.eventTime);
+      var key=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+      if(!eventMap[key]) eventMap[key]=[];
+      eventMap[key].push(a);
+    });
+    for(var i=startDow-1;i>=0;i--){
+      html+='<div class="cal-cell other-month"><span class="cal-cell-num">'+(daysInPrev-i)+'</span></div>';
+    }
+    for(var d=1;d<=daysInMonth;d++){
+      var cellDate=new Date(calYear,calMonth,d); cellDate.setHours(0,0,0,0);
+      var isToday=cellDate.getTime()===today.getTime();
+      var key=calYear+'-'+pad(calMonth+1)+'-'+pad(d);
+      var events=eventMap[key]||[];
+      var numHtml=isToday
+        ?'<span class="cal-cell-num" style="background:var(--deep);color:white;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;">'+d+'</span>'
+        :'<span class="cal-cell-num">'+d+'</span>';
+      var evHtml=events.slice(0,2).map(function(a){
+        var gi=GROUPS.indexOf(a.group);
+        var cls=gi>=0?'g'+gi:'gx';
+        return '<a class="cal-event '+cls+'" href="article.html?id='+encodeURIComponent(a.id)+'" title="'+a.title+'">'+a.title+'</a>';
+      }).join('');
+      if(events.length>2) evHtml+='<div class="cal-more">+'+(events.length-2)+' 則</div>';
+      html+='<div class="cal-cell'+(isToday?' today':'')+'">'+numHtml+evHtml+'</div>';
+    }
+    var total=startDow+daysInMonth;
+    var rem=total%7===0?0:7-(total%7);
+    for(var n=1;n<=rem;n++){
+      html+='<div class="cal-cell other-month"><span class="cal-cell-num">'+n+'</span></div>';
+    }
+    gridEl.innerHTML=html;
+    var usedGroups=[];
+    articles.filter(function(a){ return a.eventTime&&a.group; }).forEach(function(a){
+      if(usedGroups.indexOf(a.group)<0) usedGroups.push(a.group);
+    });
+    legendEl.innerHTML=usedGroups.map(function(g){
+      var gi=GROUPS.indexOf(g); var color=gi>=0?COLORS[gi]:'#999';
+      return '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+color+'20;border:1.5px solid '+color+'"></div><span style="color:'+color+'">'+g+'</span></div>';
+    }).join('');
+  }
+
+  function renderUpcoming(){
+    var list=document.getElementById('upcoming-list');
+    if(!list) return;
+    var upcoming=articles.filter(function(a){ return a.eventTime; })
+      .sort(function(a,b){ return new Date(a.eventTime)-new Date(b.eventTime); });
+    if(!upcoming.length){
+      list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">目前沒有排定活動時間的公告</div>';
+      return;
+    }
+    function render(){
+      var now=Date.now();
+      list.innerHTML=upcoming.map(function(a){
+        var ev=new Date(a.eventTime);
+        var diff=ev-now;
+        var gi=GROUPS.indexOf(a.group);
+        var groupBadge=a.group?'<span class="upcoming-group">'+a.group+'</span>':'';
+        var cdText,cdCls;
+        if(diff<0){ cdText='已結束'; cdCls='done'; }
+        else if(diff<3600000){
+          var m=Math.floor(diff/60000); cdText=m+' 分後'; cdCls='urgent';
+        } else if(diff<86400000){
+          var h=Math.floor(diff/3600000); cdText=h+' 時後'; cdCls='urgent';
+        } else {
+          cdText=Math.floor(diff/86400000)+' 天後'; cdCls='';
+        }
+        return '<a class="upcoming-item" href="article.html?id='+encodeURIComponent(a.id)+'">'
+          +'<div class="upcoming-date-box">'
+          +'<div class="upcoming-date-month">'+MONTHS_EN[ev.getMonth()]+'</div>'
+          +'<div class="upcoming-date-day">'+ev.getDate()+'</div>'
+          +'</div>'
+          +'<div class="upcoming-info">'
+          +'<div class="upcoming-item-title">'+a.title+'</div>'
+          +'<div class="upcoming-item-meta">'+groupBadge+'<span>'+ev.getHours()+':'+pad(ev.getMinutes())+'</span></div>'
+          +'</div>'
+          +'<div class="upcoming-countdown '+cdCls+'">'+cdText+'</div>'
+          +'</a>';
+      }).join('');
+    }
+    render();
+    setInterval(render, 60000);
+  }
+
+  window.calMove=function(dir){
+    calMonth+=dir;
+    if(calMonth>11){ calMonth=0; calYear++; }
+    if(calMonth<0){ calMonth=11; calYear--; }
+    renderCalendar();
+  };
+})();
+</script>
+</body>
+</html>
