@@ -274,6 +274,23 @@
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
+  /* FONT SIZE */
+  html { font-size: 16px; transition: font-size 0.2s; }
+  html.fs-lg { font-size: 19px; }
+  html.fs-xl { font-size: 22px; }
+  .font-btns {
+    display: flex; align-items: center; gap: 4px; margin-left: 8px;
+  }
+  .font-btn {
+    width: 30px; height: 30px; border-radius: 6px; border: 1.5px solid var(--border);
+    background: var(--white); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: var(--muted); transition: all 0.2s;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px;
+    line-height: 1;
+  }
+  .font-btn:hover { border-color: var(--mid); color: var(--mid); }
+  .font-btn.active { background: var(--deep); border-color: var(--deep); color: white; }
+
   @media (max-width: 768px) {
     /* NAV */
     nav { padding: 0 16px; height: 56px; }
@@ -283,6 +300,7 @@
     .nav-search input { font-size: 14px; padding: 8px 12px 8px 32px; }
     .nav-link { padding: 6px 10px; font-size: 12px; }
     .nav-link span { display: none; }
+    .font-btns { display: none; }
 
     /* HERO */
     .hero { padding: 76px 20px 48px; min-height: auto; }
@@ -366,6 +384,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
     最新消息
   </a>
+  <div class="font-btns">
+    <button class="font-btn" id="fs-sm" onclick="setFontSize('sm')" title="縮小字體">A-</button>
+    <button class="font-btn" id="fs-lg" onclick="setFontSize('lg')" title="放大字體">A+</button>
+  </div>
 </nav>
 
 <a class="pinned-banner" id="pinned-banner" href="#">
@@ -434,6 +456,15 @@
 <script>
 (function () {
   var LINE_URL = '#';
+  // 從 Firebase 讀 Line 連結
+  window.db.ref('settings/lineUrl').once('value').then(function(snap){
+    var url = snap.val();
+    if (url) {
+      LINE_URL = url;
+      var lb = document.getElementById('line-btn');
+      if (lb) lb.href = url;
+    }
+  });
   var pt   = document.getElementById('pt');
   var pb   = document.getElementById('pb');
   var tops = ['d1t','d2t','d3t'].map(function(id){ return document.getElementById(id); });
@@ -653,6 +684,29 @@
 
   var lb=document.getElementById('line-btn');
   if(lb) lb.href=LINE_URL;
+
+  /* ── 字體大小 ── */
+  var fontSizes = ['sm', 'lg', 'xl'];
+  function setFontSize(size) {
+    var current = localStorage.getItem('116_fontsize') || 'sm';
+    var idx = fontSizes.indexOf(current);
+    if (size === 'lg') { idx = Math.min(idx + 1, fontSizes.length - 1); }
+    else { idx = Math.max(idx - 1, 0); }
+    var newSize = fontSizes[idx];
+    localStorage.setItem('116_fontsize', newSize);
+    applyFontSize(newSize);
+  }
+  function applyFontSize(size) {
+    document.documentElement.classList.remove('fs-lg', 'fs-xl');
+    if (size === 'lg') document.documentElement.classList.add('fs-lg');
+    if (size === 'xl') document.documentElement.classList.add('fs-xl');
+    var smBtn = document.getElementById('fs-sm');
+    var lgBtn = document.getElementById('fs-lg');
+    var idx = fontSizes.indexOf(size);
+    if (smBtn) smBtn.disabled = idx === 0;
+    if (lgBtn) lgBtn.disabled = idx === fontSizes.length - 1;
+  }
+  applyFontSize(localStorage.getItem('116_fontsize') || 'sm');
 })();
 </script>
 </body>
