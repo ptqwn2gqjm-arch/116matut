@@ -325,6 +325,22 @@
   .footer-logo span { color: var(--mid); }
   .footer-copy { font-size: 12px; color: var(--muted); }
 
+  /* FONT SIZE */
+  html { font-size: 16px; transition: font-size 0.2s; }
+  html.fs-lg { font-size: 19px; }
+  html.fs-xl { font-size: 22px; }
+  .font-btns {
+    display: flex; align-items: center; gap: 4px; margin-left: 8px;
+  }
+  .font-btn {
+    width: 30px; height: 30px; border-radius: 6px; border: 1.5px solid var(--border);
+    background: var(--white); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: var(--muted); transition: all 0.2s;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px;
+  }
+  .font-btn:hover { border-color: var(--mid); color: var(--mid); }
+  .font-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
   @media (max-width: 768px) {
     /* NAV */
     nav { padding: 0 16px; height: 56px; }
@@ -396,10 +412,16 @@
   <a href="index.html" class="nav-logo">
     <span class="num">116</span><span class="lbl">畢籌會</span>
   </a>
-  <a href="index.html" class="nav-back">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-    返回公告列表
-  </a>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a href="index.html" class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      返回公告列表
+    </a>
+    <div class="font-btns">
+      <button class="font-btn" id="fs-sm" onclick="setFontSize('sm')" title="縮小字體">A-</button>
+      <button class="font-btn" id="fs-lg" onclick="setFontSize('lg')" title="放大字體">A+</button>
+    </div>
+  </div>
 </nav>
 
 <main class="main" id="main">
@@ -421,6 +443,15 @@
 <script>
 (function(){
   var LINE_URL = '#';
+  // 從 Firebase 讀 Line 連結
+  window.db.ref('settings/lineUrl').once('value').then(function(snap){
+    var url = snap.val();
+    if (url) {
+      LINE_URL = url;
+      var lb = document.getElementById('line-btn');
+      if (lb) lb.href = url;
+    }
+  });
   var lb = document.getElementById('line-btn');
   if (lb) lb.href = LINE_URL;
 
