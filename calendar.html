@@ -152,10 +152,8 @@
 
   function pad(n){ return (n+'').padStart(2,'0'); }
 
-  window.db.ref('settings/lineUrl').once('value').then(function(snap){
-    var url = snap.val();
-    if (url) { var lb=document.getElementById('line-btn'); if(lb) lb.href=url; }
-  });
+  var lb=document.getElementById('line-btn');
+  if(lb) lb.href='https://lin.ee/q9ZL8V2';
 
   window.db.ref('articles').once('value').then(function(snap){
     var val = snap.val();
