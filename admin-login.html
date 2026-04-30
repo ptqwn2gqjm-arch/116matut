@@ -145,6 +145,20 @@
     .right { padding: 40px 24px; align-items: flex-start; padding-top: 80px; }
   }
 </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+      authDomain: "bichoucui.firebaseapp.com",
+      databaseURL: "https://bichoucui-default-rtdb.firebaseio.com",
+      projectId: "bichoucui",
+      storageBucket: "bichoucui.firebasestorage.app",
+      messagingSenderId: "1035865429114",
+      appId: "1:1035865429114:web:c33daa36ffd04d736517c3"
+    });
+    window.db = firebase.database();
+  </script>
 </head>
 <body>
 
@@ -207,6 +221,12 @@
 
   var ADMIN_PW_KEY = '116_admin_pw';
   var DEFAULT_PW   = '116admin';
+
+  // 從 Firebase 同步最新密碼
+  window.db.ref('admin_config/pw').once('value').then(function(snap){
+    var fbPw = snap.val();
+    if (fbPw) localStorage.setItem(ADMIN_PW_KEY, fbPw);
+  });
 
   function getStoredPw() {
     return localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW;
