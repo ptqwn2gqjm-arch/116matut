@@ -811,6 +811,7 @@
     if (name === 'all-posts') loadAllPosts();
     if (name === 'drafts') loadDrafts();
     if (name === 'comments') loadCommentsAdmin();
+    if (name === 'calendar') loadCalendar();
     if (name === 'settings') loadSettings();
     if (name === 'new-post' && !editingId) resetForm();
   };
@@ -1216,7 +1217,7 @@
           +'<div class="comment-manage-article">'+c._articleTitle+'</div>'
           +'</div>'
           +'<div class="comment-manage-body">'+escHtml(c.body||'')+'</div>'
-          +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(''+c._articleId+'',''+c._cid+'')">'
+          +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(this.dataset.aid,this.dataset.cid)" data-aid="'+c._articleId+'" data-cid="'+c._cid+'">'
           +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
           +'刪除留言</button>'
           +'</div>';
@@ -1239,15 +1240,6 @@
   var calYear  = new Date().getFullYear();
   var calMonth = new Date().getMonth();
   var GROUPS   = ['行政組','場務組','公關組','美宣組','活動組','資訊組'];
-
-  function switchPage_orig(name, el){} // placeholder
-
-  window.switchPage = (function(origSwitch){
-    return function(name, el){
-      origSwitch(name, el);
-      if (name === 'calendar') loadCalendar();
-    };
-  })(window.switchPage);
 
   function loadCalendar(){
     loadArticlesFromFirebase(function(){
@@ -1299,7 +1291,7 @@
       var evHtml = events.slice(0,3).map(function(a){
         var gi = GROUPS.indexOf(a.group);
         var cls = gi >= 0 ? 'group-'+gi : 'no-group';
-        return '<span class="cal-event '+cls+'" onclick="event.stopPropagation();editPost(''+a.id+'')" title="'+a.title+'">'+a.title+'</span>';
+        return '<span class="cal-event '+cls+'" onclick="event.stopPropagation();editPost(this.dataset.id)" data-id="'+a.id+'" title="'+a.title+'">'+a.title+'</span>';
       }).join('');
       if (events.length > 3) evHtml += '<span style="font-size:10px;color:var(--muted)">+' +(events.length-3)+ ' 則</span>';
       var numHtml = isToday
