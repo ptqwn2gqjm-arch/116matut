@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>116 畢籌會</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep:   #0D3B5C;
+    --mid:    #1A6B9A;
+    --light:  #2E9BD4;
+    --pale:   #D6EAF8;
+    --bg:     #F4F8FB;
+    --white:  #FFFFFF;
+    --text:   #0D1F2D;
+    --muted:  #7B9BB3;
+    --border: #D0E4F0;
+    --pin:    #E8A020;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', sans-serif; overflow-x: hidden; }
+
+  /* INTRO PANELS */
+  .panel {
+    position: fixed; left: 0; right: 0; height: 50vh;
+    background: var(--deep); z-index: 1000; overflow: hidden;
+  }
+  #pt { top: 0; }
+  #pb { top: 50vh; }
+  .intro-logo {
+    position: absolute; left: 0; right: 0;
+    display: flex; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: clamp(100px, 22vw, 200px);
+    line-height: 1; color: white; white-space: nowrap;
+  }
+  #logo-top { bottom: 0; align-items: flex-end; }
+  #logo-bot { top: 0; align-items: flex-start; }
+  .d2 { color: rgba(255,255,255,0.4); -webkit-text-stroke: 2px rgba(255,255,255,0.7); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(244,248,251,0.95); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px; height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  nav.show { opacity: 1; }
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: 28px; text-decoration: none; color: var(--deep);
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .nav-logo .num { color: var(--mid); }
+  .nav-logo .lbl { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .nav-link {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 6px; text-decoration: none;
+    font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.2s;
+  }
+  .nav-link:hover { background: var(--pale); color: var(--deep); }
+  .nav-link svg { width: 15px; height: 15px; }
+
+  /* NAV SEARCH */
+  .nav-search {
+    flex: 1; max-width: 320px; position: relative;
+    display: flex; align-items: center; margin: 0 20px;
+  }
+  .nav-search input {
+    width: 100%; padding: 8px 16px 8px 36px;
+    border: 1.5px solid var(--border); border-radius: 20px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px;
+    outline: none; transition: all 0.2s; background: var(--pale);
+    color: var(--text);
+  }
+  .nav-search input:focus { border-color: var(--mid); background: white; }
+  .nav-search .s-icon {
+    position: absolute; left: 12px; width: 14px; height: 14px;
+    color: var(--muted); pointer-events: none;
+  }
+  .nav-search input:focus ~ .s-icon,
+  .nav-search:focus-within .s-icon { color: var(--mid); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; padding: 80px 60px 80px;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 70% 80% at 90% 50%, rgba(46,155,212,0.07) 0%, transparent 60%);
+  }
+  .hero-num-bg {
+    position: absolute; right: -20px; bottom: -20px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: clamp(180px, 28vw, 360px); line-height: 1;
+    color: rgba(13,59,92,0.04); pointer-events: none; user-select: none;
+  }
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--light); margin-bottom: 20px;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: clamp(56px, 9vw, 120px); line-height: 0.95;
+    letter-spacing: -0.02em; margin-bottom: 28px;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s;
+  }
+  .hero-title .solid   { color: var(--deep); }
+  .hero-title .outline { color: transparent; -webkit-text-stroke: 2px var(--mid); }
+  .hero-title .accent  { color: var(--light); }
+  .hero-desc {
+    font-size: 16px; color: var(--muted); line-height: 1.8;
+    max-width: 400px; margin-bottom: 44px; font-weight: 300;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--deep); color: white;
+    padding: 14px 32px; border-radius: 3px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px; font-weight: 700; letter-spacing: 0.1em;
+    text-decoration: none; align-self: flex-start;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s;
+  }
+  .hero-cta:hover { background: var(--mid); }
+  .hero-cta svg { width: 16px; height: 16px; }
+
+  /* revealed via JS */
+  .hero-eyebrow.show,
+  .hero-title.show,
+  .hero-desc.show,
+  .hero-cta.show { opacity: 1 !important; transform: translateY(0) !important; }
+
+  /* FILTERS */
+  .filters-bar {
+    padding: 0 60px 0; margin-bottom: 0;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--white); font-size: 12px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .filter-btn:hover { border-color: var(--mid); color: var(--mid); }
+  .filter-btn.active { background: var(--deep); border-color: var(--deep); color: white; }
+  .search-bar {
+    padding: 24px 60px 0;
+    position: relative; max-width: 500px;
+  }
+  .search-bar input {
+    width: 100%; padding: 12px 20px 12px 44px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 14px;
+    outline: none; transition: all 0.2s; background: var(--white); color: var(--text);
+  }
+  .search-bar input:focus { border-color: var(--mid); box-shadow: 0 0 0 3px rgba(26,107,154,0.08); }
+  .search-bar .s-icon {
+    position: absolute; left: 56px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+    margin-top: 12px;
+  }
+  .search-empty {
+    text-align: center; padding: 60px 40px;
+    background: var(--white); border: 1.5px dashed var(--border); border-radius: 10px;
+  }
+  .search-empty-icon { font-size: 32px; margin-bottom: 12px; }
+  .search-empty-text { font-size: 14px; color: var(--muted); }
+
+  /* PINNED BANNER */
+  .pinned-banner {
+    display: none; background: var(--pin);
+    padding: 13px 60px; align-items: center; gap: 12px;
+    font-size: 14px; font-weight: 500; color: white;
+    text-decoration: none;
+  }
+  .pinned-banner.show { display: flex; }
+  .pin-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+    background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 2px;
+  }
+  .pin-arrow { margin-left: auto; }
+  .pin-arrow svg { width: 16px; height: 16px; }
+
+  /* ANNOUNCEMENTS */
+  .announcements { padding: 80px 60px; }
+  .sec-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 40px; }
+  .sec-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 52px; }
+  .sec-title .accent { color: var(--mid); }
+  .sec-count { font-size: 13px; color: var(--muted); }
+
+  /* CARDS */
+  .cards-list { display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--white); border: 1.5px solid var(--border); border-radius: 10px;
+    overflow: hidden; display: flex; text-decoration: none; color: inherit; transition: all 0.22s;
+  }
+  .card:hover { border-color: var(--mid); transform: translateY(-3px); box-shadow: 0 10px 32px rgba(13,59,92,0.1); }
+  .card.pinned { border-color: var(--pin); }
+  .card-accent { width: 4px; flex-shrink: 0; background: var(--mid); }
+  .card.pinned .card-accent { background: var(--pin); }
+  .card-img { width: 110px; flex-shrink: 0; background: var(--pale); overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .card-body { padding: 20px 24px; flex: 1; min-width: 0; }
+  .card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .pin-badge {
+    display: none;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; color: var(--pin); background: #FEF3DC;
+    border: 1px solid #F4CC7A; border-radius: 3px; padding: 2px 7px; text-transform: uppercase;
+  }
+  .card.pinned .pin-badge { display: inline-block; }
+  .card-date { font-size: 12px; color: var(--muted); }
+  .card-title { font-size: 16px; font-weight: 700; line-height: 1.5; margin-bottom: 6px; }
+  .card-excerpt { font-size: 13px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+  .card-right {
+    padding: 20px 20px 20px 0;
+    display: flex; flex-direction: column; align-items: flex-end;
+    justify-content: space-between; flex-shrink: 0; gap: 10px;
+  }
+  .card-timer {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--mid); background: var(--pale); padding: 5px 10px; border-radius: 4px; white-space: nowrap;
+  }
+  .card-timer.urgent { color: #c0392b; background: #fdecea; }
+  .card-timer.done   { color: var(--muted); background: #f0f0f0; }
+  .card-arrow {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--pale); display: flex; align-items: center; justify-content: center;
+    color: var(--mid); transition: all 0.2s;
+  }
+  .card:hover .card-arrow { background: var(--mid); color: white; }
+  .card-arrow svg { width: 13px; height: 13px; }
+  .empty { text-align: center; padding: 80px 40px; background: var(--white); border: 1.5px dashed var(--border); border-radius: 10px; }
+  .empty-icon { font-size: 36px; margin-bottom: 14px; }
+  .empty-text { font-size: 14px; color: var(--muted); }
+
+  /* LINE FLOAT */
+  .line-float { position: fixed; bottom: 28px; right: 28px; z-index: 200; }
+  .line-btn {
+    width: 52px; height: 52px; border-radius: 50%; background: #06C755;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none; box-shadow: 0 4px 20px rgba(6,199,85,0.4); transition: transform 0.2s;
+  }
+  .line-btn:hover { transform: scale(1.08); }
+  .line-btn svg { width: 28px; height: 28px; fill: white; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 40px; padding: 28px 60px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; color: var(--deep); }
+  .footer-logo span { color: var(--mid); }
+  .footer-right { display: flex; align-items: center; gap: 20px; }
+  .footer-copy { font-size: 12px; color: var(--muted); }
+  .footer-admin { font-size: 11px; color: var(--border); text-decoration: none; transition: color 0.2s; }
+  .footer-admin:hover { color: var(--muted); }
+
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .hero { padding: 90px 24px 60px; }
+    .pinned-banner { padding: 13px 20px; }
+    .announcements { padding: 60px 24px; }
+    .card-img { display: none; }
+    footer { padding: 24px; flex-direction: column; gap: 10px; text-align: center; }
+  }
+</style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+      authDomain: "bichoucui.firebaseapp.com",
+      databaseURL: "https://bichoucui-default-rtdb.firebaseio.com",
+      projectId: "bichoucui",
+      storageBucket: "bichoucui.firebasestorage.app",
+      messagingSenderId: "1035865429114",
+      appId: "1:1035865429114:web:c33daa36ffd04d736517c3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+  </script>
+</head>
+<body>
+
+<div class="panel" id="pt">
+  <div class="intro-logo" id="logo-top">
+    <span id="d1t">1</span><span class="d2" id="d2t">1</span><span id="d3t">6</span>
+  </div>
+</div>
+<div class="panel" id="pb">
+  <div class="intro-logo" id="logo-bot">
+    <span id="d1b">1</span><span class="d2" id="d2b">1</span><span id="d3b">6</span>
+  </div>
+</div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <span class="num">116</span><span class="lbl">畢籌會</span>
+  </a>
+  <div class="nav-search">
+    <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="nav-search-input" placeholder="搜尋公告⋯" oninput="handleSearch(this.value)">
+  </div>
+  <a href="#announcements" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    最新消息
+  </a>
+</nav>
+
+<a class="pinned-banner" id="pinned-banner" href="#">
+  <span class="pin-label">置頂</span>
+  <span id="pinned-text"></span>
+  <span class="pin-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+</a>
+
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-num-bg">116</div>
+  <div class="hero-eyebrow" id="h-eyebrow">Class of 116 · 畢籌會</div>
+  <h1 class="hero-title" id="h-title">
+    <span class="solid">畢籌會</span><br>
+    <span class="outline">公告</span><br>
+    <span class="accent">一站看。</span>
+  </h1>
+  <p class="hero-desc" id="h-desc">活動通知、重要時程、表單連結，<br>所有畢籌相關資訊都在這裡。</p>
+  <a href="#announcements" class="hero-cta" id="h-cta">
+    查看最新公告
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+  </a>
+</section>
+
+<!-- SEARCH BAR -->
+<div class="search-bar" id="search-bar" style="display:none">
+  <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <input type="text" id="main-search-input" placeholder="搜尋標題、內文、日期⋯" oninput="handleSearch(this.value)">
+</div>
+
+<!-- FILTERS -->
+<div class="filters-bar reveal" id="filters-bar" style="margin-top:24px">
+  <button class="filter-btn active" onclick="setFilter('all', this)">全部</button>
+  <button class="filter-btn" onclick="setFilter('行政組', this)">行政組</button>
+  <button class="filter-btn" onclick="setFilter('場務組', this)">場務組</button>
+  <button class="filter-btn" onclick="setFilter('公關組', this)">公關組</button>
+  <button class="filter-btn" onclick="setFilter('美宣組', this)">美宣組</button>
+  <button class="filter-btn" onclick="setFilter('活動組', this)">活動組</button>
+  <button class="filter-btn" onclick="setFilter('資訊組', this)">資訊組</button>
+</div>
+
+<section class="announcements reveal" id="announcements">
+  <div class="sec-header">
+    <h2 class="sec-title">最新<span class="accent">消息</span></h2>
+    <span class="sec-count" id="sec-count"></span>
+  </div>
+  <div class="cards-list" id="cards-list">
+    <div class="empty"><div class="empty-icon">📭</div><div class="empty-text">目前還沒有公告。</div></div>
+  </div>
+</section>
+
+<div class="line-float">
+  <a href="#" class="line-btn" id="line-btn" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-logo"><span>116</span> 畢籌會</div>
+  <div class="footer-right">
+    <span class="footer-copy">© 2026 116級畢籌會</span>
+    <a href="admin-login.html" class="footer-admin">後台</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var LINE_URL = '#';
+  var pt   = document.getElementById('pt');
+  var pb   = document.getElementById('pb');
+  var tops = ['d1t','d2t','d3t'].map(function(id){ return document.getElementById(id); });
+  var bots = ['d1b','d2b','d3b'].map(function(id){ return document.getElementById(id); });
+  var all  = tops.concat(bots);
+
+  function showHero() {
+    document.body.style.overflow = '';
+    document.getElementById('nav').classList.add('show');
+    ['h-eyebrow','h-title','h-desc','h-cta'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.classList.add('show');
+    });
+    setupScrollReveal();
+    renderCards();
+  }
+
+  function runIntro() {
+    document.body.style.overflow = 'hidden';
+    tops.forEach(function(el){ el.style.transition='none'; el.style.transform='translateY(-150vh)'; });
+    bots.forEach(function(el){ el.style.transition='none'; el.style.transform='translateY(150vh)'; });
+
+    setTimeout(function(){
+      var e = 'transform 620ms cubic-bezier(0.16,1,0.3,1)';
+      tops.forEach(function(el){ el.style.transition=e; el.style.transform='translateY(0)'; });
+      bots.forEach(function(el){ el.style.transition=e; el.style.transform='translateY(0)'; });
+    }, 50);
+
+    setTimeout(function(){
+      all.forEach(function(el, i){
+        setTimeout(function(){
+          el.style.transition='transform 120ms ease';
+          el.style.transform='scale(1.06) translateY(-6px)';
+          setTimeout(function(){ el.style.transform='scale(1) translateY(0)'; }, 120);
+        }, i * 35);
+      });
+    }, 800);
+
+    setTimeout(function(){
+      pt.style.transition='transform 580ms cubic-bezier(0.76,0,0.24,1)';
+      pb.style.transition='transform 580ms cubic-bezier(0.76,0,0.24,1)';
+      pt.style.transform='translateY(-100%)';
+      pb.style.transform='translateY(100%)';
+    }, 1250);
+
+    setTimeout(function(){
+      pt.style.display='none';
+      pb.style.display='none';
+      showHero();
+    }, 1900);
+  }
+
+  if (sessionStorage.getItem('116_visited')) {
+    pt.style.display='none';
+    pb.style.display='none';
+    showHero();
+  } else {
+    sessionStorage.setItem('116_visited','1');
+    runIntro();
+  }
+
+  var allArticles = [];
+  var currentFilter = 'all';
+  var currentQuery  = '';
+
+  function renderCards() {
+    var list = document.getElementById('cards-list');
+    if (!list) return;
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">載入中⋯</div>';
+    window.db.ref('articles').once('value').then(function(snap){
+      var val = snap.val();
+      if (!val) { allArticles = []; }
+      else { allArticles = Object.values(val).sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); }); }
+
+    // pinned banner
+    var pinned0 = allArticles.find(function(a){ return a.pinned; });
+    if (pinned0) {
+      var banner = document.getElementById('pinned-banner');
+      var txt    = document.getElementById('pinned-text');
+      if (banner && txt) {
+        txt.textContent = pinned0.title;
+        banner.href = 'article.html?id=' + encodeURIComponent(pinned0.id);
+        banner.classList.add('show');
+      }
+    }
+
+      // show search bar if articles exist
+      if (allArticles.length) {
+        var sb = document.getElementById('search-bar');
+        if (sb) sb.style.display = '';
+      }
+      applyFilters();
+    }).catch(function(e){ 
+      list.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">載入失敗，請重新整理</div></div>';
+    });
+  }
+
+  function applyFilters() {
+    var list = document.getElementById('cards-list');
+    if (!list) return;
+
+    var q = currentQuery.toLowerCase().trim();
+    var filtered = allArticles.filter(function(a){
+      // group filter
+      if (currentFilter !== 'all' && a.group !== currentFilter) return false;
+      // search filter
+      if (q) {
+        var inTitle   = (a.title||'').toLowerCase().indexOf(q) >= 0;
+        var inContent = (a.content||'').replace(/<[^>]*>/g,'').toLowerCase().indexOf(q) >= 0;
+        var inDate    = fmtDate(a.createdAt).indexOf(q) >= 0;
+        if (!inTitle && !inContent && !inDate) return false;
+      }
+      return true;
+    });
+
+    // sort: pinned first, then by date
+    var pinned = filtered.filter(function(a){ return a.pinned; });
+    var rest   = filtered.filter(function(a){ return !a.pinned; });
+    var sorted = pinned.concat(rest);
+
+    var countEl = document.getElementById('sec-count');
+    if (countEl) {
+      if (q || currentFilter !== 'all') {
+        countEl.textContent = '找到 ' + sorted.length + ' 則';
+      } else {
+        countEl.textContent = sorted.length ? ('共 ' + sorted.length + ' 則') : '';
+      }
+    }
+
+    if (!sorted.length) {
+      list.innerHTML = q || currentFilter !== 'all'
+        ? '<div class="search-empty"><div class="search-empty-icon">🔍</div><div class="search-empty-text">找不到符合的公告</div></div>'
+        : '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">目前還沒有公告。</div></div>';
+      return;
+    }
+
+    list.innerHTML = sorted.map(function(a){
+      var excerpt = (a.content||'').replace(/<[^>]*>/g,'').slice(0,80);
+      var imgHtml = a.image ? '<div class="card-img"><img src="'+a.image+'" alt=""></div>' : '';
+      var timer   = a.eventTime ? timerHtml(a.eventTime) : '';
+      var groupBadge = a.group ? '<span style="font-size:11px;color:var(--light);background:rgba(46,155,212,0.1);border-radius:3px;padding:2px 7px;font-weight:600;">'+a.group+'</span>' : '';
+      return '<a class="card'+(a.pinned?' pinned':'')+'" href="article.html?id='+encodeURIComponent(a.id)+'">'
+        +'<div class="card-accent"></div>'
+        +imgHtml
+        +'<div class="card-body">'
+        +'<div class="card-meta"><span class="pin-badge">置頂</span>'+groupBadge+'<span class="card-date">'+fmtDate(a.createdAt)+'</span></div>'
+        +'<div class="card-title">'+highlight(a.title, q)+'</div>'
+        +(excerpt?'<div class="card-excerpt">'+highlight(excerpt+(excerpt.length>=80?'⋯':''), q)+'</div>':'')
+        +'</div>'
+        +'<div class="card-right">'+timer
+        +'<div class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>'
+        +'</div></a>';
+    }).join('');
+
+    startCountdowns();
+  }
+
+  function highlight(text, q) {
+    if (!q) return text;
+    var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<mark style="background:#FFF3CD;color:inherit;border-radius:2px;padding:0 2px;">$1</mark>');
+  }
+
+  window.handleSearch = function(val) {
+    currentQuery = val;
+    // sync both inputs
+    var ni = document.getElementById('nav-search-input');
+    var mi = document.getElementById('main-search-input');
+    if (ni && ni.value !== val) ni.value = val;
+    if (mi && mi.value !== val) mi.value = val;
+    applyFilters();
+  };
+
+  window.setFilter = function(group, btn) {
+    currentFilter = group;
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    applyFilters();
+  };
+
+  function fmtDate(iso){
+    if(!iso) return '';
+    var d=new Date(iso);
+    return d.getFullYear()+'/'+(d.getMonth()+1+'').padStart(2,'0')+'/'+(d.getDate()+'').padStart(2,'0');
+  }
+
+  function timerHtml(t){
+    var diff=new Date(t)-Date.now();
+    if(diff<0) return '<div class="card-timer done">已結束</div>';
+    if(diff>30*86400000) return '<div class="card-timer">'+fmtDate(t)+'</div>';
+    return '<div class="card-timer" data-event="'+t+'">計算中</div>';
+  }
+
+  function startCountdowns(){
+    function pad(n){ return (n+'').padStart(2,'0'); }
+    function tick(){
+      document.querySelectorAll('[data-event]').forEach(function(el){
+        var diff=new Date(el.dataset.event)-Date.now();
+        if(diff<=0){ el.textContent='已結束'; el.className='card-timer done'; return; }
+        var d=Math.floor(diff/86400000);
+        var h=Math.floor((diff%86400000)/3600000);
+        var m=Math.floor((diff%3600000)/60000);
+        var s=Math.floor((diff%60000)/1000);
+        el.textContent=d>0?(d+'天 '+pad(h)+':'+pad(m)+':'+pad(s)):(pad(h)+':'+pad(m)+':'+pad(s));
+        el.className=diff<86400000?'card-timer urgent':'card-timer';
+      });
+    }
+    tick(); setInterval(tick,1000);
+  }
+
+  function setupScrollReveal(){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('in'); });
+    },{threshold:0.05});
+    document.querySelectorAll('.reveal').forEach(function(el){ obs.observe(el); });
+  }
+
+  var lb=document.getElementById('line-btn');
+  if(lb) lb.href=LINE_URL;
+})();
+</script>
+</body>
+</html>

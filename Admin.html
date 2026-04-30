@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>後台管理 · 116 畢籌會</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep:   #0D3B5C;
+    --mid:    #1A6B9A;
+    --light:  #2E9BD4;
+    --pale:   #D6EAF8;
+    --bg:     #F4F8FB;
+    --white:  #FFFFFF;
+    --text:   #0D1F2D;
+    --muted:  #7B9BB3;
+    --border: #D0E4F0;
+    --red:    #e74c3c;
+    --green:  #27ae60;
+    --orange: #e67e22;
+    --pin:    #E8A020;
+    --sidebar-w: 230px;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+    background: var(--deep); display: flex; flex-direction: column; z-index: 50;
+  }
+  .sidebar-logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: 26px; color: white; display: flex; align-items: baseline; gap: 6px;
+  }
+  .sidebar-logo .lbl { font-size: 12px; font-weight: 500; opacity: 0.45; }
+  .sidebar-nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+  .nav-section {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); padding: 16px 24px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 24px; color: rgba(255,255,255,0.65);
+    cursor: pointer; transition: all 0.2s; font-size: 14px; font-weight: 500;
+    border-left: 3px solid transparent; user-select: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+  .nav-item.active { background: rgba(255,255,255,0.12); color: white; border-left-color: var(--light); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer {
+    padding: 16px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-item.danger { color: rgba(231,76,60,0.7); }
+  .nav-item.danger:hover { background: rgba(231,76,60,0.1); color: #e74c3c; }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); padding: 40px; min-height: 100vh; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-header { margin-bottom: 32px; }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: 40px; letter-spacing: -0.01em; color: var(--deep); margin-bottom: 4px;
+  }
+  .page-title span { color: var(--mid); }
+  .page-sub { font-size: 13px; color: var(--muted); }
+
+  /* CARD */
+  .card { background: var(--white); border-radius: 10px; padding: 28px 32px; margin-bottom: 24px; border: 1px solid var(--border); }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+    font-size: 18px; letter-spacing: 0.02em; margin-bottom: 20px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* FORM */
+  .form-row { margin-bottom: 18px; }
+  .form-row label {
+    display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+  }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 6px;
+    padding: 11px 14px; font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; outline: none; transition: border-color 0.2s;
+    background: white; color: var(--text);
+  }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color: var(--mid); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .form-hint { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+  /* TOGGLE */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .toggle-label { font-size: 14px; font-weight: 500; }
+  .toggle-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    position: relative; width: 44px; height: 24px; flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0; background: var(--border);
+    border-radius: 24px; cursor: pointer; transition: all 0.25s;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute; width: 18px; height: 18px;
+    left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.25s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--mid); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* RICH EDITOR */
+  .editor-toolbar {
+    display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+    padding: 8px 10px; background: var(--bg);
+    border: 1.5px solid var(--border); border-bottom: none; border-radius: 6px 6px 0 0;
+  }
+  .tool-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 28px; border: none; background: transparent;
+    border-radius: 4px; cursor: pointer; color: var(--text); transition: background 0.15s;
+    font-size: 13px; font-weight: 700;
+  }
+  .tool-btn:hover { background: white; }
+  .tool-btn svg { width: 14px; height: 14px; }
+  .tool-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+  .rich-editor {
+    width: 100%; min-height: 200px;
+    border: 1.5px solid var(--border); border-radius: 0 0 6px 6px;
+    padding: 14px 16px; font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; line-height: 1.9; outline: none;
+    color: var(--text); background: white; overflow-y: auto;
+  }
+  .rich-editor:focus { border-color: var(--mid); }
+  .rich-editor[data-placeholder]:empty::before { content: attr(data-placeholder); color: #bbb; pointer-events: none; }
+  .rich-editor img { max-width: 100%; border-radius: 6px; margin: 6px 0; display: block; }
+  .word-count { font-size: 11px; color: var(--muted); text-align: right; margin-top: 5px; }
+
+  /* IMAGE UPLOAD */
+  .img-upload {
+    width: 100%; aspect-ratio: 16/6; border: 2px dashed var(--border);
+    border-radius: 8px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer;
+    transition: border-color 0.2s; position: relative; overflow: hidden; background: var(--bg);
+  }
+  .img-upload:hover { border-color: var(--mid); }
+  .img-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .img-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .img-hint { font-size: 13px; color: var(--muted); text-align: center; pointer-events: none; z-index: 1; }
+  .img-hint svg { width: 28px; height: 28px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
+  .img-clear {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    background: rgba(0,0,0,0.55); color: white; border: none;
+    border-radius: 4px; padding: 4px 10px; font-size: 12px;
+    cursor: pointer; display: none;
+  }
+
+  /* BTNS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 0.08em; transition: all 0.2s; text-decoration: none; white-space: nowrap;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--deep); color: white; }
+  .btn-primary:hover { background: var(--mid); }
+  .btn-success { background: var(--green); color: white; }
+  .btn-success:hover { opacity: 0.88; }
+  .btn-danger  { background: var(--red); color: white; }
+  .btn-danger:hover { opacity: 0.88; }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--mid); color: var(--mid); }
+  .btn-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* ARTICLE LIST */
+  .article-list { display: flex; flex-direction: column; gap: 12px; }
+  .article-item {
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px; transition: border-color 0.2s;
+  }
+  .article-item:hover { border-color: var(--mid); }
+  .article-item.pinned { border-color: var(--pin); }
+  .article-item-accent { width: 3px; height: 40px; border-radius: 2px; background: var(--mid); flex-shrink: 0; }
+  .article-item.pinned .article-item-accent { background: var(--pin); }
+  .article-item-info { flex: 1; min-width: 0; }
+  .article-item-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .article-item-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .group-tag {
+    font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 3px;
+    background: rgba(46,155,212,0.1); color: var(--light);
+  }
+  .pin-tag {
+    font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 3px;
+    background: #FEF3DC; color: var(--pin); letter-spacing: 0.08em;
+  }
+  .article-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 6px; border: 1.5px solid var(--border);
+    background: transparent; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: var(--muted); transition: all 0.2s;
+  }
+  .icon-btn:hover { border-color: var(--mid); color: var(--mid); }
+  .icon-btn.del:hover { border-color: var(--red); color: var(--red); }
+  .icon-btn svg { width: 14px; height: 14px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .stat-card-num {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+    font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: var(--deep);
+    margin-bottom: 4px;
+  }
+  .stat-card-label { font-size: 12px; color: var(--muted); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--deep); color: white; padding: 12px 24px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 999;
+    pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); }
+
+  /* CONFIRM MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white; border-radius: 12px; padding: 32px;
+    max-width: 380px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .modal-body { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.7; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* SETTINGS */
+  .settings-section { margin-bottom: 32px; }
+  .settings-section-title {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+    font-size: 18px; color: var(--deep); margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+
+  /* EMPTY */
+  .list-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+  .list-empty-icon { font-size: 32px; margin-bottom: 12px; }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 200px; }
+    .main { margin-left: 200px; padding: 28px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+      authDomain: "bichoucui.firebaseapp.com",
+      databaseURL: "https://bichoucui-default-rtdb.firebaseio.com",
+      projectId: "bichoucui",
+      storageBucket: "bichoucui.firebasestorage.app",
+      messagingSenderId: "1035865429114",
+      appId: "1:1035865429114:web:c33daa36ffd04d736517c3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+  </script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">116 <span class="lbl">後台</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">管理</div>
+    <div class="nav-item active" onclick="switchPage('dashboard', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      總覽
+    </div>
+    <div class="nav-item" onclick="switchPage('new-post', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新增公告
+    </div>
+    <div class="nav-item" onclick="switchPage('all-posts', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      所有公告
+    </div>
+    <div class="nav-section">設定</div>
+    <div class="nav-item" onclick="switchPage('settings', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      設定
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="nav-item" onclick="window.open('index.html','_blank')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      查看前台
+    </div>
+    <div class="nav-item danger" onclick="doLogout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      登出
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div class="page-title">總覽<span>.</span></div>
+      <div class="page-sub">歡迎回來，管理員</div>
+    </div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-card-num" id="stat-total">0</div><div class="stat-card-label">則公告</div></div>
+      <div class="stat-card"><div class="stat-card-num" id="stat-pinned">0</div><div class="stat-card-label">則置頂</div></div>
+      <div class="stat-card"><div class="stat-card-num" id="stat-upcoming">0</div><div class="stat-card-label">個活動倒數中</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">最近公告</div>
+      <div id="recent-list" class="article-list"></div>
+    </div>
+  </div>
+
+  <!-- NEW POST -->
+  <div class="page" id="page-new-post">
+    <div class="page-header">
+      <div class="page-title" id="form-page-title">新增<span>公告</span></div>
+      <div class="page-sub" id="form-page-sub">填寫以下欄位後發布</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">基本資訊</div>
+      <div class="form-row">
+        <label>標題 *</label>
+        <input type="text" id="f-title" placeholder="公告標題">
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>所屬組別</label>
+          <select id="f-group">
+            <option value="">不分組</option>
+            <option value="行政組">行政組</option>
+            <option value="場務組">場務組</option>
+            <option value="公關組">公關組</option>
+            <option value="美宣組">美宣組</option>
+            <option value="活動組">活動組</option>
+            <option value="資訊組">資訊組</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>活動時間（選填）</label>
+          <input type="datetime-local" id="f-eventtime">
+          <div class="form-hint">填了會在公告內頁顯示倒數計時器</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">封面圖片（選填）</div>
+      <div class="img-upload" id="img-upload" onclick="document.getElementById('f-img').click()">
+        <input type="file" id="f-img" accept="image/*" style="display:none" onchange="handleImg(this)">
+        <div class="img-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          點擊上傳圖片
+        </div>
+        <button class="img-clear" id="img-clear" onclick="clearImg(event)">移除</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">內文</div>
+      <div class="editor-toolbar">
+        <button class="tool-btn" onclick="fmt('bold')" title="粗體"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg></button>
+        <button class="tool-btn" onclick="fmt('italic')" title="斜體"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
+        <button class="tool-btn" onclick="fmt('underline')" title="底線"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg></button>
+        <div class="tool-divider"></div>
+        <button class="tool-btn" onclick="fmt('insertUnorderedList')" title="列表"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+        <button class="tool-btn" onclick="fmt('insertOrderedList')" title="編號列表"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
+        <div class="tool-divider"></div>
+        <button class="tool-btn" onclick="insertLink()" title="連結"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+        <button class="tool-btn" onclick="insertEditorImg()" title="插入圖片"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+      </div>
+      <div class="rich-editor" id="f-content" contenteditable="true"
+        data-placeholder="公告內文⋯" oninput="updateWordCount()"></div>
+      <div class="word-count" id="word-count">0 字</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">表單（選填）</div>
+      <div class="form-row">
+        <label>表單連結</label>
+        <input type="url" id="f-form-url" placeholder="https://forms.google.com/...">
+        <div class="form-hint">前台會顯示「開啟表單」按鈕</div>
+      </div>
+      <div class="form-row">
+        <label>嵌入表單網址（iframe src）</label>
+        <input type="url" id="f-form-embed" placeholder="https://forms.google.com/.../viewform?embedded=true">
+        <div class="form-hint">前台會直接嵌入表單，同學可以直接填</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">發布設定</div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">置頂此公告</div>
+          <div class="toggle-sub">置頂的公告會固定在列表最上方</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="f-pinned"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <div class="btn-actions">
+      <button class="btn btn-primary" onclick="savePost()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="save-btn-text">發布公告</span>
+      </button>
+      <button class="btn btn-ghost" onclick="cancelEdit()">取消</button>
+    </div>
+  </div>
+
+  <!-- ALL POSTS -->
+  <div class="page" id="page-all-posts">
+    <div class="page-header">
+      <div class="page-title">所有<span>公告</span></div>
+      <div class="page-sub" id="all-posts-count"></div>
+    </div>
+    <div class="card" style="padding:20px 24px">
+      <div id="all-posts-list" class="article-list"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div class="page-title">設定<span>.</span></div>
+      <div class="page-sub">管理後台設定</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Line 客服連結</div>
+      <div class="form-row">
+        <label>Line 官方帳號連結</label>
+        <input type="url" id="s-line-url" placeholder="https://line.me/R/ti/p/@...">
+        <div class="form-hint">填入後前台右下角的 Line 按鈕會連到這裡</div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSetting('line')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        儲存
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">更改後台密碼</div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>新密碼</label>
+          <input type="password" id="s-new-pw" placeholder="輸入新密碼">
+        </div>
+        <div class="form-row">
+          <label>確認新密碼</label>
+          <input type="password" id="s-confirm-pw" placeholder="再次輸入新密碼">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSetting('pw')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        更新密碼
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--red)">危險區域</div>
+      <div class="settings-section">
+        <div style="font-size:14px;color:var(--muted);margin-bottom:16px">刪除所有公告，此操作無法還原。</div>
+        <button class="btn btn-danger" onclick="confirmDeleteAll()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          清空所有公告
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">確認刪除</div>
+    <div class="modal-body" id="modal-body">這個操作無法還原，確定要繼續嗎？</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" id="modal-confirm-btn">確認刪除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ── 權限檢查 ── */
+  if (!sessionStorage.getItem('116_admin')) {
+    location.href = 'admin-login.html';
+    return;
+  }
+
+  var SETTINGS_KEY = '116_settings';
+  var ADMIN_PW_KEY = '116_admin_pw';
+  var DEFAULT_PW   = '116admin';
+  var editingId    = null;
+  var coverBase64  = null;
+  var cachedArticles = [];
+
+  /* ── Firebase helpers ── */
+  function getSettings(){ try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}'); } catch(e){ return {}; } }
+  function saveSettings(obj){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(obj)); }
+
+  function getArticles(){ return cachedArticles; }
+
+  function saveArticles(arr, cb){
+    cachedArticles = arr;
+    // Convert array to object keyed by id for Firebase
+    var obj = {};
+    arr.forEach(function(a){ obj[a.id] = a; });
+    window.db.ref('articles').set(obj).then(function(){ if(cb) cb(); }).catch(function(e){ showToast('儲存失敗: '+e.message, true); });
+  }
+
+  function loadArticlesFromFirebase(cb){
+    window.db.ref('articles').once('value').then(function(snap){
+      var val = snap.val();
+      if (!val) { cachedArticles = []; } 
+      else { cachedArticles = Object.values(val).sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); }); }
+      if(cb) cb();
+    }).catch(function(e){ showToast('載入失敗: '+e.message, true); if(cb) cb(); });
+  }
+
+  /* ── 頁面切換 ── */
+  window.switchPage = function(name, el) {
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+    var page = document.getElementById('page-'+name);
+    if (page) page.classList.add('active');
+    if (el) el.classList.add('active');
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'all-posts') loadAllPosts();
+    if (name === 'settings') loadSettings();
+    if (name === 'new-post' && !editingId) resetForm();
+  };
+
+  /* ── DASHBOARD ── */
+  function loadDashboard(){
+    loadArticlesFromFirebase(function(){
+    var articles = getArticles();
+    var now = Date.now();
+    document.getElementById('stat-total').textContent   = articles.length;
+    document.getElementById('stat-pinned').textContent  = articles.filter(function(a){ return a.pinned; }).length;
+    document.getElementById('stat-upcoming').textContent= articles.filter(function(a){ return a.eventTime && new Date(a.eventTime) > now; }).length;
+
+    var list = document.getElementById('recent-list');
+    var recent = articles.slice(0, 5);
+    if (!recent.length) {
+      list.innerHTML = '<div class="list-empty"><div class="list-empty-icon">📭</div>還沒有公告</div>';
+      return;
+    }
+    list.innerHTML = recent.map(function(a){ return articleItemHtml(a); }).join('');
+    }); // end loadArticlesFromFirebase
+  }
+
+  /* ── ALL POSTS ── */
+  function loadAllPosts(){
+    loadArticlesFromFirebase(function(){
+    var articles = getArticles();
+    var countEl = document.getElementById('all-posts-count');
+    if (countEl) countEl.textContent = '共 ' + articles.length + ' 則';
+    var list = document.getElementById('all-posts-list');
+    if (!articles.length) {
+      list.innerHTML = '<div class="list-empty"><div class="list-empty-icon">📭</div>還沒有公告</div>';
+      return;
+    }
+    var pinned = articles.filter(function(a){ return a.pinned; });
+    var rest   = articles.filter(function(a){ return !a.pinned; });
+    list.innerHTML = pinned.concat(rest).map(function(a){ return articleItemHtml(a); }).join('');
+    }); // end loadArticlesFromFirebase
+  }
+
+  function articleItemHtml(a){
+    var groupBadge = a.group ? '<span class="group-tag">'+a.group+'</span>' : '';
+    var pinBadge   = a.pinned ? '<span class="pin-tag">置頂</span>' : '';
+    return '<div class="article-item'+(a.pinned?' pinned':'') +'" id="item-'+a.id+'">'
+      +'<div class="article-item-accent"></div>'
+      +'<div class="article-item-info">'
+      +'<div class="article-item-title">'+a.title+'</div>'
+      +'<div class="article-item-meta">'+pinBadge+groupBadge+'<span>'+fmtDate(a.createdAt)+'</span></div>'
+      +'</div>'
+      +'<div class="article-item-actions">'
+      +'<button class="icon-btn" onclick="editPost(\''+a.id+'\')" title="編輯"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+      +'<button class="icon-btn del" onclick="confirmDelete(\''+a.id+'\')" title="刪除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>'
+      +'</div>'
+      +'</div>';
+  }
+
+  /* ── FORM ── */
+  function resetForm(){
+    editingId = null; coverBase64 = null;
+    document.getElementById('form-page-title').innerHTML = '新增<span>公告</span>';
+    document.getElementById('form-page-sub').textContent = '填寫以下欄位後發布';
+    document.getElementById('save-btn-text').textContent = '發布公告';
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-group').value = '';
+    document.getElementById('f-eventtime').value = '';
+    document.getElementById('f-content').innerHTML = '';
+    document.getElementById('f-pinned').checked = false;
+    document.getElementById('f-form-url').value = '';
+    document.getElementById('f-form-embed').value = '';
+    clearImgUI();
+    updateWordCount();
+  }
+
+  window.editPost = function(id){
+    var articles = getArticles();
+    var a = articles.find(function(x){ return String(x.id) === String(id); });
+    if (!a) return;
+    editingId = id;
+    coverBase64 = a.image || null;
+
+    document.getElementById('form-page-title').innerHTML = '編輯<span>公告</span>';
+    document.getElementById('form-page-sub').textContent = 'ID: ' + id;
+    document.getElementById('save-btn-text').textContent = '儲存變更';
+    document.getElementById('f-title').value     = a.title || '';
+    document.getElementById('f-group').value     = a.group || '';
+    document.getElementById('f-eventtime').value = a.eventTime ? a.eventTime.slice(0,16) : '';
+    document.getElementById('f-content').innerHTML = a.content || '';
+    document.getElementById('f-pinned').checked  = !!a.pinned;
+    document.getElementById('f-form-url').value   = a.formUrl || '';
+    document.getElementById('f-form-embed').value = a.formEmbed || '';
+
+    if (a.image) {
+      var up = document.getElementById('img-upload');
+      var clr = document.getElementById('img-clear');
+      var existing = up.querySelector('img');
+      if (existing) existing.remove();
+      var img = document.createElement('img');
+      img.src = a.image;
+      up.appendChild(img);
+      if (clr) clr.style.display = 'block';
+    } else {
+      clearImgUI();
+    }
+
+    updateWordCount();
+    switchPage('new-post', document.querySelector('.nav-item:nth-child(2)'));
+  };
+
+  window.savePost = function(){
+    var title = (document.getElementById('f-title').value || '').trim();
+    if (!title) { showToast('請填寫標題', true); document.getElementById('f-title').focus(); return; }
+
+    var articles = getArticles();
+    var now = new Date().toISOString();
+
+    var articleData = {
+      title:     title,
+      group:     document.getElementById('f-group').value,
+      eventTime: document.getElementById('f-eventtime').value || null,
+      content:   document.getElementById('f-content').innerHTML,
+      pinned:    document.getElementById('f-pinned').checked,
+      formUrl:   document.getElementById('f-form-url').value || null,
+      formEmbed: document.getElementById('f-form-embed').value || null,
+      image:     coverBase64 || null,
+      updatedAt: now,
+    };
+
+    if (editingId) {
+      articleData.id = editingId;
+      // keep original createdAt
+      var existing = cachedArticles.find(function(a){ return String(a.id) === String(editingId); });
+      articleData.createdAt = existing ? existing.createdAt : now;
+      window.db.ref('articles/'+editingId).update(articleData).then(function(){
+        showToast('公告已更新 ✓');
+        editingId = null;
+        switchPage('all-posts', document.querySelectorAll('.nav-item')[2]);
+        loadAllPosts();
+      }).catch(function(e){ showToast('更新失敗: '+e.message, true); });
+    } else {
+      var newId = Date.now();
+      articleData.id = newId;
+      articleData.createdAt = now;
+      window.db.ref('articles/'+newId).set(articleData).then(function(){
+        showToast('公告已發布 ✓');
+        editingId = null;
+        switchPage('all-posts', document.querySelectorAll('.nav-item')[2]);
+        loadAllPosts();
+      }).catch(function(e){ showToast('發布失敗: '+e.message, true); });
+    }
+  };
+
+  window.cancelEdit = function(){
+    editingId = null;
+    switchPage('all-posts', document.querySelectorAll('.nav-item')[2]);
+  };
+
+  /* ── IMAGE ── */
+  window.handleImg = function(input){
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      coverBase64 = e.target.result;
+      var up = document.getElementById('img-upload');
+      var clr = document.getElementById('img-clear');
+      var existing = up.querySelector('img');
+      if (existing) existing.remove();
+      var img = document.createElement('img');
+      img.src = coverBase64;
+      up.appendChild(img);
+      var hint = up.querySelector('.img-hint');
+      if (hint) hint.style.display = 'none';
+      if (clr) clr.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.clearImg = function(e){
+    e.stopPropagation();
+    coverBase64 = null;
+    clearImgUI();
+  };
+
+  function clearImgUI(){
+    var up = document.getElementById('img-upload');
+    var clr = document.getElementById('img-clear');
+    var existing = up.querySelector('img');
+    if (existing) existing.remove();
+    var hint = up.querySelector('.img-hint');
+    if (hint) hint.style.display = '';
+    if (clr) clr.style.display = 'none';
+    var fi = document.getElementById('f-img');
+    if (fi) fi.value = '';
+  }
+
+  /* ── EDITOR ── */
+  window.fmt = function(cmd){ document.execCommand(cmd, false, null); document.getElementById('f-content').focus(); };
+  window.insertLink = function(){
+    var url = prompt('輸入連結網址：');
+    if (url) { document.execCommand('createLink', false, url); document.getElementById('f-content').focus(); }
+  };
+  window.insertEditorImg = function(){
+    var url = prompt('輸入圖片網址：');
+    if (url) { document.execCommand('insertImage', false, url); document.getElementById('f-content').focus(); }
+  };
+  window.updateWordCount = function(){
+    var el = document.getElementById('f-content');
+    var wc = document.getElementById('word-count');
+    if (el && wc) { var t = el.innerText || ''; wc.textContent = t.trim().length + ' 字'; }
+  };
+
+  /* ── DELETE ── */
+  window.confirmDelete = function(id){
+    showModal('確認刪除', '刪除後無法還原，確定要刪除這則公告嗎？', function(){
+      window.db.ref('articles/'+id).remove().then(function(){
+        loadAllPosts(); loadDashboard();
+        showToast('已刪除');
+      }).catch(function(e){ showToast('刪除失敗: '+e.message, true); });
+    });
+  };
+
+  window.confirmDeleteAll = function(){
+    showModal('清空所有公告', '這會刪除全部 '+getArticles().length+' 則公告，此操作無法還原！', function(){
+      window.db.ref('articles').remove().then(function(){
+        cachedArticles = [];
+        loadAllPosts(); loadDashboard();
+        showToast('已清空所有公告');
+      }).catch(function(e){ showToast('清空失敗: '+e.message, true); });
+    });
+  };
+
+  /* ── SETTINGS ── */
+  function loadSettings(){
+    var s = getSettings();
+    var lineInput = document.getElementById('s-line-url');
+    if (lineInput) lineInput.value = s.lineUrl || '';
+  }
+
+  window.saveSetting = function(type){
+    var s = getSettings();
+    if (type === 'line') {
+      s.lineUrl = (document.getElementById('s-line-url').value || '').trim();
+      saveSettings(s);
+      showToast('Line 連結已儲存 ✓');
+    } else if (type === 'pw') {
+      var np = document.getElementById('s-new-pw').value;
+      var cp = document.getElementById('s-confirm-pw').value;
+      if (!np) { showToast('請輸入新密碼', true); return; }
+      if (np !== cp) { showToast('兩次密碼不一致', true); return; }
+      if (np.length < 4) { showToast('密碼至少需要 4 個字元', true); return; }
+      localStorage.setItem(ADMIN_PW_KEY, np);
+      document.getElementById('s-new-pw').value = '';
+      document.getElementById('s-confirm-pw').value = '';
+      showToast('密碼已更新 ✓');
+    }
+  };
+
+  /* ── LOGOUT ── */
+  window.doLogout = function(){
+    sessionStorage.removeItem('116_admin');
+    location.href = 'admin-login.html';
+  };
+
+  /* ── MODAL ── */
+  var modalCallback = null;
+  function showModal(title, body, cb){
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').textContent  = body;
+    modalCallback = cb;
+    document.getElementById('modal').classList.add('show');
+    document.getElementById('modal-confirm-btn').onclick = function(){
+      closeModal();
+      if (modalCallback) modalCallback();
+    };
+  }
+  window.closeModal = function(){ document.getElementById('modal').classList.remove('show'); };
+
+  /* ── TOAST ── */
+  var toastTimer;
+  function showToast(msg, isError){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '') + ' show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+  }
+
+  /* ── UTILS ── */
+  function fmtDate(iso){
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.getFullYear()+'/'+(d.getMonth()+1+'').padStart(2,'0')+'/'+(d.getDate()+'').padStart(2,'0');
+  }
+
+  /* ── INIT ── */
+  loadDashboard();
+  loadSettings();
+
+})();
+</script>
+</body>
+</html>
