@@ -392,6 +392,7 @@
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
@@ -404,6 +405,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
+    window.auth = firebase.auth();
+    window.googleProvider = new firebase.auth.GoogleAuthProvider();
   </script>
 </head>
 <body>
@@ -442,16 +445,8 @@
 
 <script>
 (function(){
-  var LINE_URL = '#';
-  // 從 Firebase 讀 Line 連結
-  window.db.ref('settings/lineUrl').once('value').then(function(snap){
-    var url = snap.val();
-    if (url) {
-      LINE_URL = url;
-      var lb = document.getElementById('line-btn');
-      if (lb) lb.href = url;
-    }
-  });
+  var LINE_URL = 'https://lin.ee/q9ZL8V2';
+
   var lb = document.getElementById('line-btn');
   if (lb) lb.href = LINE_URL;
 
@@ -648,10 +643,16 @@
     var btn   = document.getElementById('submit-btn');
     var body  = (input ? input.value : '').trim();
     if (!body) return;
-    var user = getUser();
+    var user = window.auth.currentUser;
     if (!user) return;
     btn.disabled = true;
-    var newComment = { name: user.name, email: user.email, photo: user.photo||null, body: body, createdAt: new Date().toISOString() };
+    var newComment = {
+      name:      user.displayName || user.email,
+      email:     user.email,
+      photo:     user.photoURL || null,
+      body:      body,
+      createdAt: new Date().toISOString()
+    };
     window.db.ref(commentsKey).push(newComment).then(function(){
       input.value = '';
       btn.disabled = false;
@@ -659,43 +660,41 @@
     }).catch(function(e){ btn.disabled = false; alert('留言失敗，請再試一次'); });
   }
 
-  /* ── Google 登入（模擬，之後接 Firebase Auth） ── */
-  function getUser(){
-    try { return JSON.parse(localStorage.getItem('116_user') || 'null'); } catch(e){ return null; }
-  }
-  function setUser(u){ localStorage.setItem('116_user', JSON.stringify(u)); }
-  function clearUser(){ localStorage.removeItem('116_user'); }
-
-  function updateAuthUI(){
-    var user = getUser();
-    var prompt = document.getElementById('login-prompt');
-    var form   = document.getElementById('comment-form');
-    var nameEl = document.getElementById('user-name');
-    var emailEl= document.getElementById('user-email');
-    var avEl   = document.getElementById('user-avatar');
-    if (!prompt || !form) return;
+  /* ── Firebase Auth ── */
+  function updateAuthUI(user){
+    var promptEl = document.getElementById('login-prompt');
+    var form     = document.getElementById('comment-form');
+    var nameEl   = document.getElementById('user-name');
+    var emailEl  = document.getElementById('user-email');
+    var avEl     = document.getElementById('user-avatar');
+    if (!promptEl || !form) return;
     if (user) {
-      prompt.style.display = 'none';
+      promptEl.style.display = 'none';
       form.classList.add('show');
-      if (nameEl)  nameEl.textContent  = user.name;
+      if (nameEl)  nameEl.textContent  = user.displayName || user.email;
       if (emailEl) emailEl.textContent = user.email;
-      if (avEl) avEl.innerHTML = user.photo ? '<img src="'+user.photo+'" alt="">' : user.name.charAt(0).toUpperCase();
+      if (avEl) avEl.innerHTML = user.photoURL
+        ? '<img src="'+user.photoURL+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : (user.displayName||'?').charAt(0).toUpperCase();
     } else {
-      prompt.style.display = '';
+      promptEl.style.display = '';
       form.classList.remove('show');
     }
   }
-  updateAuthUI();
+
+  window.auth.onAuthStateChanged(function(user){
+    updateAuthUI(user);
+    renderComments();
+  });
 
   window.signInGoogle = function(){
-    // 暫時用 prompt 模擬，之後換 Firebase Auth
-    var name = prompt('請輸入你的名字（之後會改成真正的 Google 登入）');
-    if (!name) return;
-    setUser({ name: name, email: name+'@school.edu', photo: null });
-    updateAuthUI();
+    window.auth.signInWithPopup(window.googleProvider).catch(function(e){
+      alert('登入失敗：' + e.message);
+    });
   };
+
   window.signOut = function(){
-    clearUser(); updateAuthUI();
+    window.auth.signOut();
   };
   window.postComment = postComment;
 
