@@ -315,12 +315,11 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
     var daysInPrev=new Date(calYear,calMonth,0).getDate();
     var today=new Date(); today.setHours(0,0,0,0);
 
-    // Build cell date array (42 cells)
+    // Build cell date array (42 cells = 6 rows x 7 cols)
     var cells=[];
     for(var i=startDow-1;i>=0;i--) cells.push({d:new Date(calYear,calMonth-1,daysInPrev-i),other:true});
     for(var d=1;d<=daysInMonth;d++) cells.push({d:new Date(calYear,calMonth,d),other:false});
-    var rem=42-cells.length;
-    for(var n=1;n<=rem;n++) cells.push({d:new Date(calYear,calMonth+1,n),other:true});
+    while(cells.length<42) cells.push({d:new Date(calYear,calMonth+1,cells.length-startDow-daysInMonth+1),other:true});
 
     // Map events to date ranges
     var eventMap={}; // dateKey -> [{article,color,spanInfo}]
