@@ -23,12 +23,9 @@
 :root{
   --deep:#0D3B5C;--mid:#1A6B9A;--light:#2E9BD4;--pale:#D6EAF8;
   --bg:#F4F8FB;--white:#fff;--text:#0D1F2D;--muted:#7B9BB3;--border:#D0E4F0;
-  --g0:#1A6B9A;--g1:#27ae60;--g2:#e67e22;--g3:#8e44ad;--g4:#e74c3c;--g5:#2980b9;--gx:#7B9BB3;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;overflow-x:hidden;}
-
-/* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,248,251,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;text-decoration:none;color:var(--deep);display:flex;align-items:baseline;gap:5px;}
 .nav-logo .num{color:var(--mid);}
@@ -36,79 +33,64 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,248,251,
 .nav-back{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;}
 .nav-back:hover{background:var(--pale);color:var(--deep);}
 .nav-back svg{width:14px;height:14px;}
-
-/* MAIN */
-.main{max-width:960px;margin:0 auto;padding:80px 24px 80px;}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-.page-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:48px;letter-spacing:-.01em;color:var(--deep);}
+.main{max-width:980px;margin:0 auto;padding:80px 24px 80px;}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:48px;letter-spacing:-.01em;color:var(--deep);margin-bottom:24px;}
 .page-title span{color:var(--mid);}
 
-/* CALENDAR WRAP */
+/* CALENDAR */
 .cal-wrap{background:white;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:32px;}
 .cal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);}
-.cal-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--deep);letter-spacing:-.01em;}
+.cal-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--deep);}
 .cal-nav-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .2s;}
 .cal-nav-btn:hover{border-color:var(--mid);color:var(--mid);}
 .cal-nav-btn svg{width:16px;height:16px;}
 .cal-today-btn{padding:7px 14px;border-radius:6px;border:1.5px solid var(--border);background:white;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;}
 .cal-today-btn:hover{border-color:var(--mid);color:var(--mid);}
-.cal-header-right{display:flex;align-items:center;gap:8px;}
 
-/* GRID */
-.cal-grid-wrap{overflow-x:auto;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));min-width:560px;}
+/* DOW HEADER */
+.cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--border);}
 .cal-dow{padding:10px 8px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg);}
-.cal-dow:first-child{border-left:none;}
-.cal-cell{
-  min-height:110px;padding:8px 6px 6px;
-  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
-  position:relative;cursor:pointer;transition:background .15s;vertical-align:top;
-}
-.cal-cell:hover{background:rgba(214,234,248,.3);}
+
+/* WEEK ROW - key: position relative for absolute event blocks */
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);position:relative;border-left:1px solid var(--border);}
+.cal-cell{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px 4px 4px;cursor:pointer;transition:background .15s;min-height:90px;position:relative;}
+.cal-cell:hover{background:rgba(214,234,248,.25);}
 .cal-cell.other-month{background:#fafbfc;}
 .cal-cell.today{background:rgba(26,107,154,.04);}
-.cal-cell.selected{background:rgba(214,234,248,.5);}
-.cal-num{
-  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;
-  color:var(--text);display:inline-flex;align-items:center;justify-content:center;
-  width:24px;height:24px;border-radius:50%;margin-bottom:4px;
-}
+.cal-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--text);display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;}
 .cal-cell.today .cal-num{background:var(--deep);color:white;}
 .cal-cell.other-month .cal-num{color:var(--border);}
 
-/* EVENT BLOCKS (desktop spanning) */
-.cal-events{position:relative;min-height:4px;}
-.cal-event-block{
-  display:block;font-size:11px;font-weight:600;
-  padding:3px 7px;border-radius:4px;margin-bottom:3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  cursor:pointer;text-decoration:none;color:white;
-  transition:opacity .15s;line-height:1.4;
+/* EVENT BLOCK - absolutely positioned within .cal-week */
+.cal-event{
+  position:absolute;height:20px;
+  display:flex;align-items:center;
+  padding:0 6px;overflow:hidden;
+  font-size:11px;font-weight:600;color:white;
+  text-decoration:none;white-space:nowrap;
+  cursor:pointer;z-index:2;
+  transition:opacity .15s;
 }
-.cal-event-block:hover{opacity:.85;}
-.cal-event-block.continues-right{border-radius:4px 0 0 4px;margin-right:-1px;}
-.cal-event-block.continues-left{border-radius:0 4px 4px 0;padding-left:4px;}
-.cal-event-block.continues-both{border-radius:0;margin-right:-1px;padding-left:4px;}
-.cal-event-block.single-day{}
+.cal-event:hover{opacity:.82;}
+.cal-event.ev-start{border-radius:4px 0 0 4px;}
+.cal-event.ev-end{border-radius:0 4px 4px 0;}
+.cal-event.ev-both{border-radius:4px;}
+.cal-event.ev-mid{border-radius:0;}
 
-/* DOT (mobile) */
-.cal-dots{display:none;gap:3px;flex-wrap:wrap;margin-top:3px;}
+/* DOTS (mobile only) */
+.cal-dots{display:none;gap:3px;flex-wrap:wrap;margin-top:4px;}
 .cal-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 
 /* LEGEND */
 .cal-legend{display:flex;gap:14px;flex-wrap:wrap;padding:14px 24px;border-top:1px solid var(--border);}
-.cal-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text);}
+.cal-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;}
 .cal-legend-dot{width:12px;height:12px;border-radius:3px;}
 
 /* UPCOMING */
 .upcoming-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;color:var(--deep);margin-bottom:18px;}
 .upcoming-title span{color:var(--mid);}
 .upcoming-list{display:flex;flex-direction:column;gap:12px;}
-.upcoming-item{
-  background:white;border:1.5px solid var(--border);border-radius:10px;
-  padding:16px 20px;display:flex;align-items:center;gap:16px;
-  text-decoration:none;color:inherit;transition:all .2s;
-}
+.upcoming-item{background:white;border:1.5px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;transition:all .2s;}
 .upcoming-item:hover{border-color:var(--mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,59,92,.08);}
 .upcoming-date-box{width:52px;flex-shrink:0;text-align:center;border-radius:8px;padding:8px 4px;}
 .upcoming-date-month{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
@@ -117,37 +99,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,248,251,
 .upcoming-item-title{font-size:15px;font-weight:700;margin-bottom:4px;}
 .upcoming-item-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap;}
 .upcoming-group{font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(46,155,212,.1);color:var(--light);}
-.upcoming-countdown{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--mid);white-space:nowrap;flex-shrink:0;}
-.upcoming-countdown.done{color:var(--muted);font-size:13px;}
-.upcoming-countdown.urgent{color:#e74c3c;}
+.upcoming-cd{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--mid);white-space:nowrap;flex-shrink:0;}
+.upcoming-cd.done{color:var(--muted);font-size:13px;}
+.upcoming-cd.urgent{color:#e74c3c;}
 
-/* BOTTOM SHEET (mobile) */
-.sheet-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);
-  z-index:400;opacity:0;transition:opacity .3s;
-}
+/* BOTTOM SHEET */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;opacity:0;transition:opacity .3s;}
 .sheet-overlay.show{display:block;}
 .sheet-overlay.visible{opacity:1;}
-.bottom-sheet{
-  position:fixed;bottom:0;left:0;right:0;z-index:401;
-  background:white;border-radius:20px 20px 0 0;
-  max-height:75vh;display:flex;flex-direction:column;
-  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
-  box-shadow:0 -8px 40px rgba(0,0,0,.15);
-}
+.bottom-sheet{position:fixed;bottom:0;left:0;right:0;z-index:401;background:white;border-radius:20px 20px 0 0;max-height:75vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);box-shadow:0 -8px 40px rgba(0,0,0,.15);}
 .bottom-sheet.show{transform:translateY(0);}
 .sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
-.sheet-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);}
+.sheet-header{padding:14px 20px 12px;border-bottom:1px solid var(--border);position:relative;}
 .sheet-date{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--deep);}
 .sheet-subtitle{font-size:12px;color:var(--muted);margin-top:2px;}
-.sheet-close{position:absolute;top:14px;right:16px;width:28px;height:28px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.sheet-close{position:absolute;top:12px;right:16px;width:28px;height:28px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);}
 .sheet-close svg{width:14px;height:14px;}
-.sheet-body{overflow-y:auto;padding:12px 0 20px;flex:1;}
-.sheet-event{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 20px;text-decoration:none;color:var(--text);
-  transition:background .15s;border-bottom:1px solid var(--border);
-}
+.sheet-body{overflow-y:auto;flex:1;padding-bottom:16px;}
+.sheet-event{display:flex;align-items:center;gap:12px;padding:14px 20px;text-decoration:none;color:var(--text);transition:background .15s;border-bottom:1px solid var(--border);}
 .sheet-event:last-child{border-bottom:none;}
 .sheet-event:hover{background:var(--bg);}
 .sheet-event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
@@ -155,45 +124,33 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,248,251,
 .sheet-event-title{font-size:15px;font-weight:600;margin-bottom:3px;}
 .sheet-event-meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
 .sheet-event-group{font-size:11px;font-weight:600;color:var(--light);background:rgba(46,155,212,.1);padding:1px 7px;border-radius:10px;}
-.sheet-event-progress{width:100%;height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden;}
-.sheet-event-progress-fill{height:100%;border-radius:2px;}
-.sheet-event-arrow{color:var(--muted);}
-.sheet-event-arrow svg{width:16px;height:16px;}
-.sheet-empty{text-align:center;padding:32px 20px;color:var(--muted);font-size:14px;}
+.sheet-progress{width:100%;height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden;}
+.sheet-progress-fill{height:100%;border-radius:2px;}
+.sheet-arrow svg{width:16px;height:16px;color:var(--muted);}
+.sheet-empty{text-align:center;padding:32px;color:var(--muted);font-size:14px;}
 
-/* LINE FLOAT */
 .line-float{position:fixed;bottom:32px;right:20px;z-index:200;}
 .line-btn{width:48px;height:48px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 16px rgba(6,199,85,.4);transition:transform .2s;}
 .line-btn:hover{transform:scale(1.08);}
 .line-btn svg{width:26px;height:26px;fill:white;}
-
 footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--deep);}
 .footer-logo span{color:var(--mid);}
 .footer-copy{font-size:12px;color:var(--muted);}
 
-/* MOBILE */
 @media(max-width:768px){
   nav{padding:0 16px;height:54px;}
   .nav-logo{font-size:22px;}
   .nav-logo .lbl{display:none;}
   .nav-back span{display:none;}
-  .nav-back{padding:6px 10px;}
   .main{padding:70px 14px 80px;}
   .page-title{font-size:36px;}
-  .cal-wrap{border-radius:12px;}
   .cal-header{padding:14px 16px;}
-  .cal-title{font-size:22px;}
-  .cal-cell{min-height:52px;padding:5px 3px 3px;cursor:pointer;}
-  .cal-cell:active{background:rgba(214,234,248,.6);}
-  .cal-num{font-size:13px;width:22px;height:22px;}
-  /* Hide event blocks on mobile, show dots */
-  .cal-event-block{display:none;}
+  .cal-cell{min-height:52px;padding:5px 3px 3px;}
+  /* Hide event blocks on mobile */
+  .cal-event{display:none!important;}
   .cal-dots{display:flex;}
-  .cal-legend{padding:12px 16px;gap:10px;}
-  .upcoming-item{padding:14px 16px;gap:12px;}
-  .upcoming-date-box{width:44px;}
-  .upcoming-date-day{font-size:24px;}
+  .cal-legend{padding:12px 16px;}
   footer{padding:20px 16px;flex-direction:column;gap:8px;text-align:center;}
   .line-float{bottom:24px;right:14px;}
 }
@@ -203,7 +160,6 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
 </style>
 </head>
 <body>
-
 <nav>
   <a href="index.html" class="nav-logo"><span class="num">116</span><span class="lbl">畢籌會</span></a>
   <a href="index.html" class="nav-back">
@@ -213,10 +169,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
 </nav>
 
 <div class="main">
-  <div class="page-header">
-    <h1 class="page-title">活動<span>日曆</span></h1>
-  </div>
-
+  <h1 class="page-title">活動<span>日曆</span></h1>
   <div class="cal-wrap">
     <div class="cal-header">
       <button class="cal-nav-btn" onclick="calMove(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -226,9 +179,8 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
       </div>
       <button class="cal-nav-btn" onclick="calMove(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
-    <div class="cal-grid-wrap">
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
+    <div class="cal-dow-row" id="cal-dow-row"></div>
+    <div id="cal-body"></div>
     <div class="cal-legend" id="cal-legend"></div>
   </div>
 
@@ -238,16 +190,13 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
   </div>
 </div>
 
-<!-- BOTTOM SHEET (mobile) -->
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
 <div class="bottom-sheet" id="bottom-sheet">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <div class="sheet-date" id="sheet-date"></div>
     <div class="sheet-subtitle" id="sheet-subtitle"></div>
-    <button class="sheet-close" onclick="closeSheet()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+    <button class="sheet-close" onclick="closeSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="sheet-body" id="sheet-body"></div>
 </div>
@@ -265,133 +214,204 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
 
 <script>
 (function(){
-  var GROUPS=['行政組','場務組','公關組','美宣組','活動組','資訊組'];
-  var COLORS=['#1A6B9A','#27ae60','#e67e22','#8e44ad','#e74c3c','#2980b9'];
   var MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   var MONTHS_EN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  var DOW_SHORT=['日','一','二','三','四','五','六'];
+  var DOWS=['日','一','二','三','四','五','六'];
+  var COLORS=['#1A6B9A','#27ae60','#e67e22','#8e44ad','#e74c3c','#2980b9','#16a085'];
+  var TRACK_H=22; // px height per track
+  var TRACK_GAP=3; // px gap between tracks
+  var CELL_TOP=30; // px reserved for date number
 
   var calYear=new Date().getFullYear();
   var calMonth=new Date().getMonth();
   var articles=[];
-  var isMobile=window.innerWidth<=768;
+  var groups=[];
+  var isMobile=function(){return window.innerWidth<=768;};
 
-  window.addEventListener('resize',function(){isMobile=window.innerWidth<=768;});
-
-  // Load groups and articles
-  window.db.ref('settings/groups').once('value').then(function(snap){
-    var g=snap.val(); if(g&&Array.isArray(g)) GROUPS=g;
+  // Load data
+  window.db.ref('settings/groups').once('value').then(function(s){
+    var g=s.val(); if(g&&Array.isArray(g)) groups=g;
   });
-
-  window.db.ref('articles').once('value').then(function(snap){
-    var val=snap.val();
+  window.db.ref('articles').once('value').then(function(s){
+    var val=s.val();
     articles=val?Object.values(val).filter(function(a){return !a.draft&&a.eventTime;}):[];
     renderCalendar();
     renderUpcoming();
   });
 
-  /* ── CALENDAR ── */
-  function getEventColor(group){
-    var idx=GROUPS.indexOf(group);
-    return idx>=0?COLORS[idx%COLORS.length]:'#7B9BB3';
+  function getColor(group){
+    var idx=groups.indexOf(group);
+    return idx>=0?COLORS[idx%COLORS.length]:COLORS[COLORS.length-1];
   }
 
-  function dateKey(d){
+  function dk(d){
     return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
   }
+  function pad(n){return(n+'').padStart(2,'0');}
 
+  // ── CALENDAR ──
   function renderCalendar(){
-    var titleEl=document.getElementById('cal-title');
-    var gridEl=document.getElementById('cal-grid');
-    if(!titleEl||!gridEl) return;
-    titleEl.textContent=calYear+' · '+MONTHS[calMonth];
+    document.getElementById('cal-title').textContent=calYear+' · '+MONTHS[calMonth];
 
-    // Build header
-    var html=DOW_SHORT.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join('');
+    // DOW header
+    var dowRow=document.getElementById('cal-dow-row');
+    dowRow.innerHTML=DOWS.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join('');
 
+    // Build 42-cell grid
     var first=new Date(calYear,calMonth,1);
     var startDow=first.getDay();
     var daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-    var daysInPrev=new Date(calYear,calMonth,0).getDate();
     var today=new Date(); today.setHours(0,0,0,0);
 
-    // Build cell date array (42 cells = 6 rows x 7 cols)
     var cells=[];
-    for(var i=startDow-1;i>=0;i--) cells.push({d:new Date(calYear,calMonth-1,daysInPrev-i),other:true});
-    for(var d=1;d<=daysInMonth;d++) cells.push({d:new Date(calYear,calMonth,d),other:false});
-    while(cells.length<42) cells.push({d:new Date(calYear,calMonth+1,cells.length-startDow-daysInMonth+1),other:true});
+    for(var i=startDow-1;i>=0;i--){
+      var prev=new Date(calYear,calMonth,0);
+      cells.push(new Date(calYear,calMonth-1,prev.getDate()-i));
+    }
+    for(var d=1;d<=daysInMonth;d++) cells.push(new Date(calYear,calMonth,d));
+    while(cells.length<42) cells.push(new Date(calYear,calMonth+1,cells.length-startDow-daysInMonth+1));
 
-    // Map events to date ranges
-    var eventMap={}; // dateKey -> [{article,color,spanInfo}]
+    // Assign global tracks to articles (no overlaps)
+    var trackSlots=[]; // trackSlots[t] = last endD in that track
+    var articleMeta=[]; // {article, startD, endD, color, track}
+
     articles.forEach(function(a){
       var startD=a.eventStart?new Date(a.eventStart):new Date(a.eventTime);
       var endD=new Date(a.eventTime);
       startD.setHours(0,0,0,0); endD.setHours(0,0,0,0);
-      var color=getEventColor(a.group);
-      // For each day in range
-      var cur=new Date(startD);
-      while(cur<=endD){
-        var k=dateKey(cur);
-        if(!eventMap[k]) eventMap[k]=[];
-        eventMap[k].push({
-          article:a,color:color,
-          isStart:cur.getTime()===startD.getTime(),
-          isEnd:cur.getTime()===endD.getTime(),
-          startD:startD,endD:endD
+      var color=getColor(a.group);
+      // Find first free track
+      var t=0;
+      while(t<trackSlots.length && trackSlots[t]>=startD.getTime()) t++;
+      trackSlots[t]=endD.getTime();
+      articleMeta.push({article:a,startD:startD,endD:endD,color:color,track:t});
+    });
+
+    var totalTracks=trackSlots.length;
+    var cellMinH=CELL_TOP+(totalTracks*(TRACK_H+TRACK_GAP))+8;
+
+    // Build 6 week rows
+    var body=document.getElementById('cal-body');
+    body.innerHTML='';
+
+    for(var row=0;row<6;row++){
+      var weekDiv=document.createElement('div');
+      weekDiv.className='cal-week';
+      weekDiv.style.minHeight=cellMinH+'px';
+      weekDiv.style.position='relative';
+
+      var weekCells=cells.slice(row*7,(row+1)*7);
+      var weekStart=weekCells[0];
+      var weekEnd=weekCells[6];
+
+      // Create cell divs
+      weekCells.forEach(function(cellDate){
+        var cellDiv=document.createElement('div');
+        var isOther=cellDate.getMonth()!==calMonth;
+        var isToday=cellDate.getTime()===today.getTime();
+        cellDiv.className='cal-cell'+(isOther?' other-month':'')+(isToday?' today':'');
+        cellDiv.style.minHeight=cellMinH+'px';
+
+        // Date number
+        var numSpan=document.createElement('span');
+        numSpan.className='cal-num';
+        numSpan.textContent=cellDate.getDate();
+        cellDiv.appendChild(numSpan);
+
+        // Mobile dots
+        var dotsDiv=document.createElement('div');
+        dotsDiv.className='cal-dots';
+        var seen={};
+        var cellTime=cellDate.getTime();
+        articleMeta.forEach(function(m){
+          if(cellTime>=m.startD.getTime()&&cellTime<=m.endD.getTime()&&!seen[m.color]){
+            seen[m.color]=true;
+            var dot=document.createElement('div');
+            dot.className='cal-dot';
+            dot.style.background=m.color;
+            dotsDiv.appendChild(dot);
+          }
         });
-        cur=new Date(cur.getTime()+86400000);
-      }
-    });
+        cellDiv.appendChild(dotsDiv);
 
-    // Render cells
-    cells.forEach(function(cell,i){
-      var k=dateKey(cell.d);
-      var isToday=cell.d.getTime()===today.getTime();
-      var evs=eventMap[k]||[];
+        // Click handler for mobile sheet
+        (function(cd){
+          cellDiv.addEventListener('click',function(){
+            if(!isMobile()) return;
+            var cdTime=cd.getTime();
+          var evs=articleMeta.filter(function(m){return cdTime>=m.startD.getTime()&&cdTime<=m.endD.getTime();});
+            openSheet(cd,evs);
+          });
+        })(new Date(cellDate));
 
-      var numHtml='<span class="cal-num">'+cell.d.getDate()+'</span>';
+        weekDiv.appendChild(cellDiv);
+      });
 
-      // Desktop: event blocks with spanning
-      var desktopEvents=evs.map(function(ev){
-        var cls='cal-event-block';
-        if(!ev.isStart&&!ev.isEnd) cls+=' continues-both';
-        else if(!ev.isStart) cls+=' continues-left';
-        else if(!ev.isEnd) cls+=' continues-right';
-        else cls+=' single-day';
-        var label=ev.isStart?ev.article.title:'';
-        return '<a class="'+cls+'" href="article.html?id='+encodeURIComponent(ev.article.id)+'"'
-          +' style="background:'+ev.color+'" title="'+ev.article.title+'">'+label+'</a>';
-      }).join('');
+      // Add event blocks as absolutely positioned elements
+      articleMeta.forEach(function(m){
+        // Check if this event appears in this week
+        if(m.endD.getTime()<weekStart.getTime()||m.startD.getTime()>weekEnd.getTime()) return;
 
-      // Mobile: colored dots
-      var uniqueColors=[]; var seen={};
-      evs.forEach(function(ev){if(!seen[ev.color]){seen[ev.color]=true;uniqueColors.push(ev.color);}});
-      var dotsHtml=uniqueColors.map(function(c){return '<div class="cal-dot" style="background:'+c+'"></div>';}).join('');
+        // Clamp to week
+        var visStart=m.startD.getTime()<weekStart.getTime()?weekStart:m.startD;
+        var visEnd=m.endD.getTime()>weekEnd.getTime()?weekEnd:m.endD;
 
-      var cellCls='cal-cell'+(cell.other?' other-month':'')+(isToday?' today':'');
-      html+='<div class="'+cellCls+'" onclick="cellClick(this,\''+k+'\')" data-key="'+k+'">'
-        +numHtml
-        +'<div class="cal-events">'+desktopEvents+'</div>'
-        +'<div class="cal-dots">'+dotsHtml+'</div>'
-        +'</div>';
-    });
+        // Find column indices
+        var startCol=-1,endCol=-1;
+        weekCells.forEach(function(wc,ci){
+          if(wc.getTime()===visStart.getTime()) startCol=ci;
+          if(wc.getTime()===visEnd.getTime()) endCol=ci;
+        });
+        // If startCol still -1, try matching by date string
+        if(startCol<0||endCol<0){
+          weekCells.forEach(function(wc,ci){
+            var wdk=wc.getFullYear()+'-'+pad(wc.getMonth()+1)+'-'+pad(wc.getDate());
+            var vsk=visStart.getFullYear()+'-'+pad(visStart.getMonth()+1)+'-'+pad(visStart.getDate());
+            var vek=visEnd.getFullYear()+'-'+pad(visEnd.getMonth()+1)+'-'+pad(visEnd.getDate());
+            if(wdk===vsk) startCol=ci;
+            if(wdk===vek) endCol=ci;
+          });
+        }
+        if(startCol<0||endCol<0) return;
 
-    gridEl.innerHTML=html;
-    renderLegend();
-  }
+        var colSpan=endCol-startCol+1;
+        var isRealStart=m.startD.getTime()===visStart.getTime()||m.startD.getTime()<=weekStart.getTime();
+        var isRealEnd=m.endD.getTime()===visEnd.getTime()||m.endD.getTime()>=weekEnd.getTime();
+        isRealStart=m.startD.getTime()>=weekStart.getTime();
+        isRealEnd=m.endD.getTime()<=weekEnd.getTime();
 
-  function renderLegend(){
-    var legendEl=document.getElementById('cal-legend'); if(!legendEl) return;
+        var top=CELL_TOP+(m.track*(TRACK_H+TRACK_GAP));
+        var leftPct=(startCol/7)*100;
+        var widthPct=(colSpan/7)*100;
+        var PAD=2;
+
+        var ev=document.createElement('a');
+        ev.href='article.html?id='+encodeURIComponent(m.article.id);
+        ev.className='cal-event'+(isRealStart&&isRealEnd?' ev-both':isRealStart?' ev-start':isRealEnd?' ev-end':' ev-mid');
+        ev.title=m.article.title;
+        ev.style.top=top+'px';
+        ev.style.left='calc('+leftPct+'% + '+(isRealStart?PAD:0)+'px)';
+        ev.style.width='calc('+widthPct+'% - '+(isRealStart?PAD:0)+'px - '+(isRealEnd?PAD:0)+'px)';
+        ev.style.height=TRACK_H+'px';
+        ev.style.background=m.color;
+        ev.textContent=isRealStart?m.article.title:'';
+        ev.addEventListener('click',function(e){e.stopPropagation();});
+
+        weekDiv.appendChild(ev);
+      });
+
+      body.appendChild(weekDiv);
+    }
+
+    // Legend
     var usedGroups=[];
-    articles.forEach(function(a){if(a.group&&usedGroups.indexOf(a.group)<0) usedGroups.push(a.group);});
+    articleMeta.forEach(function(m){if(m.article.group&&usedGroups.indexOf(m.article.group)<0) usedGroups.push(m.article.group);});
+    var legendEl=document.getElementById('cal-legend');
     legendEl.innerHTML=usedGroups.map(function(g){
-      var color=getEventColor(g);
-      return '<div class="cal-legend-item">'
-        +'<div class="cal-legend-dot" style="background:'+color+'"></div>'
-        +'<span>'+g+'</span>'
-        +'</div>';
+      var c=getColor(g);
+      return '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+c+'"></div><span>'+g+'</span></div>';
     }).join('');
-    if(!usedGroups.length) legendEl.style.display='none';
+    legendEl.style.display=usedGroups.length?'':'none';
   }
 
   window.calMove=function(dir){
@@ -400,72 +420,49 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
     if(calMonth<0){calMonth=11;calYear--;}
     renderCalendar();
   };
-
   window.goToday=function(){
     calYear=new Date().getFullYear();
     calMonth=new Date().getMonth();
     renderCalendar();
   };
 
-  /* ── CELL CLICK ── */
-  window.cellClick=function(el,dateKey){
-    if(!isMobile) return;
-    // Find events for this date
-    var evs=articles.filter(function(a){
-      var startD=a.eventStart?new Date(a.eventStart):new Date(a.eventTime);
-      var endD=new Date(a.eventTime);
-      startD.setHours(0,0,0,0); endD.setHours(0,0,0,0);
-      var cellD=new Date(dateKey);
-      return cellD>=startD&&cellD<=endD;
-    });
-    openSheet(dateKey,evs);
-    // Mark selected
-    document.querySelectorAll('.cal-cell.selected').forEach(function(c){c.classList.remove('selected');});
-    el.classList.add('selected');
-  };
-
-  /* ── BOTTOM SHEET ── */
-  function openSheet(key,evs){
-    var overlay=document.getElementById('sheet-overlay');
-    var sheet=document.getElementById('bottom-sheet');
-    var dateEl=document.getElementById('sheet-date');
-    var subEl=document.getElementById('sheet-subtitle');
-    var bodyEl=document.getElementById('sheet-body');
-
-    var d=new Date(key);
+  // ── BOTTOM SHEET ──
+  function openSheet(date,evs){
     var dows=['日','一','二','三','四','五','六'];
-    dateEl.textContent=(d.getMonth()+1)+'月'+d.getDate()+'日（'+dows[d.getDay()]+'）';
-    subEl.textContent=evs.length?evs.length+' 個活動':'沒有活動';
-
+    document.getElementById('sheet-date').textContent=(date.getMonth()+1)+'月'+date.getDate()+'日（'+dows[date.getDay()]+'）';
+    document.getElementById('sheet-subtitle').textContent=evs.length?evs.length+' 個活動':'沒有活動';
+    var body=document.getElementById('sheet-body');
     if(!evs.length){
-      bodyEl.innerHTML='<div class="sheet-empty">這天沒有安排活動</div>';
+      body.innerHTML='<div class="sheet-empty">這天沒有安排活動</div>';
     } else {
-      bodyEl.innerHTML=evs.map(function(a){
-        var color=getEventColor(a.group);
+      body.innerHTML=evs.map(function(m){
+        var a=m.article;
         var now=Date.now();
         var end=new Date(a.eventTime).getTime();
-        var start=a.eventStart?new Date(a.eventStart).getTime():null;
         var diff=end-now;
         var isDone=diff<=0;
+        var status=isDone?'已結束':(diff<86400000?'即將截止':'進行中');
         var pct=0;
-        if(!isDone&&start){var total=end-start;var elapsed=now-start;pct=Math.min(100,Math.max(0,Math.round(elapsed/total*100)));}
-        var statusText=isDone?'已結束':(diff<86400000?'即將截止':'進行中');
+        if(!isDone&&a.eventStart){
+          var start=new Date(a.eventStart).getTime();
+          pct=Math.min(100,Math.max(0,Math.round((now-start)/(end-start)*100)));
+        }
         return '<a class="sheet-event" href="article.html?id='+encodeURIComponent(a.id)+'">'
-          +'<div class="sheet-event-dot" style="background:'+color+'"></div>'
+          +'<div class="sheet-event-dot" style="background:'+m.color+'"></div>'
           +'<div class="sheet-event-info">'
           +'<div class="sheet-event-title">'+a.title+'</div>'
           +'<div class="sheet-event-meta">'
           +(a.group?'<span class="sheet-event-group">'+a.group+'</span>':'')
-          +'<span>'+statusText+'</span>'
-          +(a.eventStart?'<span>'+fmtDate(a.eventStart)+' → '+fmtDate(a.eventTime)+'</span>':'<span>截止 '+fmtDate(a.eventTime)+'</span>')
+          +'<span>'+status+'</span>'
           +'</div>'
-          +(start&&!isDone?'<div class="sheet-event-progress"><div class="sheet-event-progress-fill" style="width:'+pct+'%;background:'+color+'"></div></div>':'')
+          +(!isDone&&a.eventStart?'<div class="sheet-progress"><div class="sheet-progress-fill" style="width:'+pct+'%;background:'+m.color+'"></div></div>':'')
           +'</div>'
-          +'<div class="sheet-event-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>'
+          +'<div class="sheet-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>'
           +'</a>';
       }).join('');
     }
-
+    var overlay=document.getElementById('sheet-overlay');
+    var sheet=document.getElementById('bottom-sheet');
     overlay.style.display='block';
     sheet.style.display='flex';
     sheet.style.flexDirection='column';
@@ -484,7 +481,6 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
     var sheet=document.getElementById('bottom-sheet');
     overlay.classList.remove('visible');
     sheet.classList.remove('show');
-    document.querySelectorAll('.cal-cell.selected').forEach(function(c){c.classList.remove('selected');});
     setTimeout(function(){
       overlay.classList.remove('show');
       overlay.style.display='none';
@@ -493,37 +489,29 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
     },350);
   };
 
-  // Swipe down to close sheet
-  (function(){
-    var startY=0,dragging=false;
-    document.addEventListener('touchstart',function(e){
-      var sheet=document.getElementById('bottom-sheet');
-      if(sheet&&sheet.classList.contains('show')&&sheet.contains(e.target)){
-        startY=e.touches[0].clientY; dragging=true;
-      }
-    },{passive:true});
-    document.addEventListener('touchmove',function(e){
-      if(!dragging) return;
-      var dy=e.touches[0].clientY-startY;
-      if(dy>80) {dragging=false; window.closeSheet();}
-    },{passive:true});
-    document.addEventListener('touchend',function(){dragging=false;},{passive:true});
-  })();
+  // Swipe down to close
+  var startY=0,dragging=false;
+  document.addEventListener('touchstart',function(e){
+    var sheet=document.getElementById('bottom-sheet');
+    if(sheet&&sheet.classList.contains('show')&&sheet.contains(e.target)){startY=e.touches[0].clientY;dragging=true;}
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!dragging) return;
+    if(e.touches[0].clientY-startY>80){dragging=false;window.closeSheet();}
+  },{passive:true});
+  document.addEventListener('touchend',function(){dragging=false;},{passive:true});
 
-  /* ── UPCOMING ── */
+  // ── UPCOMING ──
   function renderUpcoming(){
-    var list=document.getElementById('upcoming-list'); if(!list) return;
-    var upcoming=articles.slice().sort(function(a,b){return new Date(a.eventTime)-new Date(b.eventTime);});
-    if(!upcoming.length){
-      list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">目前沒有安排活動</div>';
-      return;
-    }
-    function renderItems(){
+    var list=document.getElementById('upcoming-list');
+    var sorted=articles.slice().sort(function(a,b){return new Date(a.eventTime)-new Date(b.eventTime);});
+    if(!sorted.length){list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">目前沒有安排活動</div>';return;}
+    function render(){
       var now=Date.now();
-      list.innerHTML=upcoming.map(function(a){
+      list.innerHTML=sorted.map(function(a){
         var ev=new Date(a.eventTime);
         var diff=ev-now;
-        var color=getEventColor(a.group);
+        var color=getColor(a.group);
         var cdText,cdCls;
         if(diff<0){cdText='已結束';cdCls='done';}
         else if(diff<3600000){cdText=Math.ceil(diff/60000)+' 分後';cdCls='urgent';}
@@ -539,19 +527,17 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
           +'<div class="upcoming-item-meta">'
           +(a.group?'<span class="upcoming-group">'+a.group+'</span>':'')
           +'<span>'+pad(ev.getHours())+':'+pad(ev.getMinutes())+'</span>'
-          +(a.eventStart?'<span>'+fmtDate(a.eventStart)+' → '+fmtDate(a.eventTime)+'</span>':'')
+          +(a.eventStart?'<span>'+fmtD(a.eventStart)+' → '+fmtD(a.eventTime)+'</span>':'')
           +'</div>'
           +'</div>'
-          +'<div class="upcoming-countdown '+cdCls+'">'+cdText+'</div>'
+          +'<div class="upcoming-cd '+cdCls+'">'+cdText+'</div>'
           +'</a>';
       }).join('');
     }
-    renderItems();
-    setInterval(renderItems,60000);
+    render(); setInterval(render,60000);
   }
 
-  function fmtDate(iso){if(!iso) return '';var d=new Date(iso);return (d.getMonth()+1)+'/'+d.getDate();}
-  function pad(n){return(n+'').padStart(2,'0');}
+  function fmtD(iso){if(!iso)return '';var d=new Date(iso);return(d.getMonth()+1)+'/'+d.getDate();}
 })();
 </script>
 </body>
