@@ -165,22 +165,7 @@ nav.show{opacity:1;}
 
 .hero-eyebrow.show,.hero-title.show,.hero-desc.show,.hero-btns.show{opacity:1!important;transform:translateY(0)!important;}
 
-/* PINNED BANNER */
-.pinned-banner{
-  display:none;background:var(--pin);
-  padding:12px 32px;align-items:center;gap:12px;
-  font-size:14px;font-weight:500;color:white;text-decoration:none;
-  position:fixed;top:60px;left:0;right:0;z-index:98;
-}
-.pinned-banner.show{display:flex;}
-body.has-banner .hero{padding-top:120px;}
-body.has-banner .filters-wrap{margin-top:48px;}
-.pin-label{
-  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;
-  background:rgba(255,255,255,.25);padding:2px 8px;border-radius:2px;
-}
-.pin-arrow{margin-left:auto;}
-.pin-arrow svg{width:16px;height:16px;}
+
 
 /* FILTERS */
 .filters-wrap{padding:32px 60px 0;}
@@ -282,6 +267,24 @@ body.has-banner .filters-wrap{margin-top:48px;}
 .empty-text{font-size:15px;color:var(--muted);margin-bottom:20px;}
 .empty-sub{font-size:13px;color:var(--border);}
 
+/* VIEW ALL */
+.view-all-link{
+  display:flex;align-items:center;gap:5px;
+  font-size:13px;font-weight:500;color:var(--mid);text-decoration:none;
+  transition:gap .2s;
+}
+.view-all-link:hover{gap:8px;}
+.view-all-link svg{width:14px;height:14px;}
+.view-all-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;border-radius:6px;
+  border:1.5px solid var(--mid);color:var(--mid);
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;
+  letter-spacing:.08em;text-decoration:none;transition:all .2s;
+}
+.view-all-btn:hover{background:var(--mid);color:white;}
+.view-all-btn svg{width:15px;height:15px;}
+
 /* BACK TO TOP */
 .back-top{
   position:fixed;bottom:88px;right:20px;z-index:199;
@@ -341,7 +344,6 @@ footer{
   .hero-btns{flex-direction:column;}
   .hero-cta,.hero-cta-sec{width:100%;justify-content:center;}
   .hero-num-bg{display:none;}
-  .pinned-banner{padding:12px 16px;font-size:13px;}
   .filters-wrap{padding:24px 16px 0;}
   .filters-bar{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;}
   .filters-bar::-webkit-scrollbar{display:none;}
@@ -387,11 +389,7 @@ footer{
   </div>
 </nav>
 
-<a class="pinned-banner" id="pinned-banner" href="#">
-  <span class="pin-label">置頂</span>
-  <span id="pinned-text"></span>
-  <span class="pin-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-</a>
+
 
 <section class="hero" id="hero">
   <div class="hero-bg"></div>
@@ -424,10 +422,19 @@ footer{
 <section class="announcements reveal" id="announcements">
   <div class="sec-header">
     <h2 class="sec-title">最新<span class="accent">消息</span></h2>
-    <span class="sec-count" id="sec-count"></span>
+    <a href="list.html" class="view-all-link">
+      查看全部
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
   </div>
   <div class="cards-list" id="cards-list">
     <div class="empty"><div class="empty-icon">📭</div><div class="empty-text">目前還沒有公告</div></div>
+  </div>
+  <div id="view-all-wrap" style="display:none;text-align:center;margin-top:24px;">
+    <a href="list.html" class="view-all-btn">
+      查看所有公告
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
   </div>
 </section>
 
@@ -536,16 +543,7 @@ footer{
 
       // Pinned banner
       var pinned0=allArticles.find(function(a){return a.pinned;});
-      if(pinned0){
-        var banner=document.getElementById('pinned-banner');
-        var txt=document.getElementById('pinned-text');
-        if(banner&&txt){
-          txt.textContent=pinned0.title;
-          banner.href='article.html?id='+encodeURIComponent(pinned0.id);
-          banner.classList.add('show');
-          document.body.classList.add('has-banner');
-        }
-      }
+
 
 
       applyFilters();
@@ -581,10 +579,17 @@ footer{
       list.innerHTML=q||currentFilter!=='all'
         ?'<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">找不到符合的公告</div><div class="empty-sub">試試其他關鍵字</div></div>'
         :'<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">目前還沒有公告</div></div>';
+      var vaw=document.getElementById('view-all-wrap'); if(vaw) vaw.style.display='none';
       return;
     }
 
-    list.innerHTML=sorted.map(function(a,i){
+    // Show only 5 on homepage
+    var display=sorted.slice(0,5);
+    var hasMore=sorted.length>5;
+    var vaw=document.getElementById('view-all-wrap');
+    if(vaw) vaw.style.display=hasMore?'':'none';
+
+    list.innerHTML=display.map(function(a,i){
       var isPinned=a.pinned;
       var isGroupPinned=!isPinned&&a.groupPinned&&currentFilter!=='all';
       var excerpt=(a.content||'').replace(/<[^>]*>/g,'').slice(0,80);
