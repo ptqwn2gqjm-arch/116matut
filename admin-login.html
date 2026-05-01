@@ -3,196 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex,nofollow">
 <title>後台登入 · 116 畢籌會</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:"AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+    authDomain:"bichoucui.firebaseapp.com",
+    databaseURL:"https://bichoucui-default-rtdb.firebaseio.com",
+    projectId:"bichoucui",
+    storageBucket:"bichoucui.firebasestorage.app",
+    messagingSenderId:"1035865429114",
+    appId:"1:1035865429114:web:c33daa36ffd04d736517c3"
+  });
+  window.db=firebase.database();
+</script>
 <style>
-  :root {
-    --deep:   #0D3B5C;
-    --mid:    #1A6B9A;
-    --light:  #2E9BD4;
-    --pale:   #D6EAF8;
-    --bg:     #F4F8FB;
-    --white:  #FFFFFF;
-    --text:   #0D1F2D;
-    --muted:  #7B9BB3;
-    --border: #D0E4F0;
-    --red:    #e74c3c;
-  }
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
-  body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-
-  /* LEFT */
-  .left {
-    width: 44%; background: var(--deep);
-    display: flex; flex-direction: column; justify-content: space-between;
-    padding: 52px; position: relative; overflow: hidden; flex-shrink: 0;
-  }
-  .left::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(46,155,212,0.15) 0%, transparent 60%);
-  }
-  .left-deco {
-    position: absolute; right: -30px; bottom: -30px;
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: 220px; line-height: 1; letter-spacing: -0.03em;
-    color: rgba(255,255,255,0.04); pointer-events: none; user-select: none;
-  }
-  .left-logo {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: 32px; color: white; text-decoration: none;
-    position: relative; z-index: 1; display: flex; align-items: baseline; gap: 6px;
-  }
-  .left-logo .lbl { font-size: 14px; font-weight: 500; opacity: 0.5; }
-  .left-center { position: relative; z-index: 1; }
-  .left-big {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: clamp(60px, 8vw, 96px); color: white; line-height: 1;
-    letter-spacing: -0.02em; margin-bottom: 20px;
-  }
-  .left-big .outline {
-    color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,0.4);
-  }
-  .left-desc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.8; font-weight: 300; }
-  .left-bottom { position: relative; z-index: 1; }
-  .left-tagline { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; text-transform: uppercase; }
-
-  /* RIGHT */
-  .right {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 48px 40px; position: relative;
-  }
-  .back-btn {
-    position: absolute; top: 24px; left: 24px;
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px; color: var(--muted); text-decoration: none;
-    padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border);
-    background: var(--white); transition: all 0.2s;
-  }
-  .back-btn:hover { border-color: var(--mid); color: var(--mid); }
-  .back-btn svg { width: 13px; height: 13px; }
-
-  .login-wrap { width: 100%; max-width: 360px; }
-  .login-title {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: 36px; letter-spacing: -0.01em; color: var(--deep); margin-bottom: 6px;
-  }
-  .login-title span { color: var(--mid); }
-  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 36px; font-weight: 300; }
-
-  /* FORM */
-  .form-row { margin-bottom: 20px; }
-  .form-row label {
-    display: block; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 8px;
-  }
-  .input-wrap { position: relative; }
-  .input-wrap input {
-    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
-    padding: 12px 44px 12px 16px; font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px; outline: none; transition: all 0.2s;
-    background: var(--white); color: var(--text);
-  }
-  .input-wrap input:focus { border-color: var(--mid); box-shadow: 0 0 0 3px rgba(26,107,154,0.08); }
-  .input-wrap input.error { border-color: var(--red); }
-  .toggle-pw {
-    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; color: var(--muted);
-    display: flex; align-items: center; transition: color 0.2s; padding: 0;
-  }
-  .toggle-pw:hover { color: var(--mid); }
-  .toggle-pw svg { width: 16px; height: 16px; }
-
-  .error-msg {
-    display: none; font-size: 12px; color: var(--red);
-    margin-top: 8px; display: flex; align-items: center; gap: 5px;
-  }
-  .error-msg.show { display: flex; }
-  .error-msg svg { width: 13px; height: 13px; flex-shrink: 0; }
-
-  .login-btn {
-    width: 100%; padding: 13px; border-radius: 8px; border: none;
-    background: var(--deep); color: white; cursor: pointer;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 17px; font-weight: 700; letter-spacing: 0.1em;
-    transition: all 0.2s; margin-top: 8px;
-  }
-  .login-btn:hover { background: var(--mid); }
-  .login-btn:active { transform: scale(0.98); }
-  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .hint {
-    margin-top: 24px; padding: 14px 16px;
-    background: rgba(46,155,212,0.06); border: 1px solid var(--border);
-    border-radius: 8px; font-size: 12px; color: var(--muted); line-height: 1.7;
-  }
-  .hint strong { color: var(--deep); }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-5px); }
-    80% { transform: translateX(5px); }
-  }
-  .shake { animation: shake 0.4s ease; }
-
-  @media (max-width: 768px) {
-    .left { display: none; }
-    .right { padding: 40px 24px; align-items: flex-start; padding-top: 80px; }
-  }
+:root{
+  --deep:#0D3B5C;--mid:#1A6B9A;--light:#2E9BD4;--pale:#D6EAF8;
+  --bg:#F4F8FB;--white:#fff;--text:#0D1F2D;--muted:#7B9BB3;--border:#D0E4F0;--red:#e74c3c;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+.left{
+  width:44%;background:var(--deep);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:50px;position:relative;overflow:hidden;flex-shrink:0;
+}
+.left::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 80%,rgba(46,155,212,.15) 0%,transparent 60%);}
+.left-deco{position:absolute;right:-30px;bottom:-30px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:220px;line-height:1;color:rgba(255,255,255,.04);pointer-events:none;user-select:none;}
+.left-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:30px;color:white;text-decoration:none;position:relative;z-index:1;display:flex;align-items:baseline;gap:6px;}
+.left-logo .lbl{font-size:14px;font-weight:500;opacity:.5;}
+.left-center{position:relative;z-index:1;}
+.left-big{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:clamp(56px,8vw,92px);color:white;line-height:1;letter-spacing:-.02em;margin-bottom:18px;}
+.left-big .outline{color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.4);}
+.left-desc{font-size:14px;color:rgba(255,255,255,.5);line-height:1.8;font-weight:300;}
+.left-bottom{position:relative;z-index:1;}
+.left-tagline{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.15em;text-transform:uppercase;}
+.right{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 40px;position:relative;}
+.back-btn{position:absolute;top:24px;left:24px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);text-decoration:none;padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:white;transition:all .2s;}
+.back-btn:hover{border-color:var(--mid);color:var(--mid);}
+.back-btn svg{width:13px;height:13px;}
+.login-wrap{width:100%;max-width:360px;}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:36px;letter-spacing:-.01em;color:var(--deep);margin-bottom:5px;}
+.login-title span{color:var(--mid);}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:32px;font-weight:300;}
+.form-row{margin-bottom:18px;}
+.form-row label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.input-wrap{position:relative;}
+.input-wrap input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:12px 44px 12px 16px;font-family:'Noto Sans TC',sans-serif;font-size:14px;outline:none;transition:all .2s;background:white;color:var(--text);}
+.input-wrap input:focus{border-color:var(--mid);box-shadow:0 0 0 3px rgba(26,107,154,.08);}
+.input-wrap input.error{border-color:var(--red);}
+.toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;transition:color .2s;padding:0;}
+.toggle-pw:hover{color:var(--mid);}
+.toggle-pw svg{width:16px;height:16px;}
+.error-msg{display:none;font-size:12px;color:var(--red);margin-top:7px;align-items:center;gap:5px;}
+.error-msg.show{display:flex;}
+.error-msg svg{width:13px;height:13px;flex-shrink:0;}
+.login-btn{width:100%;padding:13px;border-radius:8px;border:none;background:var(--deep);color:white;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.1em;transition:all .2s;margin-top:6px;}
+.login-btn:hover{background:var(--mid);}
+.login-btn:active{transform:scale(.98);}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;}
+.hint{margin-top:22px;padding:13px 15px;background:rgba(46,155,212,.06);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7;}
+.hint strong{color:var(--deep);}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
+.shake{animation:shake .4s ease;}
+@media(max-width:768px){.left{display:none;}.right{padding:40px 24px;align-items:flex-start;padding-top:80px;}}
 </style>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script>
-    firebase.initializeApp({
-      apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
-      authDomain: "bichoucui.firebaseapp.com",
-      databaseURL: "https://bichoucui-default-rtdb.firebaseio.com",
-      projectId: "bichoucui",
-      storageBucket: "bichoucui.firebasestorage.app",
-      messagingSenderId: "1035865429114",
-      appId: "1:1035865429114:web:c33daa36ffd04d736517c3"
-    });
-    window.db = firebase.database();
-  </script>
 </head>
 <body>
-
 <div class="left">
   <a href="index.html" class="left-logo">116 <span class="lbl">畢籌會</span></a>
   <div class="left-center">
     <div class="left-big">後台<br><span class="outline">管理</span></div>
     <div class="left-desc">這裡是畢籌會後台，<br>只有管理員可以進入。</div>
   </div>
-  <div class="left-bottom">
-    <div class="left-tagline">Class of 116 · Admin Panel</div>
-  </div>
+  <div class="left-bottom"><div class="left-tagline">Class of 116 · Admin Panel</div></div>
   <div class="left-deco">116</div>
 </div>
-
 <div class="right">
   <a href="index.html" class="back-btn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     回到前台
   </a>
-
   <div class="login-wrap">
     <div class="login-title">登入<span>後台</span></div>
     <div class="login-sub">請輸入管理員密碼</div>
-
     <div class="form-row">
       <label>密碼</label>
       <div class="input-wrap">
-        <input type="password" id="pw-input" placeholder="輸入密碼"
-          onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="password" id="pw-input" placeholder="輸入密碼" onkeydown="if(event.key==='Enter') doLogin()">
         <button class="toggle-pw" onclick="togglePw()" type="button" tabindex="-1">
           <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
           </svg>
         </button>
       </div>
@@ -201,84 +107,62 @@
         密碼錯誤，請再試一次
       </div>
     </div>
-
     <button class="login-btn" id="login-btn" onclick="doLogin()">進入後台</button>
-
-    <div class="hint">
-      <strong>預設密碼：</strong>116admin<br>
-      進入後台後可以在設定頁面更改密碼。
-    </div>
+    <div class="hint"><strong>預設密碼：</strong>116admin<br>進入後台後可以在設定頁面更改密碼。</div>
   </div>
 </div>
-
 <script>
 (function(){
-  // 如果已登入直接跳轉
-  if (sessionStorage.getItem('116_admin')) {
-    location.href = 'admin.html';
-    return;
-  }
+  if(sessionStorage.getItem('116_admin')){location.href='admin.html';return;}
+  var ADMIN_PW_KEY='116_admin_pw';
+  var DEFAULT_PW='116admin';
 
-  var ADMIN_PW_KEY = '116_admin_pw';
-  var DEFAULT_PW   = '116admin';
-
-  // 從 Firebase 同步最新密碼
+  // Sync password from Firebase
   window.db.ref('admin_config/pw').once('value').then(function(snap){
-    var fbPw = snap.val();
-    if (fbPw) localStorage.setItem(ADMIN_PW_KEY, fbPw);
-  });
+    var fbPw=snap.val(); if(fbPw) localStorage.setItem(ADMIN_PW_KEY,fbPw);
+  }).catch(function(){});
 
-  function getStoredPw() {
-    return localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW;
-  }
+  function getStoredPw(){return localStorage.getItem(ADMIN_PW_KEY)||DEFAULT_PW;}
 
-  window.doLogin = function() {
-    var input = document.getElementById('pw-input');
-    var btn   = document.getElementById('login-btn');
-    var err   = document.getElementById('error-msg');
-    var val   = input ? input.value : '';
-
-    if (!val) { input.focus(); return; }
-
-    btn.disabled = true;
-    btn.textContent = '驗證中⋯';
-
+  window.doLogin=function(){
+    var input=document.getElementById('pw-input');
+    var btn=document.getElementById('login-btn');
+    var err=document.getElementById('error-msg');
+    var val=input?input.value:'';
+    if(!val){input.focus();return;}
+    btn.disabled=true; btn.textContent='驗證中⋯';
     setTimeout(function(){
-      if (val === getStoredPw()) {
-        sessionStorage.setItem('116_admin', '1');
-        location.href = 'admin.html';
+      if(val===getStoredPw()){
+        sessionStorage.setItem('116_admin','1');
+        location.href='admin.html';
       } else {
         input.classList.add('error');
         err.classList.add('show');
         input.classList.add('shake');
-        setTimeout(function(){ input.classList.remove('shake'); }, 400);
-        btn.disabled = false;
-        btn.textContent = '進入後台';
-        input.value = '';
-        input.focus();
+        setTimeout(function(){input.classList.remove('shake');},400);
+        btn.disabled=false; btn.textContent='進入後台';
+        input.value=''; input.focus();
       }
-    }, 400);
+    },400);
   };
 
-  window.togglePw = function() {
-    var input = document.getElementById('pw-input');
-    var icon  = document.getElementById('eye-icon');
-    if (input.type === 'password') {
-      input.type = 'text';
-      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  window.togglePw=function(){
+    var input=document.getElementById('pw-input');
+    var icon=document.getElementById('eye-icon');
+    if(input.type==='password'){
+      input.type='text';
+      icon.innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
     } else {
-      input.type = 'password';
-      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      input.type='password';
+      icon.innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
     }
   };
 
-  // clear error on input
-  var pwInput = document.getElementById('pw-input');
-  if (pwInput) {
-    pwInput.addEventListener('input', function(){
+  var pwInput=document.getElementById('pw-input');
+  if(pwInput){
+    pwInput.addEventListener('input',function(){
       this.classList.remove('error');
-      var err = document.getElementById('error-msg');
-      if (err) err.classList.remove('show');
+      var err=document.getElementById('error-msg'); if(err) err.classList.remove('show');
     });
     pwInput.focus();
   }
