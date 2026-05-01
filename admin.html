@@ -342,7 +342,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         </div>
         <div class="form-row">
           <label>活動時間（選填）</label>
-          <input type="datetime-local" id="f-eventtime">
+          <div style="display:flex;gap:8px;">
+            <input type="date" id="f-eventdate" style="flex:1" placeholder="選擇日期">
+            <input type="time" id="f-eventtime-hm" style="width:120px" placeholder="時:分">
+          </div>
           <div class="form-hint">填了會顯示倒數計時器</div>
         </div>
       </div>
@@ -693,7 +696,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('form-page-title').innerHTML='新增<span>公告</span>';
     document.getElementById('form-page-sub').textContent='填寫以下欄位後發布';
     document.getElementById('save-btn-text').textContent='發布公告';
-    ['f-title','f-eventtime','f-form-url','f-form-embed','f-schedule'].forEach(function(id){var el=document.getElementById(id);if(el) el.value='';});
+    ['f-title','f-eventdate','f-eventtime-hm','f-form-url','f-form-embed','f-schedule'].forEach(function(id){var el=document.getElementById(id);if(el) el.value='';});
     document.getElementById('f-group').value='';
     document.getElementById('f-content').innerHTML='';
     document.getElementById('f-pinned').checked=false;
@@ -711,7 +714,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('save-btn-text').textContent='儲存變更';
     document.getElementById('f-title').value=a.title||'';
     document.getElementById('f-group').value=a.group||'';
-    document.getElementById('f-eventtime').value=a.eventTime?a.eventTime.slice(0,16):'';
+    var et=a.eventTime?new Date(a.eventTime):null;
+    document.getElementById('f-eventdate').value=et?(et.getFullYear()+'-'+(et.getMonth()+1+'').padStart(2,'0')+'-'+(et.getDate()+'').padStart(2,'0')):'';
+    document.getElementById('f-eventtime-hm').value=et?((et.getHours()+'').padStart(2,'0')+':'+(et.getMinutes()+'').padStart(2,'0')):'';
     document.getElementById('f-content').innerHTML=a.content||'';
     document.getElementById('f-pinned').checked=!!a.pinned;
     document.getElementById('f-group-pinned').checked=!!a.groupPinned;
@@ -739,7 +744,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var data={
       title:title,
       group:document.getElementById('f-group').value,
-      eventTime:document.getElementById('f-eventtime').value||null,
+      eventTime:(function(){
+      var d=document.getElementById('f-eventdate').value;
+      var t=document.getElementById('f-eventtime-hm').value||'00:00';
+      return d?(d+'T'+t):null;
+    }()),
       content:document.getElementById('f-content').innerHTML,
       pinned:document.getElementById('f-pinned').checked,
       groupPinned:document.getElementById('f-group-pinned').checked,
@@ -917,7 +926,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var p=function(n){return(n+'').padStart(2,'0');};
     var val=y+'-'+p(m+1)+'-'+p(d)+'T12:00';
     switchPage('new-post',document.querySelectorAll('.nav-item')[2]);
-    setTimeout(function(){document.getElementById('f-eventtime').value=val;},60);
+    setTimeout(function(){
+      var parts=val.split('T');
+      document.getElementById('f-eventdate').value=parts[0];
+      document.getElementById('f-eventtime-hm').value=parts[1]||'12:00';
+    },60);
   };
 
   /* ── COMMENTS ── */
