@@ -5,435 +5,295 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>公告 · 116 畢籌會</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:"AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+    authDomain:"bichoucui.firebaseapp.com",
+    databaseURL:"https://bichoucui-default-rtdb.firebaseio.com",
+    projectId:"bichoucui",
+    storageBucket:"bichoucui.firebasestorage.app",
+    messagingSenderId:"1035865429114",
+    appId:"1:1035865429114:web:c33daa36ffd04d736517c3"
+  });
+  window.db=firebase.database();
+  window.auth=firebase.auth();
+  window.googleProvider=new firebase.auth.GoogleAuthProvider();
+</script>
 <style>
-  :root {
-    --deep:   #0D3B5C;
-    --mid:    #1A6B9A;
-    --light:  #2E9BD4;
-    --pale:   #D6EAF8;
-    --bg:     #F4F8FB;
-    --white:  #FFFFFF;
-    --text:   #0D1F2D;
-    --muted:  #7B9BB3;
-    --border: #D0E4F0;
-    --pin:    #E8A020;
-  }
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans TC', sans-serif; }
+:root{
+  --deep:#0D3B5C;--mid:#1A6B9A;--light:#2E9BD4;--pale:#D6EAF8;
+  --bg:#F4F8FB;--white:#fff;--text:#0D1F2D;--muted:#7B9BB3;--border:#D0E4F0;--pin:#E8A020;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;}
 
-  /* NAV */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: rgba(244,248,251,0.95); backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 40px; height: 62px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .nav-logo {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: 28px; text-decoration: none; color: var(--deep);
-    display: flex; align-items: baseline; gap: 6px;
-  }
-  .nav-logo .num { color: var(--mid); }
-  .nav-logo .lbl { font-size: 13px; font-weight: 500; color: var(--muted); }
-  .nav-back {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: 6px; text-decoration: none;
-    font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.2s;
-  }
-  .nav-back:hover { background: var(--pale); color: var(--deep); }
-  .nav-back svg { width: 15px; height: 15px; }
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(244,248,251,.95);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:0 40px;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:26px;text-decoration:none;color:var(--deep);
+  display:flex;align-items:baseline;gap:5px;
+}
+.nav-logo .num{color:var(--mid);}
+.nav-logo .lbl{font-size:12px;font-weight:500;color:var(--muted);}
+.nav-back{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:6px;text-decoration:none;
+  font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;
+}
+.nav-back:hover{background:var(--pale);color:var(--deep);}
+.nav-back svg{width:15px;height:15px;}
 
-  /* MAIN */
-  .main {
-    max-width: 760px; margin: 0 auto;
-    padding: 100px 24px 80px;
-  }
+/* MAIN */
+.main{max-width:760px;margin:0 auto;padding:90px 24px 80px;}
 
-  /* BREADCRUMB */
-  .breadcrumb {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: var(--muted); margin-bottom: 32px;
-  }
-  .breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
-  .breadcrumb a:hover { color: var(--mid); }
-  .breadcrumb svg { width: 12px; height: 12px; }
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:28px;}
+.breadcrumb a{color:var(--muted);text-decoration:none;transition:color .2s;}
+.breadcrumb a:hover{color:var(--mid);}
+.breadcrumb svg{width:12px;height:12px;}
 
-  /* PIN BADGE */
-  .pin-badge {
-    display: none;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
-    color: var(--pin); background: #FEF3DC; border: 1px solid #F4CC7A;
-    border-radius: 3px; padding: 3px 10px; text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .pin-badge.show { display: inline-block; }
+/* BADGES */
+.pin-badge-art{
+  display:none;font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.15em;
+  color:var(--pin);background:#FEF3DC;border:1px solid #F4CC7A;
+  border-radius:3px;padding:3px 10px;text-transform:uppercase;margin-bottom:14px;
+}
+.pin-badge-art.show{display:inline-block;}
 
-  /* HEADER */
-  .article-header { margin-bottom: 36px; }
-  .article-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .article-date { font-size: 13px; color: var(--muted); }
-  .article-title {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: clamp(32px, 6vw, 56px); line-height: 1.05;
-    letter-spacing: -0.01em; color: var(--deep); margin-bottom: 0;
-  }
+/* HEADER */
+.article-header{margin-bottom:32px;}
+.article-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.article-date{font-size:13px;color:var(--muted);}
+.article-group{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;background:rgba(46,155,212,.1);color:var(--light);}
+.article-views{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.article-views svg{width:13px;height:13px;}
+.article-title{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(30px,6vw,54px);line-height:1.05;
+  letter-spacing:-.01em;color:var(--deep);
+}
 
-  /* COUNTDOWN */
-  .countdown-wrap {
-    display: none;
-    background: var(--deep); border-radius: 12px;
-    padding: 28px 32px; margin-bottom: 36px;
-    position: relative; overflow: hidden;
-  }
-  .countdown-wrap.show { display: block; }
-  .countdown-wrap::before {
-    content: '116';
-    position: absolute; right: -10px; bottom: -16px;
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: 120px; color: rgba(255,255,255,0.04);
-    line-height: 1; pointer-events: none;
-  }
-  .countdown-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
-    text-transform: uppercase; color: rgba(255,255,255,0.5);
-    margin-bottom: 16px;
-  }
-  .countdown-digits {
-    display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;
-  }
-  .cd-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .cd-num {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: clamp(40px, 8vw, 72px); line-height: 1;
-    color: white; letter-spacing: -0.02em; min-width: 2ch; text-align: center;
-  }
-  .cd-lbl {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.15em;
-    text-transform: uppercase; color: rgba(255,255,255,0.45);
-  }
-  .cd-sep {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-    font-size: 40px; color: rgba(255,255,255,0.3);
-    padding-bottom: 6px; line-height: 1;
-  }
-  .countdown-event-time {
-    margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.4);
-    letter-spacing: 0.05em;
-  }
-  .countdown-done {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-    font-size: 24px; color: rgba(255,255,255,0.6); letter-spacing: 0.05em;
-  }
+/* SHARE */
+.share-bar{
+  display:flex;align-items:center;gap:8px;
+  margin-top:16px;padding-top:16px;border-top:1px solid var(--border);
+  margin-bottom:32px;
+}
+.share-label{font-size:12px;color:var(--muted);margin-right:4px;}
+.share-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);
+  background:white;font-size:12px;font-weight:500;color:var(--muted);
+  cursor:pointer;transition:all .2s;font-family:'Noto Sans TC',sans-serif;
+}
+.share-btn:hover{border-color:var(--mid);color:var(--mid);}
+.share-btn svg{width:13px;height:13px;}
+.share-btn.line-share{background:#06C755;border-color:#06C755;color:white;}
+.share-btn.line-share:hover{opacity:.9;}
+.copy-toast{
+  font-size:12px;color:var(--green,#27ae60);
+  opacity:0;transition:opacity .3s;
+}
+.copy-toast.show{opacity:1;}
 
-  /* COVER IMAGE */
-  .cover-img {
-    width: 100%; border-radius: 10px; overflow: hidden;
-    margin-bottom: 36px; display: none;
-    background: var(--pale); aspect-ratio: 16/7;
-  }
-  .cover-img.show { display: block; }
-  .cover-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* COUNTDOWN */
+.countdown-wrap{
+  display:none;background:var(--deep);border-radius:12px;
+  padding:24px 28px;margin-bottom:32px;position:relative;overflow:hidden;
+}
+.countdown-wrap.show{display:block;}
+.countdown-wrap::before{
+  content:'116';position:absolute;right:-10px;bottom:-16px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:120px;color:rgba(255,255,255,.04);line-height:1;pointer-events:none;
+}
+.countdown-label{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px;}
+.countdown-digits{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.cd-unit{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.cd-num{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:clamp(36px,8vw,68px);line-height:1;color:white;letter-spacing:-.02em;min-width:2ch;text-align:center;
+}
+.cd-lbl{font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.cd-sep{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:36px;color:rgba(255,255,255,.25);padding-bottom:5px;line-height:1;}
+.countdown-event-time{margin-top:14px;font-size:12px;color:rgba(255,255,255,.35);}
+.countdown-done{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;color:rgba(255,255,255,.5);}
 
-  /* CONTENT */
-  .article-content {
-    font-size: 16px; line-height: 1.9; color: var(--text);
-    font-weight: 300; margin-bottom: 40px;
-  }
-  .article-content p { margin-bottom: 1.2em; }
-  .article-content h2 {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-    font-size: 26px; letter-spacing: 0.02em; color: var(--deep);
-    margin: 1.8em 0 0.6em;
-  }
-  .article-content h3 {
-    font-size: 17px; font-weight: 700; color: var(--deep);
-    margin: 1.4em 0 0.4em;
-  }
-  .article-content ul, .article-content ol {
-    padding-left: 1.5em; margin-bottom: 1.2em;
-  }
-  .article-content li { margin-bottom: 0.4em; }
-  .article-content strong { font-weight: 700; color: var(--text); }
-  .article-content a { color: var(--mid); text-decoration: underline; }
-  .article-content img { max-width: 100%; border-radius: 8px; margin: 1em 0; display: block; }
-  .article-content blockquote {
-    border-left: 3px solid var(--mid); padding-left: 20px;
-    color: var(--muted); font-style: italic; margin: 1.5em 0;
-  }
+/* COVER */
+.cover-img{display:none;width:100%;border-radius:10px;overflow:hidden;margin-bottom:32px;aspect-ratio:16/7;background:var(--pale);}
+.cover-img.show{display:block;}
+.cover-img img{width:100%;height:100%;object-fit:cover;display:block;}
 
-  /* FORM SECTION */
-  .form-section {
-    display: none; margin-bottom: 40px;
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: 12px; overflow: hidden;
-  }
-  .form-section.show { display: block; }
-  .form-header {
-    padding: 20px 24px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .form-header-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: var(--pale); display: flex; align-items: center; justify-content: center;
-    color: var(--mid); flex-shrink: 0;
-  }
-  .form-header-icon svg { width: 18px; height: 18px; }
-  .form-header-title { font-size: 15px; font-weight: 700; }
-  .form-header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .form-link-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--mid); color: white;
-    padding: 12px 24px; border-radius: 6px; margin: 20px 24px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 16px; font-weight: 700; letter-spacing: 0.08em;
-    text-decoration: none; transition: background 0.2s;
-  }
-  .form-link-btn:hover { background: var(--deep); }
-  .form-link-btn svg { width: 15px; height: 15px; }
-  .form-embed { width: 100%; border: none; min-height: 520px; display: block; }
+/* CONTENT */
+.article-content{font-size:16px;line-height:1.9;color:var(--text);font-weight:300;margin-bottom:36px;}
+.article-content p{margin-bottom:1.1em;}
+.article-content h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;color:var(--deep);margin:1.8em 0 .6em;}
+.article-content h3{font-size:17px;font-weight:700;color:var(--deep);margin:1.4em 0 .4em;}
+.article-content ul,.article-content ol{padding-left:1.5em;margin-bottom:1.1em;}
+.article-content li{margin-bottom:.4em;}
+.article-content strong{font-weight:700;}
+.article-content a{color:var(--mid);text-decoration:underline;}
+.article-content img{max-width:100%;border-radius:8px;margin:1em 0;display:block;}
+.article-content blockquote{border-left:3px solid var(--mid);padding-left:18px;color:var(--muted);font-style:italic;margin:1.4em 0;}
 
-  /* DIVIDER */
-  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+/* FORM */
+.form-section{display:none;margin-bottom:36px;background:white;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.form-section.show{display:block;}
+.form-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.form-header-icon{width:34px;height:34px;border-radius:8px;background:var(--pale);display:flex;align-items:center;justify-content:center;color:var(--mid);}
+.form-header-icon svg{width:17px;height:17px;}
+.form-header-title{font-size:15px;font-weight:700;}
+.form-header-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.form-link-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--mid);color:white;padding:11px 22px;border-radius:6px;margin:18px 22px;
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.08em;
+  text-decoration:none;transition:background .2s;
+}
+.form-link-btn:hover{background:var(--deep);}
+.form-link-btn svg{width:14px;height:14px;}
+.form-embed{width:100%;border:none;min-height:500px;display:block;}
 
-  /* COMMENTS */
-  .comments-section { margin-bottom: 60px; }
-  .comments-title {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-    font-size: 28px; letter-spacing: 0.02em; margin-bottom: 24px; color: var(--deep);
-  }
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:36px 0;}
 
-  /* Google login prompt */
-  .login-prompt {
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 28px; text-align: center; margin-bottom: 24px;
-  }
-  .login-prompt p { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
-  .google-btn {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: white; border: 1.5px solid var(--border);
-    border-radius: 6px; padding: 10px 20px; cursor: pointer;
-    font-size: 14px; font-weight: 500; color: var(--text);
-    transition: all 0.2s; text-decoration: none;
-  }
-  .google-btn:hover { border-color: var(--mid); box-shadow: 0 2px 8px rgba(13,59,92,0.1); }
-  .google-btn svg { width: 18px; height: 18px; }
+/* BACK */
+.back-link{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--muted);text-decoration:none;
+  padding:10px 0;transition:color .2s;margin-bottom:36px;
+}
+.back-link:hover{color:var(--mid);}
+.back-link svg{width:15px;height:15px;}
 
-  /* comment form */
-  .comment-form { display: none; margin-bottom: 28px; }
-  .comment-form.show { display: block; }
-  .comment-user {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
-  }
-  .comment-avatar {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--mid); display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 14px; font-weight: 700; flex-shrink: 0; overflow: hidden;
-  }
-  .comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .comment-user-name { font-size: 14px; font-weight: 500; }
-  .comment-user-email { font-size: 12px; color: var(--muted); }
-  .logout-btn {
-    margin-left: auto; font-size: 12px; color: var(--muted);
-    background: none; border: none; cursor: pointer; padding: 4px 8px;
-    border-radius: 4px; transition: all 0.2s;
-  }
-  .logout-btn:hover { background: var(--pale); color: var(--deep); }
-  textarea#comment-input {
-    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
-    padding: 14px 16px; font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px; line-height: 1.7; resize: vertical; min-height: 100px;
-    outline: none; transition: border-color 0.2s; background: var(--white); color: var(--text);
-  }
-  textarea#comment-input:focus { border-color: var(--mid); }
-  .comment-submit {
-    display: flex; justify-content: flex-end; margin-top: 10px;
-  }
-  .submit-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--deep); color: white; border: none; cursor: pointer;
-    padding: 10px 22px; border-radius: 6px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
-    transition: background 0.2s;
-  }
-  .submit-btn:hover { background: var(--mid); }
-  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+/* COMMENTS */
+.comments-section{margin-bottom:60px;}
+.comments-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:var(--deep);margin-bottom:22px;}
+.login-prompt{background:white;border:1.5px solid var(--border);border-radius:10px;padding:28px;text-align:center;margin-bottom:22px;}
+.login-prompt p{font-size:14px;color:var(--muted);margin-bottom:16px;}
+.google-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:white;border:1.5px solid var(--border);border-radius:6px;padding:10px 20px;
+  cursor:pointer;font-size:14px;font-weight:500;color:var(--text);transition:all .2s;
+  font-family:'Noto Sans TC',sans-serif;
+}
+.google-btn:hover{border-color:var(--mid);box-shadow:0 2px 8px rgba(13,59,92,.1);}
+.google-btn svg{width:18px;height:18px;}
+.comment-form{display:none;margin-bottom:24px;}
+.comment-form.show{display:block;}
+.comment-user{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.comment-avatar{width:36px;height:36px;border-radius:50%;background:var(--mid);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:700;flex-shrink:0;overflow:hidden;}
+.comment-avatar img{width:100%;height:100%;object-fit:cover;}
+.comment-user-name{font-size:14px;font-weight:500;}
+.comment-user-email{font-size:12px;color:var(--muted);}
+.logout-btn{margin-left:auto;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif;}
+.logout-btn:hover{background:var(--pale);color:var(--deep);}
+textarea#comment-input{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:12px 14px;font-family:'Noto Sans TC',sans-serif;
+  font-size:14px;line-height:1.7;resize:vertical;min-height:90px;
+  outline:none;transition:border-color .2s;background:white;color:var(--text);
+}
+textarea#comment-input:focus{border-color:var(--mid);}
+.comment-submit{display:flex;justify-content:flex-end;margin-top:10px;}
+.submit-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--deep);color:white;border:none;cursor:pointer;
+  padding:10px 20px;border-radius:6px;
+  font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.08em;
+  transition:background .2s;
+}
+.submit-btn:hover{background:var(--mid);}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+.comments-list{display:flex;flex-direction:column;gap:14px;}
+.comment-item{background:white;border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;}
+.comment-item-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.comment-item-avatar{width:30px;height:30px;border-radius:50%;background:var(--mid);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0;overflow:hidden;}
+.comment-item-avatar img{width:100%;height:100%;object-fit:cover;}
+.comment-item-name{font-size:13px;font-weight:600;}
+.comment-item-date{font-size:11px;color:var(--muted);margin-left:auto;}
+.comment-item-body{font-size:14px;line-height:1.7;white-space:pre-wrap;}
+.no-comments{text-align:center;padding:28px;font-size:14px;color:var(--muted);}
 
-  /* comment list */
-  .comments-list { display: flex; flex-direction: column; gap: 16px; }
-  .comment-item {
-    background: var(--white); border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 18px 20px;
-  }
-  .comment-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .comment-item-avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--mid); display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 12px; font-weight: 700; flex-shrink: 0; overflow: hidden;
-  }
-  .comment-item-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .comment-item-name { font-size: 13px; font-weight: 600; }
-  .comment-item-date { font-size: 11px; color: var(--muted); margin-left: auto; }
-  .comment-item-body { font-size: 14px; line-height: 1.7; color: var(--text); font-weight: 300; white-space: pre-wrap; }
-  .no-comments { text-align: center; padding: 32px; font-size: 14px; color: var(--muted); }
+/* NOT FOUND */
+.not-found{text-align:center;padding:100px 24px;}
+.not-found-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:80px;color:var(--pale);margin-bottom:14px;}
+.not-found-text{font-size:16px;color:var(--muted);margin-bottom:24px;}
+.not-found-link{display:inline-flex;align-items:center;gap:8px;background:var(--deep);color:white;padding:12px 24px;border-radius:4px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.08em;}
 
-  /* BACK LINK */
-  .back-link {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--muted); text-decoration: none;
-    padding: 10px 0; transition: color 0.2s; margin-bottom: 40px;
-  }
-  .back-link:hover { color: var(--mid); }
-  .back-link svg { width: 15px; height: 15px; }
+/* BACK TO TOP */
+.back-top{
+  position:fixed;bottom:92px;right:20px;z-index:199;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--deep);color:white;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;
+  box-shadow:0 4px 14px rgba(13,59,92,.25);
+}
+.back-top.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+.back-top:hover{background:var(--mid);}
+.back-top svg{width:16px;height:16px;}
 
-  /* NOT FOUND */
-  .not-found {
-    text-align: center; padding: 100px 24px;
-  }
-  .not-found-num {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
-    font-size: 80px; color: var(--pale); margin-bottom: 16px;
-  }
-  .not-found-text { font-size: 16px; color: var(--muted); margin-bottom: 24px; }
-  .not-found-link {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--deep); color: white; padding: 12px 24px;
-    border-radius: 4px; text-decoration: none;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 16px; font-weight: 700; letter-spacing: 0.08em;
-  }
+/* LINE FLOAT */
+.line-float{position:fixed;bottom:32px;right:20px;z-index:200;}
+.line-btn{width:48px;height:48px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 16px rgba(6,199,85,.4);transition:transform .2s;}
+.line-btn:hover{transform:scale(1.08);}
+.line-btn svg{width:26px;height:26px;fill:white;}
 
-  /* LINE FLOAT */
-  .line-float { position: fixed; bottom: 80px; right: 20px; z-index: 200; }
-  .line-btn {
-    width: 48px; height: 48px; border-radius: 50%; background: #06C755;
-    display: flex; align-items: center; justify-content: center;
-    text-decoration: none; box-shadow: 0 4px 16px rgba(6,199,85,0.4); transition: transform 0.2s;
-  }
-  .line-btn:hover { transform: scale(1.08); }
-  .line-btn svg { width: 26px; height: 26px; fill: white; }
+footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--deep);}
+.footer-logo span{color:var(--mid);}
+.footer-copy{font-size:12px;color:var(--muted);}
 
-  /* FOOTER */
-  footer {
-    padding: 28px 40px; border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; color: var(--deep); }
-  .footer-logo span { color: var(--mid); }
-  .footer-copy { font-size: 12px; color: var(--muted); }
-
-  /* FONT SIZE */
-  html { font-size: 16px; transition: font-size 0.2s; }
-  html.fs-lg { font-size: 19px; }
-  html.fs-xl { font-size: 22px; }
-  .font-btns {
-    display: flex; align-items: center; gap: 4px; margin-left: 8px;
-  }
-  .font-btn {
-    width: 30px; height: 30px; border-radius: 6px; border: 1.5px solid var(--border);
-    background: var(--white); cursor: pointer; display: flex; align-items: center;
-    justify-content: center; color: var(--muted); transition: all 0.2s;
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px;
-  }
-  .font-btn:hover { border-color: var(--mid); color: var(--mid); }
-  .font-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  @media (max-width: 768px) {
-    /* NAV */
-    nav { padding: 0 16px; height: 56px; }
-    .nav-logo { font-size: 22px; }
-    .nav-logo .lbl { display: none; }
-    .nav-back {
-      padding: 8px 14px; font-size: 13px;
-      background: var(--pale); border-radius: 20px;
-      border: 1.5px solid var(--border);
-    }
-    .nav-back svg { width: 14px; height: 14px; }
-
-    /* MAIN */
-    .main { padding: 76px 16px 60px; }
-
-    /* BREADCRUMB */
-    .breadcrumb { font-size: 11px; margin-bottom: 20px; }
-
-    /* TITLE */
-    .article-title { font-size: clamp(26px, 8vw, 42px); }
-
-    /* COUNTDOWN */
-    .countdown-wrap { padding: 20px 18px; border-radius: 10px; margin-bottom: 24px; }
-    .countdown-digits { gap: 8px; }
-    .cd-num { font-size: clamp(32px, 10vw, 56px); }
-    .cd-sep { font-size: 28px; }
-    .cd-lbl { font-size: 9px; }
-
-    /* CONTENT */
-    .article-content { font-size: 15px; }
-
-    /* FORM */
-    .form-link-btn { width: calc(100% - 32px); justify-content: center; }
-
-    /* COMMENTS */
-    .login-prompt { padding: 20px; }
-    .google-btn { width: 100%; justify-content: center; }
-    textarea#comment-input { min-height: 80px; }
-
-    /* LINE */
-    .line-float { bottom: 16px; right: 16px; }
-    .line-btn { width: 48px; height: 48px; }
-    .line-btn svg { width: 24px; height: 24px; }
-
-    /* FOOTER */
-    footer { padding: 20px 16px; flex-direction: column; gap: 8px; text-align: center; }
-  }
+@media(max-width:768px){
+  nav{padding:0 16px;height:56px;}
+  .nav-logo{font-size:22px;}
+  .nav-logo .lbl{display:none;}
+  .nav-back{padding:8px 14px;font-size:13px;background:var(--pale);border-radius:20px;border:1.5px solid var(--border);}
+  .main{padding:78px 16px 60px;}
+  .article-title{font-size:clamp(26px,8vw,40px);}
+  .countdown-wrap{padding:18px;}
+  .cd-num{font-size:clamp(30px,10vw,52px);}
+  .share-bar{flex-wrap:wrap;}
+  .form-link-btn{width:calc(100% - 44px);justify-content:center;}
+  .google-btn{width:100%;justify-content:center;}
+  .back-top{bottom:92px;right:14px;width:36px;height:36px;}
+  .line-float{bottom:24px;right:14px;}
+  footer{padding:20px 16px;flex-direction:column;gap:8px;text-align:center;}
+}
 </style>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
-      authDomain: "bichoucui.firebaseapp.com",
-      databaseURL: "https://bichoucui-default-rtdb.firebaseio.com",
-      projectId: "bichoucui",
-      storageBucket: "bichoucui.firebasestorage.app",
-      messagingSenderId: "1035865429114",
-      appId: "1:1035865429114:web:c33daa36ffd04d736517c3"
-    };
-    firebase.initializeApp(firebaseConfig);
-    window.db = firebase.database();
-    window.auth = firebase.auth();
-    window.googleProvider = new firebase.auth.GoogleAuthProvider();
-  </script>
 </head>
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">
-    <span class="num">116</span><span class="lbl">畢籌會</span>
+  <a href="index.html" class="nav-logo"><span class="num">116</span><span class="lbl">畢籌會</span></a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    返回公告列表
   </a>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <a href="index.html" class="nav-back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      返回公告列表
-    </a>
-    <div class="font-btns">
-      <button class="font-btn" id="fs-sm" onclick="setFontSize('sm')" title="縮小字體">A-</button>
-      <button class="font-btn" id="fs-lg" onclick="setFontSize('lg')" title="放大字體">A+</button>
-    </div>
-  </div>
 </nav>
 
 <main class="main" id="main">
-  <!-- content rendered by JS -->
-  <div id="loading" style="text-align:center;padding:60px;color:var(--muted);font-size:14px">載入中⋯</div>
+  <div style="text-align:center;padding:60px;color:var(--muted);font-size:14px">載入中⋯</div>
 </main>
 
+<button class="back-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
 <div class="line-float">
-  <a href="#" class="line-btn" id="line-btn" target="_blank" rel="noopener">
+  <a href="https://lin.ee/q9ZL8V2" class="line-btn" target="_blank" rel="noopener">
     <svg viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
   </a>
 </div>
@@ -445,275 +305,236 @@
 
 <script>
 (function(){
-  var LINE_URL = 'https://lin.ee/q9ZL8V2';
+  var params=new URLSearchParams(location.search);
+  var id=params.get('id');
+  var main=document.getElementById('main');
 
-  var lb = document.getElementById('line-btn');
-  if (lb) lb.href = LINE_URL;
+  /* back to top */
+  var btt=document.getElementById('back-top');
+  if(btt) window.addEventListener('scroll',function(){btt.classList.toggle('show',window.scrollY>400);});
 
-  /* ── 取得文章 ── */
-  var params = new URLSearchParams(location.search);
-  var id = params.get('id');
-  var main = document.getElementById('main');
+  if(!id){show404();return;}
 
-  if (!id) {
-    main.innerHTML = '<div class="not-found"><div class="not-found-num">404</div><div class="not-found-text">找不到這則公告。</div><a href="index.html" class="not-found-link">回到公告列表</a></div>';
-    return;
-  }
-
-  // Load from Firebase
   window.db.ref('articles/'+id).once('value').then(function(snap){
-    var article = snap.val();
-    if (!article) {
-      main.innerHTML = '<div class="not-found"><div class="not-found-num">404</div><div class="not-found-text">找不到這則公告。</div><a href="index.html" class="not-found-link">回到公告列表</a></div>';
-      return;
-    }
+    var article=snap.val();
+    if(!article){show404();return;}
+    // Increment views
+    window.db.ref('articles/'+id+'/views').transaction(function(v){return(v||0)+1;});
     renderArticle(article);
   }).catch(function(){
-    main.innerHTML = '<div class="not-found"><div class="not-found-num">⚠️</div><div class="not-found-text">載入失敗，請重新整理。</div><a href="index.html" class="not-found-link">回到公告列表</a></div>';
+    main.innerHTML='<div class="not-found"><div class="not-found-num">⚠️</div><div class="not-found-text">載入失敗，請重新整理</div><a href="index.html" class="not-found-link">回到公告列表</a></div>';
   });
 
-  function renderArticle(article) {
+  function show404(){
+    main.innerHTML='<div class="not-found"><div class="not-found-num">404</div><div class="not-found-text">找不到這則公告</div><a href="index.html" class="not-found-link">回到公告列表</a></div>';
+  }
 
-  /* ── 更新頁面標題 ── */
-  document.title = article.title + ' · 116 畢籌會';
+  function renderArticle(a){
+    document.title=(a.title||'公告')+' · 116 畢籌會';
+    var hasCountdown=!!a.eventTime;
+    var hasImage=!!a.image;
+    var hasFormUrl=!!a.formUrl;
+    var hasFormEmbed=!!a.formEmbed;
+    var pageUrl=location.href;
+    var lineShareUrl='https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(pageUrl);
 
-  /* ── 建立頁面內容 ── */
-  var hasCountdown = !!article.eventTime;
-  var hasImage     = !!article.image;
-  var hasFormUrl   = !!article.formUrl;
-  var hasFormEmbed = !!article.formEmbed;
+    var html='';
 
-  var html = '';
+    // breadcrumb
+    html+='<div class="breadcrumb"><a href="index.html">首頁</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg><span>公告</span></div>';
 
-  // breadcrumb
-  html += '<div class="breadcrumb">'
-    +'<a href="index.html">首頁</a>'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>'
-    +'<span>公告</span>'
-    +'</div>';
+    // pin badge
+    html+='<div class="pin-badge-art'+(a.pinned?' show':'')+'">置頂公告</div>';
 
-  // pin badge
-  html += '<div class="pin-badge'+(article.pinned?' show':'')+'">置頂公告</div>';
-
-  // header
-  html += '<div class="article-header">'
-    +'<div class="article-meta">'
-    +'<span class="article-date">'+fmtDate(article.createdAt)+'</span>'
-    +'</div>'
-    +'<h1 class="article-title">'+article.title+'</h1>'
-    +'</div>';
-
-  // countdown
-  html += '<div class="countdown-wrap'+(hasCountdown?' show':'')+'" id="countdown-wrap">';
-  if (hasCountdown) {
-    html += '<div class="countdown-label">活動倒數</div>'
-      +'<div class="countdown-digits" id="cd-digits">'
-      +'<div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-lbl">天</div></div>'
-      +'<div class="cd-sep">:</div>'
-      +'<div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-lbl">時</div></div>'
-      +'<div class="cd-sep">:</div>'
-      +'<div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-lbl">分</div></div>'
-      +'<div class="cd-sep">:</div>'
-      +'<div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">秒</div></div>'
+    // header
+    html+='<div class="article-header">'
+      +'<div class="article-meta">'
+      +(a.group?'<span class="article-group">'+a.group+'</span>':'')
+      +'<span class="article-date">'+fmtDate(a.createdAt)+'</span>'
+      +(a.views?'<span class="article-views"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'+a.views+'</span>':'')
       +'</div>'
-      +'<div class="countdown-event-time">活動時間：'+fmtDateTime(article.eventTime)+'</div>';
-  }
-  html += '</div>';
-
-  // cover image
-  if (hasImage) {
-    html += '<div class="cover-img show"><img src="'+article.image+'" alt="'+article.title+'"></div>';
-  }
-
-  // content
-  html += '<div class="article-content">'+(article.content||'<p>（無內文）</p>')+'</div>';
-
-  // form section
-  if (hasFormUrl || hasFormEmbed) {
-    html += '<div class="form-section show">'
-      +'<div class="form-header">'
-      +'<div class="form-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>'
-      +'<div><div class="form-header-title">相關表單</div><div class="form-header-sub">請填寫以下表單</div></div>'
+      +'<h1 class="article-title">'+escHtml(a.title||'')+'</h1>'
       +'</div>';
-    if (hasFormUrl) {
-      html += '<a href="'+article.formUrl+'" target="_blank" rel="noopener" class="form-link-btn">'
-        +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'
-        +'開啟表單'
-        +'</a>';
+
+    // share bar
+    html+='<div class="share-bar">'
+      +'<span class="share-label">分享：</span>'
+      +'<button class="share-btn" onclick="copyLink()" id="copy-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>複製連結</button>'
+      +'<a class="share-btn line-share" href="'+lineShareUrl+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="white" style="width:13px;height:13px"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>分享到 Line</a>'
+      +'<span class="copy-toast" id="copy-toast">已複製！</span>'
+      +'</div>';
+
+    // countdown
+    html+='<div class="countdown-wrap'+(hasCountdown?' show':'') +'" id="countdown-wrap">';
+    if(hasCountdown){
+      html+='<div class="countdown-label">活動倒數</div>'
+        +'<div class="countdown-digits" id="cd-digits">'
+        +'<div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-lbl">天</div></div>'
+        +'<div class="cd-sep">:</div>'
+        +'<div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-lbl">時</div></div>'
+        +'<div class="cd-sep">:</div>'
+        +'<div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-lbl">分</div></div>'
+        +'<div class="cd-sep">:</div>'
+        +'<div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">秒</div></div>'
+        +'</div>'
+        +'<div class="countdown-event-time">活動時間：'+fmtDateTime(a.eventTime)+'</div>';
     }
-    if (hasFormEmbed) {
-      html += '<iframe class="form-embed" src="'+article.formEmbed+'" frameborder="0" marginheight="0" marginwidth="0">載入中⋯</iframe>';
+    html+='</div>';
+
+    // cover
+    if(hasImage) html+='<div class="cover-img show"><img src="'+a.image+'" alt="'+escHtml(a.title||'')+'"></div>';
+
+    // content
+    html+='<div class="article-content">'+(a.content||'<p>（無內文）</p>')+'</div>';
+
+    // form
+    if(hasFormUrl||hasFormEmbed){
+      html+='<div class="form-section show">'
+        +'<div class="form-header"><div class="form-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="form-header-title">相關表單</div><div class="form-header-sub">請填寫以下表單</div></div></div>';
+      if(hasFormUrl) html+='<a href="'+a.formUrl+'" target="_blank" rel="noopener" class="form-link-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>開啟表單</a>';
+      if(hasFormEmbed) html+='<iframe class="form-embed" src="'+a.formEmbed+'" frameborder="0"></iframe>';
+      html+='</div>';
     }
-    html += '</div>';
-  }
 
-  // divider
-  html += '<hr class="divider">';
+    html+='<hr class="divider">';
+    html+='<a href="index.html" class="back-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>返回公告列表</a>';
 
-  // back link
-  html += '<a href="index.html" class="back-link">'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>'
-    +'返回公告列表'
-    +'</a>';
+    // comments
+    html+='<div class="comments-section">'
+      +'<div class="comments-title">留言</div>'
+      +'<div id="login-prompt" class="login-prompt"><p>用學校 Google 帳號登入才能留言</p>'
+      +'<button class="google-btn" onclick="signInGoogle()"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>用 Google 帳號登入</button></div>'
+      +'<div id="comment-form" class="comment-form">'
+      +'<div class="comment-user"><div class="comment-avatar" id="user-avatar"></div><div><div class="comment-user-name" id="user-name"></div><div class="comment-user-email" id="user-email"></div></div><button class="logout-btn" onclick="signOut()">登出</button></div>'
+      +'<textarea id="comment-input" placeholder="留下你的想法⋯"></textarea>'
+      +'<div class="comment-submit"><button class="submit-btn" id="submit-btn" onclick="postComment()">送出留言</button></div>'
+      +'</div>'
+      +'<div class="comments-list" id="comments-list"><div class="no-comments">還沒有留言</div></div>'
+      +'</div>';
 
-  // comments
-  html += '<div class="comments-section">'
-    +'<div class="comments-title">留言</div>'
-    +'<div id="login-prompt" class="login-prompt">'
-    +'<p>用學校 Google 帳號登入才能留言</p>'
-    +'<button class="google-btn" onclick="signInGoogle()">'
-    +'<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>'
-    +'用 Google 帳號登入'
-    +'</button>'
-    +'</div>'
-    +'<div id="comment-form" class="comment-form">'
-    +'<div class="comment-user">'
-    +'<div class="comment-avatar" id="user-avatar"></div>'
-    +'<div><div class="comment-user-name" id="user-name"></div><div class="comment-user-email" id="user-email"></div></div>'
-    +'<button class="logout-btn" onclick="signOut()">登出</button>'
-    +'</div>'
-    +'<textarea id="comment-input" placeholder="留下你的想法⋯"></textarea>'
-    +'<div class="comment-submit"><button class="submit-btn" id="submit-btn" onclick="postComment()">送出留言</button></div>'
-    +'</div>'
-    +'<div class="comments-list" id="comments-list"><div class="no-comments">還沒有留言，成為第一個！</div></div>'
-    +'</div>';
+    main.innerHTML=html;
 
-  main.innerHTML = html;
-
-  /* ── 倒數計時 ── */
-  if (hasCountdown) {
-    var eventTime = new Date(article.eventTime);
-    function pad(n){ return (n+'').padStart(2,'0'); }
-    function tick(){
-      var diff = eventTime - Date.now();
-      var wrap = document.getElementById('countdown-wrap');
-      if (!wrap) return;
-      if (diff <= 0) {
-        wrap.innerHTML = '<div class="countdown-label">活動倒數</div><div class="countdown-done">活動已結束</div><div class="countdown-event-time">活動時間：'+fmtDateTime(article.eventTime)+'</div>';
-        return;
+    // Countdown
+    if(hasCountdown){
+      var eventTime=new Date(a.eventTime);
+      function pad(n){return(n+'').padStart(2,'0');}
+      function tick(){
+        var diff=eventTime-Date.now();
+        var wrap=document.getElementById('countdown-wrap');
+        if(!wrap) return;
+        if(diff<=0){
+          wrap.innerHTML='<div class="countdown-label">活動倒數</div><div class="countdown-done">活動已結束</div><div class="countdown-event-time">活動時間：'+fmtDateTime(a.eventTime)+'</div>';
+          return;
+        }
+        var d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),
+            m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+        var dEl=document.getElementById('cd-d'),hEl=document.getElementById('cd-h'),
+            mEl=document.getElementById('cd-m'),sEl=document.getElementById('cd-s');
+        if(dEl) dEl.textContent=pad(d);
+        if(hEl) hEl.textContent=pad(h);
+        if(mEl) mEl.textContent=pad(m);
+        if(sEl) sEl.textContent=pad(s);
       }
-      var d = Math.floor(diff / 86400000);
-      var h = Math.floor((diff % 86400000) / 3600000);
-      var m = Math.floor((diff % 3600000) / 60000);
-      var s = Math.floor((diff % 60000) / 1000);
-      var dEl=document.getElementById('cd-d');
-      var hEl=document.getElementById('cd-h');
-      var mEl=document.getElementById('cd-m');
-      var sEl=document.getElementById('cd-s');
-      if(dEl) dEl.textContent=pad(d);
-      if(hEl) hEl.textContent=pad(h);
-      if(mEl) mEl.textContent=pad(m);
-      if(sEl) sEl.textContent=pad(s);
+      tick(); setInterval(tick,1000);
     }
-    tick();
-    setInterval(tick, 1000);
+
+    // Auth
+    window.auth.onAuthStateChanged(function(user){updateAuthUI(user);});
+    renderComments();
+
+    // Share
+    window.copyLink=function(){
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(pageUrl).then(function(){showCopyToast();});
+      } else {
+        var ta=document.createElement('textarea');
+        ta.value=pageUrl; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        showCopyToast();
+      }
+    };
+    function showCopyToast(){
+      var t=document.getElementById('copy-toast');
+      if(!t) return;
+      t.classList.add('show');
+      setTimeout(function(){t.classList.remove('show');},2000);
+    }
   }
 
-  /* ── 留言系統（localStorage 暫存，之後接 Firebase） ── */
-  var commentsKey = 'comments/' + id;
-  renderComments();
-
+  // Comments
+  var commentsKey='comments/'+id;
   function renderComments(){
-    var list = document.getElementById('comments-list');
-    if (!list) return;
-    list.innerHTML = '<div class="no-comments">載入中⋯</div>';
+    var list=document.getElementById('comments-list'); if(!list) return;
+    list.innerHTML='<div class="no-comments">載入中⋯</div>';
     window.db.ref(commentsKey).once('value').then(function(snap){
-      var val = snap.val();
-      var comments = val ? Object.values(val).sort(function(a,b){ return new Date(a.createdAt)-new Date(b.createdAt); }) : [];
-      if (!comments.length) {
-        list.innerHTML = '<div class="no-comments">還沒有留言，成為第一個！</div>';
-        return;
-      }
-      list.innerHTML = comments.map(function(c){
-        var avatarHtml = c.photo ? '<img src="'+c.photo+'" alt="">' : c.name.charAt(0).toUpperCase();
+      var val=snap.val();
+      var comments=val?Object.values(val).sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt);}):[];
+      if(!comments.length){list.innerHTML='<div class="no-comments">還沒有留言，成為第一個！</div>';return;}
+      list.innerHTML=comments.map(function(c){
+        var av=c.photo?'<img src="'+c.photo+'" alt="">':escHtml((c.name||'?').charAt(0).toUpperCase());
         return '<div class="comment-item">'
-          +'<div class="comment-item-header">'
-          +'<div class="comment-item-avatar">'+avatarHtml+'</div>'
-          +'<div class="comment-item-name">'+c.name+'</div>'
-          +'<div class="comment-item-date">'+fmtDate(c.createdAt)+'</div>'
-          +'</div>'
-          +'<div class="comment-item-body">'+escHtml(c.body)+'</div>'
+          +'<div class="comment-item-header"><div class="comment-item-avatar">'+av+'</div>'
+          +'<div class="comment-item-name">'+escHtml(c.name||'匿名')+'</div>'
+          +'<div class="comment-item-date">'+fmtDate(c.createdAt)+'</div></div>'
+          +'<div class="comment-item-body">'+escHtml(c.body||'')+'</div>'
           +'</div>';
       }).join('');
     });
   }
 
   function postComment(){
-    var input = document.getElementById('comment-input');
-    var btn   = document.getElementById('submit-btn');
-    var body  = (input ? input.value : '').trim();
-    if (!body) return;
-    var user = window.auth.currentUser;
-    if (!user) return;
-    btn.disabled = true;
-    var newComment = {
-      name:      user.displayName || user.email,
-      email:     user.email,
-      photo:     user.photoURL || null,
-      body:      body,
-      createdAt: new Date().toISOString()
-    };
-    window.db.ref(commentsKey).push(newComment).then(function(){
-      input.value = '';
-      btn.disabled = false;
-      renderComments();
-    }).catch(function(e){ btn.disabled = false; alert('留言失敗，請再試一次'); });
+    var input=document.getElementById('comment-input');
+    var btn=document.getElementById('submit-btn');
+    var body=(input?input.value:'').trim();
+    if(!body) return;
+    var user=window.auth.currentUser; if(!user) return;
+    btn.disabled=true;
+    window.db.ref(commentsKey).push({
+      name:user.displayName||user.email,
+      email:user.email,
+      photo:user.photoURL||null,
+      body:body,
+      createdAt:new Date().toISOString()
+    }).then(function(){
+      input.value=''; btn.disabled=false; renderComments();
+    }).catch(function(){btn.disabled=false; alert('留言失敗，請再試一次');});
   }
 
-  /* ── Firebase Auth ── */
   function updateAuthUI(user){
-    var promptEl = document.getElementById('login-prompt');
-    var form     = document.getElementById('comment-form');
-    var nameEl   = document.getElementById('user-name');
-    var emailEl  = document.getElementById('user-email');
-    var avEl     = document.getElementById('user-avatar');
-    if (!promptEl || !form) return;
-    if (user) {
-      promptEl.style.display = 'none';
+    var prompt=document.getElementById('login-prompt');
+    var form=document.getElementById('comment-form');
+    var nameEl=document.getElementById('user-name');
+    var emailEl=document.getElementById('user-email');
+    var avEl=document.getElementById('user-avatar');
+    if(!prompt||!form) return;
+    if(user){
+      prompt.style.display='none';
       form.classList.add('show');
-      if (nameEl)  nameEl.textContent  = user.displayName || user.email;
-      if (emailEl) emailEl.textContent = user.email;
-      if (avEl) avEl.innerHTML = user.photoURL
-        ? '<img src="'+user.photoURL+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-        : (user.displayName||'?').charAt(0).toUpperCase();
+      if(nameEl) nameEl.textContent=user.displayName||user.email;
+      if(emailEl) emailEl.textContent=user.email;
+      if(avEl) avEl.innerHTML=user.photoURL?'<img src="'+user.photoURL+'" alt="">':(user.displayName||'?').charAt(0).toUpperCase();
     } else {
-      promptEl.style.display = '';
+      prompt.style.display='';
       form.classList.remove('show');
     }
   }
 
-  window.auth.onAuthStateChanged(function(user){
-    updateAuthUI(user);
-    renderComments();
-  });
+  window.signInGoogle=function(){window.auth.signInWithPopup(window.googleProvider).catch(function(e){alert('登入失敗：'+e.message);});};
+  window.signOut=function(){window.auth.signOut();};
+  window.postComment=postComment;
 
-  window.signInGoogle = function(){
-    window.auth.signInWithPopup(window.googleProvider).catch(function(e){
-      alert('登入失敗：' + e.message);
-    });
-  };
-
-  window.signOut = function(){
-    window.auth.signOut();
-  };
-  window.postComment = postComment;
-
-  } // end renderArticle
-
-  /* ── 工具函式 ── */
   function fmtDate(iso){
-    if (!iso) return '';
-    var d = new Date(iso);
+    if(!iso) return '';
+    var d=new Date(iso);
     return d.getFullYear()+'/'+(d.getMonth()+1+'').padStart(2,'0')+'/'+(d.getDate()+'').padStart(2,'0');
   }
   function fmtDateTime(iso){
-    if (!iso) return '';
-    var d = new Date(iso);
+    if(!iso) return '';
+    var d=new Date(iso);
     return fmtDate(iso)+' '+pad2(d.getHours())+':'+pad2(d.getMinutes());
   }
-  function pad2(n){ return (n+'').padStart(2,'0'); }
-  function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
+  function pad2(n){return(n+'').padStart(2,'0');}
+  function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 })();
 </script>
 </body>
