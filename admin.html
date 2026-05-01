@@ -341,12 +341,31 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
           <select id="f-group"><option value="">不分組</option></select>
         </div>
         <div class="form-row">
-          <label>活動時間（選填）</label>
-          <div style="display:flex;gap:8px;">
-            <input type="date" id="f-eventdate" style="flex:1" placeholder="選擇日期">
-            <input type="time" id="f-eventtime-hm" style="width:120px" placeholder="時:分">
+          <label>公告類型</label>
+          <select id="f-post-type" onchange="toggleEventFields()">
+            <option value="normal">一般公告（長期存在）</option>
+            <option value="event">活動型（有開始與截止時間）</option>
+          </select>
+        </div>
+      </div>
+      <div id="event-fields" style="display:none">
+        <div class="form-grid" style="margin-top:8px">
+          <div class="form-row">
+            <label>活動開始時間</label>
+            <div style="display:flex;gap:8px;">
+              <input type="date" id="f-startdate" style="flex:1">
+              <input type="time" id="f-starttime-hm" style="width:110px" value="00:00">
+            </div>
+            <div class="form-hint">不填則只顯示截止倒數</div>
           </div>
-          <div class="form-hint">填了會顯示倒數計時器</div>
+          <div class="form-row">
+            <label>活動截止時間 *</label>
+            <div style="display:flex;gap:8px;">
+              <input type="date" id="f-eventdate" style="flex:1">
+              <input type="time" id="f-eventtime-hm" style="width:110px" value="23:59">
+            </div>
+            <div class="form-hint">前台顯示進度條和倒數計時</div>
+          </div>
         </div>
       </div>
     </div>
@@ -691,12 +710,18 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   };
 
   /* ── FORM ── */
+  window.toggleEventFields=function(){
+    var type=document.getElementById('f-post-type').value;
+    var fields=document.getElementById('event-fields');
+    if(fields) fields.style.display=type==='event'?'block':'none';
+  };
+
   function resetForm(){
     editingId=null; coverBase64=null;
     document.getElementById('form-page-title').innerHTML='新增<span>公告</span>';
     document.getElementById('form-page-sub').textContent='填寫以下欄位後發布';
     document.getElementById('save-btn-text').textContent='發布公告';
-    ['f-title','f-eventdate','f-eventtime-hm','f-form-url','f-form-embed','f-schedule'].forEach(function(id){var el=document.getElementById(id);if(el) el.value='';});
+    ['f-title','f-eventdate','f-eventtime-hm','f-startdate','f-starttime-hm','f-form-url','f-form-embed','f-schedule'].forEach(function(id){var el=document.getElementById(id);if(el) el.value='';}); document.getElementById('f-post-type').value='normal'; window.toggleEventFields();;
     document.getElementById('f-group').value='';
     document.getElementById('f-content').innerHTML='';
     document.getElementById('f-pinned').checked=false;
@@ -714,9 +739,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('save-btn-text').textContent='儲存變更';
     document.getElementById('f-title').value=a.title||'';
     document.getElementById('f-group').value=a.group||'';
+    document.getElementById('f-post-type').value=a.postType||'normal';
+    window.toggleEventFields();
     var et=a.eventTime?new Date(a.eventTime):null;
     document.getElementById('f-eventdate').value=et?(et.getFullYear()+'-'+(et.getMonth()+1+'').padStart(2,'0')+'-'+(et.getDate()+'').padStart(2,'0')):'';
     document.getElementById('f-eventtime-hm').value=et?((et.getHours()+'').padStart(2,'0')+':'+(et.getMinutes()+'').padStart(2,'0')):'';
+    var es=a.eventStart?new Date(a.eventStart):null;
+    var sdEl=document.getElementById('f-startdate'); if(sdEl) sdEl.value=es?(es.getFullYear()+'-'+(es.getMonth()+1+'').padStart(2,'0')+'-'+(es.getDate()+'').padStart(2,'0')):'';
+    var stEl=document.getElementById('f-starttime-hm'); if(stEl) stEl.value=es?((es.getHours()+'').padStart(2,'0')+':'+(es.getMinutes()+'').padStart(2,'0')):'';
     document.getElementById('f-content').innerHTML=a.content||'';
     document.getElementById('f-pinned').checked=!!a.pinned;
     document.getElementById('f-group-pinned').checked=!!a.groupPinned;
@@ -744,11 +774,19 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var data={
       title:title,
       group:document.getElementById('f-group').value,
+      postType:document.getElementById('f-post-type').value,
       eventTime:(function(){
-      var d=document.getElementById('f-eventdate').value;
-      var t=document.getElementById('f-eventtime-hm').value||'00:00';
-      return d?(d+'T'+t):null;
-    }()),
+        var d=document.getElementById('f-eventdate').value;
+        var t=document.getElementById('f-eventtime-hm').value||'23:59';
+        return d?(d+'T'+t):null;
+      }()),
+      eventStart:(function(){
+        var type=document.getElementById('f-post-type').value;
+        if(type!=='event') return null;
+        var d=document.getElementById('f-startdate').value;
+        var t=document.getElementById('f-starttime-hm').value||'00:00';
+        return d?(d+'T'+t):null;
+      }()),
       content:document.getElementById('f-content').innerHTML,
       pinned:document.getElementById('f-pinned').checked,
       groupPinned:document.getElementById('f-group-pinned').checked,
@@ -928,8 +966,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     switchPage('new-post',document.querySelectorAll('.nav-item')[2]);
     setTimeout(function(){
       var parts=val.split('T');
+      document.getElementById('f-post-type').value='event';
+      window.toggleEventFields();
       document.getElementById('f-eventdate').value=parts[0];
-      document.getElementById('f-eventtime-hm').value=parts[1]||'12:00';
+      document.getElementById('f-eventtime-hm').value=parts[1]||'23:59';
     },60);
   };
 
