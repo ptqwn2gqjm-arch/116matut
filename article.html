@@ -130,6 +130,28 @@ nav{
 .countdown-event-time{margin-top:14px;font-size:12px;color:rgba(255,255,255,.35);}
 .countdown-done{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;color:rgba(255,255,255,.5);}
 
+/* PROGRESS BAR */
+.progress-wrap{
+  background:white;border:1.5px solid var(--border);border-radius:12px;
+  padding:22px 26px;margin-bottom:28px;
+}
+.progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.progress-title-lbl{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+.progress-status{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  padding:4px 12px;border-radius:12px;
+}
+.progress-status.ongoing{background:rgba(46,155,212,.1);color:var(--mid);}
+.progress-status.upcoming{background:rgba(39,174,96,.1);color:#27ae60;}
+.progress-status.done{background:#f0f0f0;color:var(--muted);}
+.progress-status.urgent{background:rgba(231,76,60,.1);color:#e74c3c;}
+.progress-bar-wrap{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:14px;}
+.progress-bar-fill{height:100%;border-radius:5px;transition:width .3s;background:linear-gradient(90deg,var(--mid),var(--light));}
+.progress-bar-fill.done{background:#ccc;}
+.progress-bar-fill.urgent{background:linear-gradient(90deg,#e74c3c,#e67e22);}
+.progress-dates{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+.progress-pct{text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--mid);margin-bottom:8px;}
+
 /* COVER */
 .cover-img{display:none;width:100%;border-radius:10px;overflow:hidden;margin-bottom:32px;aspect-ratio:16/7;background:var(--pale);}
 .cover-img.show{display:block;}
@@ -364,10 +386,45 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
       +'<span class="copy-toast" id="copy-toast">已複製！</span>'
       +'</div>';
 
-    // countdown
+    // progress bar for event type
+    if(a.postType==='event'&&a.eventTime){
+      var now=Date.now();
+      var start=a.eventStart?new Date(a.eventStart).getTime():null;
+      var end=new Date(a.eventTime).getTime();
+      var diff=end-now;
+      var isUpcoming=start&&now<start;
+      var isDone=diff<=0;
+      var isUrgent=!isDone&&diff<3*86400000;
+      var pct=0;
+      if(!isDone&&!isUpcoming){
+        var total=start?(end-new Date(a.eventStart).getTime()):(end-(now-7*86400000));
+        var elapsed=start?(now-new Date(a.eventStart).getTime()):(7*86400000);
+        pct=Math.min(100,Math.max(0,Math.round(elapsed/total*100)));
+      } else if(isDone){ pct=100; }
+      var statusText=isDone?'已結束':(isUpcoming?'即將開始':(isUrgent?'即將截止':'進行中'));
+      var statusCls=isDone?'done':(isUpcoming?'upcoming':(isUrgent?'urgent':'ongoing'));
+      var daysLeft=Math.ceil(diff/86400000);
+      var fillCls=isDone?'done':(isUrgent?'urgent':'');
+      html+='<div class="progress-wrap">'
+        +'<div class="progress-header">'
+        +'<span class="progress-title-lbl">活動進度</span>'
+        +'<span class="progress-status '+statusCls+'">'+statusText+'</span>'
+        +'</div>'
+        +'<div class="progress-bar-wrap"><div class="progress-bar-fill '+fillCls+'" id="prog-fill" style="width:'+pct+'%"></div></div>'
+        +'<div class="progress-pct" id="prog-pct">'+pct+'%</div>'
+        +'<div class="progress-dates">'
+        +(start?'<span>開始：'+fmtDateTime(a.eventStart)+'</span>':'<span></span>')
+        +'<span>結束：'+fmtDateTime(a.eventTime)+'</span>'
+        +'</div>'
+        +((!isDone&&!isUpcoming&&daysLeft>0)?'<div style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted);">還剩 <strong style="color:var(--mid)">'+daysLeft+'</strong> 天</div>':'')
+        +'</div>';
+    }
+
+    // countdown (for non-event posts with eventTime, or event posts show countdown too)
+    var hasCountdown=!!a.eventTime;
     html+='<div class="countdown-wrap'+(hasCountdown?' show':'') +'" id="countdown-wrap">';
     if(hasCountdown){
-      html+='<div class="countdown-label">活動倒數</div>'
+      html+='<div class="countdown-label">'+(a.postType==='event'?'截止倒數':'活動倒數')+'</div>'
         +'<div class="countdown-digits" id="cd-digits">'
         +'<div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-lbl">天</div></div>'
         +'<div class="cd-sep">:</div>'
@@ -377,7 +434,7 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
         +'<div class="cd-sep">:</div>'
         +'<div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">秒</div></div>'
         +'</div>'
-        +'<div class="countdown-event-time">活動時間：'+fmtDateTime(a.eventTime)+'</div>';
+        +'<div class="countdown-event-time">'+(a.postType==='event'?'截止時間：':'活動時間：')+fmtDateTime(a.eventTime)+'</div>';
     }
     html+='</div>';
 
