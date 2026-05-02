@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的收藏 · 116 畢籌會</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:"AIzaSyBWJrcav4T0Ibh-U43Oa3ij4TDuJY3tDrI",
+    authDomain:"bichoucui.firebaseapp.com",
+    databaseURL:"https://bichoucui-default-rtdb.firebaseio.com",
+    projectId:"bichoucui",
+    storageBucket:"bichoucui.firebasestorage.app",
+    messagingSenderId:"1035865429114",
+    appId:"1:1035865429114:web:c33daa36ffd04d736517c3"
+  });
+  window.db=firebase.database();
+</script>
+<style>
+:root{
+  --deep:#0D3B5C;--mid:#1A6B9A;--light:#2E9BD4;--pale:#D6EAF8;
+  --bg:#F4F8FB;--white:#fff;--text:#0D1F2D;--muted:#7B9BB3;--border:#D0E4F0;--pin:#E8A020;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(244,248,251,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:60px;padding:0 32px;display:flex;align-items:center;gap:14px;}
+.nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;text-decoration:none;color:var(--deep);display:flex;align-items:baseline;gap:5px;white-space:nowrap;flex-shrink:0;}
+.nav-logo .num{color:var(--mid);}
+.nav-logo .lbl{font-size:12px;font-weight:500;color:var(--muted);}
+.nav-back{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;color:var(--muted);transition:all .2s;white-space:nowrap;flex-shrink:0;margin-left:auto;}
+.nav-back:hover{background:var(--pale);color:var(--deep);}
+.nav-back svg{width:14px;height:14px;}
+
+.main{max-width:760px;margin:0 auto;padding:80px 24px 80px;}
+.page-header{margin-bottom:32px;}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:48px;letter-spacing:-.01em;color:var(--deep);}
+.page-title span{color:var(--mid);}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+
+.cards-list{display:flex;flex-direction:column;gap:12px;}
+.card{background:white;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;display:flex;text-decoration:none;color:inherit;transition:border-color .2s,transform .2s,box-shadow .2s;position:relative;}
+.card:hover{border-color:var(--mid);transform:translateY(-2px);box-shadow:0 8px 28px rgba(13,59,92,.09);}
+.card-accent{width:4px;flex-shrink:0;background:var(--mid);}
+.card-img{width:100px;flex-shrink:0;background:var(--pale);overflow:hidden;}
+.card-img img{width:100%;height:100%;object-fit:cover;}
+.card-body{padding:16px 18px;flex:1;min-width:0;}
+.card-meta{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap;}
+.card-date{font-size:12px;color:var(--muted);}
+.card-group-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:3px;background:rgba(46,155,212,.1);color:var(--light);}
+.card-title{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:5px;}
+.card-excerpt{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
+.card-right{padding:16px 16px 16px 0;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;flex-shrink:0;}
+.card-arrow{width:30px;height:30px;border-radius:50%;background:var(--pale);display:flex;align-items:center;justify-content:center;color:var(--mid);transition:all .2s;flex-shrink:0;}
+.card:hover .card-arrow{background:var(--mid);color:white;}
+.card-arrow svg{width:13px;height:13px;}
+.remove-btn{background:none;border:none;cursor:pointer;color:var(--border);padding:4px;border-radius:4px;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.remove-btn:hover{color:#e74c3c;background:#fdecea;}
+.remove-btn svg{width:14px;height:14px;}
+
+.empty{text-align:center;padding:80px 24px;}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+.empty-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--deep);margin-bottom:8px;}
+.empty-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.7;}
+.empty-btn{display:inline-flex;align-items:center;gap:8px;background:var(--deep);color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.08em;transition:background .2s;}
+.empty-btn:hover{background:var(--mid);}
+
+.clear-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1.5px solid var(--border);background:white;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Noto Sans TC',sans-serif;margin-top:4px;}
+.clear-btn:hover{border-color:#e74c3c;color:#e74c3c;}
+.clear-btn svg{width:13px;height:13px;}
+
+.back-top{position:fixed;bottom:32px;right:20px;z-index:199;width:40px;height:40px;border-radius:50%;background:var(--deep);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;box-shadow:0 4px 14px rgba(13,59,92,.25);}
+.back-top.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+.back-top:hover{background:var(--mid);}
+.back-top svg{width:16px;height:16px;}
+
+footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--deep);}
+.footer-logo span{color:var(--mid);}
+.footer-copy{font-size:12px;color:var(--muted);}
+
+@keyframes cardIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card-animate{animation:cardIn .35s ease forwards;}
+
+@media(max-width:768px){
+  nav{padding:0 16px;height:54px;}
+  .nav-logo{font-size:22px;}
+  .nav-logo .lbl{display:none;}
+  .main{padding:70px 16px 60px;}
+  .page-title{font-size:36px;}
+  .card-img{display:none;}
+  .card-body{padding:14px 14px;}
+  .card-title{font-size:15px;}
+  .card-right{padding:14px 12px 14px 0;}
+  footer{padding:20px 16px;flex-direction:column;gap:8px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo"><span class="num">116</span><span class="lbl">畢籌會</span></a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    回首頁
+  </a>
+</nav>
+
+<div class="main">
+  <div class="page-header">
+    <h1 class="page-title">我的<span>收藏</span></h1>
+    <div class="page-sub" id="page-sub">載入中⋯</div>
+  </div>
+  <div id="cards-list"></div>
+</div>
+
+<button class="back-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<footer>
+  <div class="footer-logo"><span>116</span> 畢籌會</div>
+  <div class="footer-copy">© 2026 116級畢籌會</div>
+</footer>
+
+<script>
+(function(){
+  var BOOKMARK_KEY='116_bookmarks';
+
+  // Back to top
+  var btt=document.getElementById('back-top');
+  window.addEventListener('scroll',function(){btt.classList.toggle('show',window.scrollY>300);});
+
+  function getBookmarks(){
+    try{return JSON.parse(localStorage.getItem(BOOKMARK_KEY)||'[]');}
+    catch(e){return [];}
+  }
+
+  function removeBookmark(id){
+    var saved=getBookmarks();
+    var idx=saved.indexOf(String(id));
+    if(idx>=0) saved.splice(idx,1);
+    localStorage.setItem(BOOKMARK_KEY,JSON.stringify(saved));
+    loadBookmarks();
+  }
+
+  function clearAll(){
+    if(!confirm('確定要清除所有收藏嗎？')) return;
+    localStorage.setItem(BOOKMARK_KEY,'[]');
+    loadBookmarks();
+  }
+
+  function loadBookmarks(){
+    var list=document.getElementById('cards-list');
+    var sub=document.getElementById('page-sub');
+    var ids=getBookmarks();
+
+    if(!ids.length){
+      sub.textContent='';
+      list.innerHTML='<div class="empty">'
+        +'<div class="empty-icon">☆</div>'
+        +'<div class="empty-title">還沒有收藏</div>'
+        +'<div class="empty-sub">在公告內頁點「收藏」<br>就可以在這裡找到</div>'
+        +'<a href="list.html" class="empty-btn">去看所有公告</a>'
+        +'</div>';
+      return;
+    }
+
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">載入中⋯</div>';
+
+    // Fetch all bookmarked articles from Firebase
+    var promises=ids.map(function(id){
+      return window.db.ref('articles/'+id).once('value').then(function(snap){
+        return snap.val();
+      });
+    });
+
+    Promise.all(promises).then(function(articles){
+      var valid=articles.filter(function(a){return a&&!a.draft;});
+      sub.textContent='共收藏 '+valid.length+' 則';
+
+      if(!valid.length){
+        list.innerHTML='<div class="empty">'
+          +'<div class="empty-icon">🗑</div>'
+          +'<div class="empty-title">收藏的公告已不存在</div>'
+          +'<div class="empty-sub">可能已被刪除或設為草稿</div>'
+          +'<a href="list.html" class="empty-btn">去看所有公告</a>'
+          +'</div>';
+        return;
+      }
+
+      var clearHtml='<div style="text-align:right;margin-bottom:16px;">'
+        +'<button class="clear-btn" onclick="clearAll()">'
+        +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
+        +'清除全部收藏</button></div>';
+
+      list.innerHTML=clearHtml+valid.map(function(a,i){
+        var excerpt=(a.content||'').replace(/<[^>]*>/g,'').slice(0,80);
+        var imgHtml=a.image?'<div class="card-img"><img src="'+a.image+'" alt="" loading="lazy"></div>':'';
+        var groupTag=a.group?'<span class="card-group-tag">'+a.group+'</span>':'';
+        var accentStyle=a.color?'style="background:'+a.color+'"':'';
+        return '<div class="card card-animate" style="animation-delay:'+(i*0.04)+'s">'
+          +'<div class="card-accent" '+accentStyle+'></div>'
+          +imgHtml
+          +'<a href="article.html?id='+encodeURIComponent(a.id)+'" style="display:flex;flex:1;min-width:0;text-decoration:none;color:inherit;">'
+          +'<div class="card-body">'
+          +'<div class="card-meta">'+groupTag+'<span class="card-date">'+fmtDate(a.createdAt)+'</span></div>'
+          +'<div class="card-title">'+escHtml(a.title||'')+'</div>'
+          +(excerpt?'<div class="card-excerpt">'+escHtml(excerpt+(excerpt.length>=80?'⋯':''))+'</div>':'')
+          +'</div>'
+          +'<div class="card-right">'
+          +'<div class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>'
+          +'</div>'
+          +'</a>'
+          +'<button class="remove-btn" onclick="removeBookmark(\''+a.id+'\')" title="移除收藏" style="position:absolute;top:10px;right:10px;">'
+          +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+          +'</button>'
+          +'</div>';
+      }).join('');
+    }).catch(function(){
+      list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">載入失敗</div><div class="empty-sub">請重新整理</div></div>';
+    });
+  }
+
+  window.removeBookmark=removeBookmark;
+  window.clearAll=clearAll;
+
+  function fmtDate(iso){
+    if(!iso) return '';
+    var d=new Date(iso);
+    return d.getFullYear()+'/'+(d.getMonth()+1+'').padStart(2,'0')+'/'+(d.getDate()+'').padStart(2,'0');
+  }
+  function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  loadBookmarks();
+})();
+</script>
+</body>
+</html>
