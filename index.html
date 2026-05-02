@@ -593,11 +593,13 @@ footer{
       var excerpt=(a.content||'').replace(/<[^>]*>/g,'').slice(0,80);
       var imgHtml=a.image?'<div class="card-img"><img src="'+a.image+'" alt="" loading="lazy"></div>':'';
       var timer=a.postType==='event'?progressHtml(a.eventStart,a.eventTime):(a.eventTime?timerHtml(a.eventTime):'');
-      var groupTag=a.group?'<span class="card-group-tag">'+a.group+'</span>':'';
+      var tagColor=a.color||null;
+      var groupTag=a.group?'<span class="card-group-tag"'+(tagColor?' style="background:'+tagColor+'22;color:'+tagColor+'"':'')+'>'+a.group+'</span>':'';
       var views=a.views?'<span class="card-views"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'+a.views+'</span>':'';
+      var articleColor=a.color||null;
       var cls='card'+(isPinned?' pinned':'')+(isGroupPinned?' group-pinned':'');
       return '<a class="'+cls+' card-animate" href="article.html?id='+encodeURIComponent(a.id)+'" style="animation-delay:'+(i*0.04)+'s">'
-        +'<div class="card-accent"></div>'
+        +'<div class="card-accent"'+(articleColor?' style="background:'+articleColor+'"':'')+' ></div>'
         +imgHtml
         +'<div class="card-body">'
         +'<div class="card-meta">'
