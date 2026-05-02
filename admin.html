@@ -626,7 +626,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   <button class="sort-cancel-btn" onclick="cancelOrder()">取消</button>
 </div>
 <!-- CROP MODAL -->
-<div class="crop-overlay" id="crop-overlay">
+<div class="crop-overlay" id="crop-overlay" style="display:none">
   <div class="crop-modal">
     <div class="crop-bar">
       <span>裁切圖片</span>
@@ -1348,7 +1348,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         // Reset selection
         selW=0; selH=0;
         var ex=document.querySelector('.crop-selection'); if(ex) ex.remove();
-        document.getElementById('crop-overlay').classList.add('show');
+        document.getElementById('crop-overlay').style.display='flex';
         document.body.style.overflow='hidden';
         setupCropDrag();
       };
@@ -1439,7 +1439,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   };
 
   window.closeCrop=function(){
-    document.getElementById('crop-overlay').classList.remove('show');
+    document.getElementById('crop-overlay').style.display='none';
     document.body.style.overflow='';
     var img=document.getElementById('crop-img');
     if(img){img.src='';img.style.display='none';}
