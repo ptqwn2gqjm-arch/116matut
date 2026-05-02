@@ -1138,11 +1138,25 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var url=prompt('輸入連結網址：');
     if(url){document.execCommand('createLink',false,url);document.getElementById('f-content').focus();}
   };
+  var savedRange=null;
+
   window.insertLinkBtn=function(){
+    // Save cursor position BEFORE opening modal
+    var editor=document.getElementById('f-content');
+    editor.focus();
+    var sel=window.getSelection();
+    if(sel&&sel.rangeCount>0){
+      savedRange=sel.getRangeAt(0).cloneRange();
+    } else {
+      // If no selection, put cursor at end
+      savedRange=document.createRange();
+      savedRange.selectNodeContents(editor);
+      savedRange.collapse(false);
+    }
     document.getElementById('lbm-text').value='';
     document.getElementById('lbm-url').value='';
     document.getElementById('link-btn-overlay').style.display='flex';
-    document.getElementById('lbm-text').focus();
+    setTimeout(function(){document.getElementById('lbm-text').focus();},100);
   };
   window.closeLinkBtnModal=function(){
     document.getElementById('link-btn-overlay').style.display='none';
@@ -1152,12 +1166,24 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var url=(document.getElementById('lbm-url').value||'').trim();
     if(!text||!url){showToast('請填寫按鈕文字和網址',true);return;}
     var editor=document.getElementById('f-content');
-    editor.focus();
-    // Insert button HTML with line breaks
-    var btnHtml='<br><a href="'+url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#1A6B9A;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;margin:4px 4px 4px 0;">'+text+'</a><br>';
-    document.execCommand('insertHTML',false,btnHtml);
+
+    // Arrow link style HTML
+    var btnHtml='<a href="'+url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:#1A6B9A;text-decoration:none;font-size:15px;font-weight:500;border-bottom:1.5px solid #1A6B9A;padding-bottom:1px;">'+text+' →</a>';
+
+    // Restore saved cursor position and insert there
+    if(savedRange){
+      editor.focus();
+      var sel=window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+      document.execCommand('insertHTML',false,btnHtml);
+      savedRange=null;
+    } else {
+      editor.focus();
+      document.execCommand('insertHTML',false,btnHtml);
+    }
     closeLinkBtnModal();
-    showToast('連結按鈕已插入 ✓');
+    showToast('連結已插入 ✓');
   };
   window.updateWordCount=function(){
     var el=document.getElementById('f-content');
