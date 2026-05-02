@@ -472,13 +472,13 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         <div class="form-hint">設定時間後儲存為草稿，到時間自動發布</div>
       </div>
     </div>
-    <div class="error-panel" id="save-error-panel">
-      <div class="error-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="error-panel" id="save-error-panel" style="display:none">
+      <div class="error-panel-icon">⚠️</div>
       <div class="error-panel-body">
         <div class="error-panel-title">發布失敗</div>
         <div class="error-panel-msg" id="save-error-msg">請稍後再試</div>
       </div>
-      <button class="error-panel-close" onclick="document.getElementById('save-error-panel').classList.remove('show')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="error-panel-close" onclick="document.getElementById('save-error-panel').style.display='none'">✕</button>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
       <button class="btn btn-primary" onclick="savePost()" style="flex:1;min-width:130px;justify-content:center;">
@@ -1475,7 +1475,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   function showError(msg){
     var panel=document.getElementById('save-error-panel');
     var msgEl=document.getElementById('save-error-msg');
-    if(panel&&msgEl){msgEl.textContent=msg;panel.classList.add('show');panel.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    if(panel&&msgEl){
+      msgEl.textContent=msg;
+      panel.style.display='flex';
+      panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
     showToast(msg,true);
   }
 
