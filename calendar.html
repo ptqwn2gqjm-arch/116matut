@@ -239,7 +239,18 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
     renderUpcoming();
   });
 
-  function getColor(group){
+  var groupColors={};
+  // Load group colors from Firebase
+  window.db.ref('settings/groupColors').once('value').then(function(snap){
+    var c=snap.val(); if(c&&typeof c==='object') groupColors=c;
+  });
+
+  function getColor(group,articleColor){
+    // Article-specific color takes priority
+    if(articleColor) return articleColor;
+    // Then group color from settings
+    if(groupColors[group]) return groupColors[group];
+    // Then default color by index
     var idx=groups.indexOf(group);
     return idx>=0?COLORS[idx%COLORS.length]:COLORS[COLORS.length-1];
   }
@@ -279,7 +290,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
       var startD=a.eventStart?new Date(a.eventStart):new Date(a.eventTime);
       var endD=new Date(a.eventTime);
       startD.setHours(0,0,0,0); endD.setHours(0,0,0,0);
-      var color=getColor(a.group);
+      var color=getColor(a.group,a.color);
       // Find first free track
       var t=0;
       while(t<trackSlots.length && trackSlots[t]>=startD.getTime()) t++;
@@ -511,7 +522,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
       list.innerHTML=sorted.map(function(a){
         var ev=new Date(a.eventTime);
         var diff=ev-now;
-        var color=getColor(a.group);
+        var color=getColor(a.group,a.color);
         var cdText,cdCls;
         if(diff<0){cdText='已結束';cdCls='done';}
         else if(diff<3600000){cdText=Math.ceil(diff/60000)+' 分後';cdCls='urgent';}
