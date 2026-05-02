@@ -379,7 +379,19 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       <div class="form-grid">
         <div class="form-row">
           <label>所屬組別</label>
-          <select id="f-group"><option value="">不分組</option></select>
+          <select id="f-group" onchange="onGroupChange()" ><option value="">不分組</option></select>
+        </div>
+        <div class="form-row">
+          <label>公告顏色</label>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div id="color-swatches" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <input type="color" id="f-custom-color" value="#1A6B9A" style="width:36px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;">
+              <span style="font-size:12px;color:var(--muted);">自訂顏色</span>
+            </div>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;" onclick="resetArticleColor()">重設為組別預設</button>
+          </div>
+          <div class="form-hint">不選則自動使用該組別的顏色</div>
         </div>
         <div class="form-row">
           <label>公告類型</label>
@@ -879,6 +891,56 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   };
 
   /* ── FORM ── */
+  /* ── ARTICLE COLOR ── */
+  var PRESET_COLORS=['#1A6B9A','#27ae60','#e67e22','#8e44ad','#e74c3c','#2980b9','#16a085','#f39c12','#1abc9c','#c0392b','#7f8c8d','#2c3e50'];
+
+  function renderColorSwatches(){
+    var wrap=document.getElementById('color-swatches'); if(!wrap) return;
+    var group=document.getElementById('f-group').value;
+    var groupColor=getGroupColor(group)||'#1A6B9A';
+    var colorPicker=document.getElementById('f-custom-color');
+    var isCustom=colorPicker&&colorPicker.dataset.custom==='1';
+    var currentColor=isCustom?colorPicker.value:groupColor;
+    var swatchColors=[groupColor];
+    PRESET_COLORS.forEach(function(c){if(c.toLowerCase()!==groupColor.toLowerCase()) swatchColors.push(c);});
+    wrap.innerHTML=swatchColors.map(function(c){
+      var active=currentColor.toLowerCase()===c.toLowerCase();
+      var border=active?'3px solid var(--deep)':'3px solid transparent';
+      var shadow=active?'0 0 0 2px white inset':'none';
+      return '<div data-color="'+c+'" onclick="selectColor(this.dataset.color)"'
+        +' style="width:26px;height:26px;border-radius:50%;background:'+c+';cursor:pointer;'
+        +'border:'+border+';box-shadow:'+shadow+';transition:transform .15s;flex-shrink:0;"'
+        +' title="'+c+'"></div>';
+    }).join('');
+  }
+
+  window.selectColor=function(color){
+    var cp=document.getElementById('f-custom-color');
+    if(cp){cp.value=color;cp.dataset.custom='1';}
+    renderColorSwatches();
+  };
+
+  window.resetArticleColor=function(){
+    var cp=document.getElementById('f-custom-color');
+    if(cp){cp.dataset.custom='0';}
+    renderColorSwatches();
+  };
+
+  window.onGroupChange=function(){
+    var cp=document.getElementById('f-custom-color');
+    // Only reset if user hasn't picked a custom color
+    if(cp&&cp.dataset.custom!=='1') renderColorSwatches();
+    else renderColorSwatches();
+  };
+
+  // Update swatch when color picker changes
+  document.addEventListener('change',function(e){
+    if(e.target&&e.target.id==='f-custom-color'){
+      e.target.dataset.custom='1';
+      renderColorSwatches();
+    }
+  });
+
   window.toggleEventFields=function(){
     var type=document.getElementById('f-post-type').value;
     var fields=document.getElementById('event-fields');
@@ -897,6 +959,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('f-group-pinned').checked=false;
     document.getElementById('f-draft').checked=false;
     clearImgUI(); updateWordCount();
+    var cp=document.getElementById('f-custom-color');
+    if(cp){cp.value='#1A6B9A';cp.dataset.custom='0';}
+    renderColorSwatches();
   }
 
   window.editPost=function(id){
@@ -962,6 +1027,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         return d?(d+'T'+t):null;
       }()),
       content:document.getElementById('f-content').innerHTML,
+      color:(function(){var cp=document.getElementById('f-custom-color');return(cp&&cp.dataset.custom==='1')?cp.value:null;}()),
       pinned:document.getElementById('f-pinned').checked,
       groupPinned:document.getElementById('f-group-pinned').checked,
       draft:isDraft,
@@ -1220,8 +1286,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   function loadSettings(){
     window.db.ref('settings/groups').once('value').then(function(snap){
       var g=snap.val(); if(g&&Array.isArray(g)) currentGroups=g;
-      renderGroupsList(); populateGroupSelect();
-    }).catch(function(){renderGroupsList(); populateGroupSelect();});
+      return window.db.ref('settings/groupColors').once('value');
+    }).then(function(snap){
+      var c=snap.val(); if(c&&typeof c==='object') groupColors=c;
+      renderGroupsList(); populateGroupSelect(); renderColorSwatches();
+    }).catch(function(){renderGroupsList(); populateGroupSelect(); renderColorSwatches();});
     window.db.ref('settings/appearance').once('value').then(function(snap){
       var a=snap.val()||{};
       var sub=document.getElementById('s-hero-sub');
@@ -1230,11 +1299,29 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       if(ft) ft.value=a.footerText||'';
     });
   }
+  var DEFAULT_COLORS=['#1A6B9A','#27ae60','#e67e22','#8e44ad','#e74c3c','#2980b9','#16a085','#d35400','#8e44ad','#2c3e50'];
+  var groupColors={}; // groupName -> color
+
+  window.onGroupColorChange=function(input){
+    var g=input.dataset.group;
+    if(g) groupColors[g]=input.value;
+    renderGroupsList();
+  };
+
+  function getGroupColor(group){
+    if(groupColors[group]) return groupColors[group];
+    var idx=currentGroups.indexOf(group);
+    return DEFAULT_COLORS[idx>=0?idx%DEFAULT_COLORS.length:0];
+  }
+
   function renderGroupsList(){
     var list=document.getElementById('groups-list'); if(!list) return;
     list.innerHTML=currentGroups.map(function(g,i){
+      var color=groupColors[g]||DEFAULT_COLORS[i%DEFAULT_COLORS.length];
       return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="width:28px;height:28px;border-radius:6px;flex-shrink:0;background:'+color+'"></div>'
         +'<input type="text" value="'+g+'" style="flex:1;border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-family:Noto Sans TC,sans-serif;font-size:14px;outline:none" onchange="currentGroups['+i+']=this.value">'
+        +'<input type="color" value="'+color+'" data-group="'+g+'" style="width:36px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;flex-shrink:0;" onchange="onGroupColorChange(this)" title="選擇顏色">'
         +'<button class="icon-btn del" onclick="removeGroup('+i+')" title="刪除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
         +'</div>';
     }).join('');
@@ -1261,10 +1348,22 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         showToast('密碼已更新（所有裝置生效）✓');
       }).catch(function(){showToast('密碼已在本機更新，但同步失敗',true);});
     } else if(type==='groups'){
-      var inputs=document.querySelectorAll('#groups-list input');
-      currentGroups=Array.from(inputs).map(function(inp){return inp.value.trim();}).filter(Boolean);
+      var rows=document.querySelectorAll('#groups-list > div');
+      var newGroups=[]; var newColors={};
+      rows.forEach(function(row){
+        var textInput=row.querySelector('input[type="text"]');
+        var colorInput=row.querySelector('input[type="color"]');
+        if(textInput&&textInput.value.trim()){
+          var name=textInput.value.trim();
+          newGroups.push(name);
+          if(colorInput) newColors[name]=colorInput.value;
+        }
+      });
+      currentGroups=newGroups; groupColors=newColors;
       window.db.ref('settings/groups').set(currentGroups).then(function(){
-        renderGroupsList(); populateGroupSelect();
+        return window.db.ref('settings/groupColors').set(groupColors);
+      }).then(function(){
+        renderGroupsList(); populateGroupSelect(); renderColorSwatches();
         showToast('組別已儲存 ✓');
       }).catch(function(e){showToast('儲存失敗: '+e.message,true);});
     } else if(type==='appearance'){
