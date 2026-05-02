@@ -412,8 +412,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     </div>
     <div class="card">
       <div class="card-title">封面圖片（選填）</div>
+      <!-- File input OUTSIDE the upload div to prevent Safari circle rendering -->
+      <input type="file" id="f-img" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" onchange="handleImg(this)">
       <div class="img-upload" id="img-upload" onclick="document.getElementById('f-img').click()">
-        <input type="file" id="f-img" accept="image/*" style="display:none" onchange="handleImg(this)">
         <div class="img-hint">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           點擊上傳圖片
@@ -431,21 +432,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         <button class="tool-btn" onclick="fmt('insertUnorderedList')" title="列表"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
         <button class="tool-btn" onclick="fmt('insertOrderedList')" title="編號"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></button>
         <div class="tool-divider"></div>
-        <button class="tool-btn" onclick="insertLink()" title="連結"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+        <button class="tool-btn" onclick="insertLink()" title="插入純文字連結"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+        <button class="tool-btn" onclick="insertLinkBtn()" title="插入連結按鈕" style="font-size:11px;font-weight:700;width:auto;padding:0 8px;gap:3px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          按鈕
+        </button>
       </div>
       <div class="rich-editor" id="f-content" contenteditable="true" data-placeholder="公告內文⋯" oninput="updateWordCount()"></div>
       <div class="word-count" id="word-count">0 字</div>
     </div>
-    <div class="card">
-      <div class="card-title">連結按鈕（選填）</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">把長網址轉成漂亮的按鈕，避免網址直接顯示在內文</div>
-      <div id="link-buttons-list"></div>
-      <button class="btn btn-ghost" style="font-size:13px;margin-top:8px" onclick="addLinkButton()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        新增連結按鈕
-      </button>
-    </div>
-
     <div class="card">
       <div class="card-title">表單（選填）</div>
       <div class="form-row">
@@ -625,6 +620,30 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   <button class="sort-save-btn" onclick="saveOrder()">儲存排序</button>
   <button class="sort-cancel-btn" onclick="cancelOrder()">取消</button>
 </div>
+<!-- LINK BUTTON MODAL -->
+<div id="link-btn-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:white;border-radius:12px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="background:var(--deep);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:16px;letter-spacing:.08em;color:white;">插入連結按鈕</span>
+      <button onclick="closeLinkBtnModal()" style="background:rgba(255,255,255,.15);border:none;color:white;border-radius:4px;padding:4px 12px;cursor:pointer;font-size:13px;">取消</button>
+    </div>
+    <div style="padding:20px;">
+      <div class="form-row">
+        <label>按鈕文字</label>
+        <input type="text" id="lbm-text" placeholder="例：填寫表單、查看詳情">
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>連結網址</label>
+        <input type="url" id="lbm-url" placeholder="https://...">
+      </div>
+    </div>
+    <div style="padding:0 20px 20px;display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeLinkBtnModal()" class="btn btn-ghost">取消</button>
+      <button onclick="confirmLinkBtn()" class="btn btn-primary">插入</button>
+    </div>
+  </div>
+</div>
+
 <!-- CROP MODAL -->
 <div class="crop-overlay" id="crop-overlay" style="display:none">
   <div class="crop-modal">
@@ -880,7 +899,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('f-group-pinned').checked=false;
     document.getElementById('f-draft').checked=false;
     clearImgUI(); updateWordCount();
-    linkButtons=[]; renderLinkButtons();
   }
 
   window.editPost=function(id){
@@ -1028,7 +1046,31 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
   /* ── EDITOR ── */
   window.fmt=function(cmd){document.execCommand(cmd,false,null);document.getElementById('f-content').focus();};
-  window.insertLink=function(){var url=prompt('輸入連結網址：');if(url){document.execCommand('createLink',false,url);document.getElementById('f-content').focus();}};
+  window.insertLink=function(){
+    var url=prompt('輸入連結網址：');
+    if(url){document.execCommand('createLink',false,url);document.getElementById('f-content').focus();}
+  };
+  window.insertLinkBtn=function(){
+    document.getElementById('lbm-text').value='';
+    document.getElementById('lbm-url').value='';
+    document.getElementById('link-btn-overlay').style.display='flex';
+    document.getElementById('lbm-text').focus();
+  };
+  window.closeLinkBtnModal=function(){
+    document.getElementById('link-btn-overlay').style.display='none';
+  };
+  window.confirmLinkBtn=function(){
+    var text=(document.getElementById('lbm-text').value||'').trim();
+    var url=(document.getElementById('lbm-url').value||'').trim();
+    if(!text||!url){showToast('請填寫按鈕文字和網址',true);return;}
+    var editor=document.getElementById('f-content');
+    editor.focus();
+    // Insert button HTML with line breaks
+    var btnHtml='<br><a href="'+url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#1A6B9A;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;margin:4px 4px 4px 0;">'+text+'</a><br>';
+    document.execCommand('insertHTML',false,btnHtml);
+    closeLinkBtnModal();
+    showToast('連結按鈕已插入 ✓');
+  };
   window.updateWordCount=function(){
     var el=document.getElementById('f-content');
     var wc=document.getElementById('word-count');
@@ -1297,39 +1339,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   function pad2(n){return(n+'').padStart(2,'0');}
 
   /* ── LINK BUTTONS ── */
-  var linkButtons=[];
-
   window.addLinkButton=function(){
     linkButtons.push({text:'',url:''});
     renderLinkButtons();
   };
-
-  function renderLinkButtons(){
-    var list=document.getElementById('link-buttons-list'); if(!list) return;
-    if(!linkButtons.length){list.innerHTML='';return;}
-    list.innerHTML=linkButtons.map(function(lb,i){
-      return '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'
-        +'<input type="text" placeholder="按鈕文字（如：填寫表單）" value="'+escLinkVal(lb.text)+'" style="flex:1;border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;font-family:Noto Sans TC,sans-serif;font-size:13px;outline:none" onchange="linkButtons['+i+'].text=this.value">'
-        +'<input type="url" placeholder="https://..." value="'+escLinkVal(lb.url)+'" style="flex:2;border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;font-family:Noto Sans TC,sans-serif;font-size:13px;outline:none" onchange="linkButtons['+i+'].url=this.value">'
-        +'<button class="icon-btn del" onclick="removeLinkButton('+i+')" title="刪除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
-        +'</div>';
-    }).join('');
-  }
-
-  function escLinkVal(s){return(s||'').replace(/"/g,'&quot;');}
-
-  window.removeLinkButton=function(i){
-    linkButtons.splice(i,1); renderLinkButtons();
-  };
-
-  function getLinkButtonsHtml(){
-    if(!linkButtons.length) return '';
-    return '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">'
-      +linkButtons.filter(function(lb){return lb.url&&lb.text;}).map(function(lb){
-        return '<a href="'+lb.url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#1A6B9A;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;">'+lb.text+'</a>';
-      }).join('')
-      +'</div>';
-  }
 
   /* ── IMAGE CROP ── */
   var cropRatio='free';
