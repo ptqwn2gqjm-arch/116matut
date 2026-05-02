@@ -318,8 +318,7 @@ footer{
 .footer-logo span{color:var(--mid);}
 .footer-right{display:flex;align-items:center;gap:20px;}
 .footer-copy{font-size:12px;color:var(--muted);}
-.footer-admin{font-size:11px;color:var(--border);text-decoration:none;transition:color .2s;}
-.footer-admin:hover{color:var(--muted);}
+
 
 /* REVEAL */
 .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
@@ -451,8 +450,7 @@ footer{
 <footer>
   <div class="footer-logo"><span>116</span> 畢籌會</div>
   <div class="footer-right">
-    <span class="footer-copy" id="footer-copy">© 2026 116級畢籌會</span>
-    <a href="admin-login.html" class="footer-admin">後台</a>
+    <span class="footer-copy" id="footer-copy" onclick="secretClick()" style="cursor:default;user-select:none;" title="">© 2026 116級畢籌會</span>
   </div>
 </footer>
 
@@ -739,6 +737,23 @@ footer{
     }
     tick(); setInterval(tick,1000);
   }
+  /* ── SECRET ADMIN ENTRY (3 clicks) ── */
+  var secretClicks=0,secretTimer=null;
+  window.secretClick=function(){
+    secretClicks++;
+    clearTimeout(secretTimer);
+    if(secretClicks>=3){secretClicks=0;location.href='admin-login.html';return;}
+    secretTimer=setTimeout(function(){secretClicks=0;},1200);
+  };
+
+  /* ── BOOKMARK ── */
+  window.toggleBookmark=function(id,btn){
+    var saved=JSON.parse(localStorage.getItem('116_bookmarks')||'[]');
+    var idx=saved.indexOf(id);
+    if(idx>=0){saved.splice(idx,1);if(btn){btn.textContent='☆';btn.title='加入書籤';}}
+    else{saved.push(id);if(btn){btn.textContent='★';btn.title='取消書籤';}}
+    localStorage.setItem('116_bookmarks',JSON.stringify(saved));
+  };
 })();
 </script>
 </body>
