@@ -966,7 +966,16 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
   window.editPost=function(id){
     var a=cachedArticles.find(function(x){return String(x.id)===String(id);});
-    if(!a) return;
+    if(!a){
+      // Not in cache - load from Firebase directly
+      window.db.ref('articles/'+id).once('value').then(function(snap){
+        var article=snap.val();
+        if(!article){showToast('找不到這篇公告',true);return;}
+        cachedArticles.push(article);
+        window.editPost(id);
+      }).catch(function(){showToast('載入失敗',true);});
+      return;
+    }
     editingId=id; coverBase64=a.image||null;
     document.getElementById('form-page-title').innerHTML='編輯<span>公告</span>';
     document.getElementById('form-page-sub').textContent='ID: '+id;
@@ -1060,7 +1069,13 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     }
   };
 
-  window.cancelEdit=function(){editingId=null;switchPage('all-posts',document.querySelectorAll('.nav-item')[3]);};
+  window.cancelEdit=function(){
+    editingId=null;
+    var navItems=document.querySelectorAll('.nav-item');
+    var allPostsNav=null;
+    navItems.forEach(function(n){if(n.textContent.trim()==='所有公告') allPostsNav=n;});
+    switchPage('all-posts',allPostsNav);
+  };
 
   window.publishDraft=function(id){
     window.db.ref('articles/'+id).update({draft:false,updatedAt:new Date().toISOString()}).then(function(){
