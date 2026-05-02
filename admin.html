@@ -1006,11 +1006,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       if(clr) clr.style.display='block';
     } else {clearImgUI();}
     updateWordCount();
-    // Parse existing link buttons from content
-    linkButtons=[];
-    var btnMatches=(a.content||'').match(/<a href="([^"]+)"[^>]+>([^<]+)<\/a>/g)||[];
-    // Only extract standalone button links (not inline links)
-    renderLinkButtons();
+
     switchPage('new-post',document.querySelectorAll('.nav-item')[2]);
   };
 
@@ -1451,15 +1447,17 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   function pad2(n){return(n+'').padStart(2,'0');}
 
   /* ── LINK BUTTONS ── */
-  window.addLinkButton=function(){
-    linkButtons.push({text:'',url:''});
-    renderLinkButtons();
-  };
+
 
   /* ── IMAGE CROP ── */
   var cropRatio='free';
   var cropOriginalFile=null;
   var isDragging=false,startX=0,startY=0,selX=0,selY=0,selW=0,selH=0;
+
+  /* ── LINK BUTTONS (stub - buttons inserted inline via modal) ── */
+  var linkButtons=[];
+  function renderLinkButtons(){}
+  window.addLinkButton=function(){};
 
   /* ── IMAGE CROP (canvas-based) ── */
   var cropRatio='free';
