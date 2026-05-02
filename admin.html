@@ -416,6 +416,16 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       <div class="word-count" id="word-count">0 字</div>
     </div>
     <div class="card">
+      <div class="card-title">連結按鈕（選填）</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">把長網址轉成漂亮的按鈕，避免網址直接顯示在內文</div>
+      <div id="link-buttons-list"></div>
+      <button class="btn btn-ghost" style="font-size:13px;margin-top:8px" onclick="addLinkButton()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增連結按鈕
+      </button>
+    </div>
+
+    <div class="card">
       <div class="card-title">表單（選填）</div>
       <div class="form-row">
         <label>表單連結</label>
@@ -447,6 +457,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         <input type="datetime-local" id="f-schedule">
         <div class="form-hint">設定時間後儲存為草稿，到時間自動發布</div>
       </div>
+    </div>
+    <div class="error-panel" id="save-error-panel">
+      <div class="error-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="error-panel-body">
+        <div class="error-panel-title">發布失敗</div>
+        <div class="error-panel-msg" id="save-error-msg">請稍後再試</div>
+      </div>
+      <button class="error-panel-close" onclick="document.getElementById('save-error-panel').classList.remove('show')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
       <button class="btn btn-primary" onclick="savePost()" style="flex:1;min-width:130px;justify-content:center;">
@@ -586,6 +604,27 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   <button class="sort-save-btn" onclick="saveOrder()">儲存排序</button>
   <button class="sort-cancel-btn" onclick="cancelOrder()">取消</button>
 </div>
+<!-- CROP MODAL -->
+<div class="crop-overlay" id="crop-overlay">
+  <div class="crop-modal">
+    <div class="crop-bar">
+      <span>裁切圖片</span>
+      <button class="crop-bar-close" onclick="closeCrop()">取消</button>
+    </div>
+    <div class="crop-canvas-wrap" id="crop-canvas-wrap">
+      <img id="crop-img" alt="crop">
+    </div>
+    <div class="crop-controls">
+      <button class="crop-ratio-btn active" onclick="setCropRatio('free',this)">自由</button>
+      <button class="crop-ratio-btn" onclick="setCropRatio('16:9',this)">16:9</button>
+      <button class="crop-ratio-btn" onclick="setCropRatio('4:3',this)">4:3</button>
+      <button class="crop-ratio-btn" onclick="setCropRatio('1:1',this)">1:1</button>
+      <span class="crop-hint">拖拉選取要保留的區域</span>
+      <button class="crop-confirm" onclick="confirmCrop()">確認裁切</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <div class="modal-overlay" id="modal">
   <div class="modal">
@@ -820,6 +859,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('f-group-pinned').checked=false;
     document.getElementById('f-draft').checked=false;
     clearImgUI(); updateWordCount();
+    linkButtons=[]; renderLinkButtons();
   }
 
   window.editPost=function(id){
@@ -855,6 +895,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       if(clr) clr.style.display='block';
     } else {clearImgUI();}
     updateWordCount();
+    // Parse existing link buttons from content
+    linkButtons=[];
+    var btnMatches=(a.content||'').match(/<a href="([^"]+)"[^>]+>([^<]+)<\/a>/g)||[];
+    // Only extract standalone button links (not inline links)
+    renderLinkButtons();
     switchPage('new-post',document.querySelectorAll('.nav-item')[2]);
   };
 
@@ -899,7 +944,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         editingId=null;
         switchPage('all-posts',document.querySelectorAll('.nav-item')[3]);
         loadAllPosts();
-      }).catch(function(e){showToast('更新失敗: '+e.message,true);});
+      }).catch(function(e){showError('更新失敗：'+e.message);});
     } else {
       var newId=Date.now();
       data.id=newId; data.createdAt=now; data.views=0;
@@ -908,7 +953,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         editingId=null;
         switchPage('all-posts',document.querySelectorAll('.nav-item')[3]);
         loadAllPosts();
-      }).catch(function(e){showToast('發布失敗: '+e.message,true);});
+      }).catch(function(e){showError('發布失敗：'+e.message);});
     }
   };
 
@@ -1229,6 +1274,143 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     return d.getFullYear()+'/'+(d.getMonth()+1+'').padStart(2,'0')+'/'+(d.getDate()+'').padStart(2,'0');
   }
   function pad2(n){return(n+'').padStart(2,'0');}
+
+  /* ── LINK BUTTONS ── */
+  var linkButtons=[];
+
+  window.addLinkButton=function(){
+    linkButtons.push({text:'',url:''});
+    renderLinkButtons();
+  };
+
+  function renderLinkButtons(){
+    var list=document.getElementById('link-buttons-list'); if(!list) return;
+    if(!linkButtons.length){list.innerHTML='';return;}
+    list.innerHTML=linkButtons.map(function(lb,i){
+      return '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'
+        +'<input type="text" placeholder="按鈕文字（如：填寫表單）" value="'+escLinkVal(lb.text)+'" style="flex:1;border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;font-family:Noto Sans TC,sans-serif;font-size:13px;outline:none" onchange="linkButtons['+i+'].text=this.value">'
+        +'<input type="url" placeholder="https://..." value="'+escLinkVal(lb.url)+'" style="flex:2;border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;font-family:Noto Sans TC,sans-serif;font-size:13px;outline:none" onchange="linkButtons['+i+'].url=this.value">'
+        +'<button class="icon-btn del" onclick="removeLinkButton('+i+')" title="刪除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+        +'</div>';
+    }).join('');
+  }
+
+  function escLinkVal(s){return(s||'').replace(/"/g,'&quot;');}
+
+  window.removeLinkButton=function(i){
+    linkButtons.splice(i,1); renderLinkButtons();
+  };
+
+  function getLinkButtonsHtml(){
+    if(!linkButtons.length) return '';
+    return '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">'
+      +linkButtons.filter(function(lb){return lb.url&&lb.text;}).map(function(lb){
+        return '<a href="'+lb.url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#1A6B9A;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;">'+lb.text+'</a>';
+      }).join('')
+      +'</div>';
+  }
+
+  /* ── IMAGE CROP ── */
+  var cropRatio='free';
+  var cropOriginalFile=null;
+  var isDragging=false,startX=0,startY=0,selX=0,selY=0,selW=0,selH=0;
+
+  window.handleImg=function(input){
+    var file=input.files[0]; if(!file) return;
+    cropOriginalFile=file;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=document.getElementById('crop-img');
+      img.src=e.target.result;
+      img.onload=function(){
+        document.getElementById('crop-overlay').classList.add('show');
+        setupCropDrag();
+      };
+    };
+    reader.readAsDataURL(file);
+  };
+
+  function setupCropDrag(){
+    var wrap=document.getElementById('crop-canvas-wrap');
+    var img=document.getElementById('crop-img');
+    wrap.onmousedown=function(e){
+      var rect=img.getBoundingClientRect();
+      startX=e.clientX-rect.left; startY=e.clientY-rect.top;
+      isDragging=true;
+      e.preventDefault();
+    };
+    wrap.onmousemove=function(e){
+      if(!isDragging) return;
+      var rect=img.getBoundingClientRect();
+      var x=e.clientX-rect.left; var y=e.clientY-rect.top;
+      selX=Math.min(startX,x); selY=Math.min(startY,y);
+      selW=Math.abs(x-startX); selH=Math.abs(y-startY);
+      if(cropRatio==='16:9') selH=selW*(9/16);
+      if(cropRatio==='4:3') selH=selW*(3/4);
+      if(cropRatio==='1:1') selH=selW;
+      updateCropBox(rect);
+    };
+    wrap.onmouseup=function(){isDragging=false;};
+  }
+
+  function updateCropBox(imgRect){
+    var existing=document.querySelector('.crop-selection');
+    if(existing) existing.remove();
+    if(selW<10) return;
+    var box=document.createElement('div');
+    box.className='crop-selection';
+    box.style.left=selX+'px'; box.style.top=selY+'px';
+    box.style.width=selW+'px'; box.style.height=selH+'px';
+    document.getElementById('crop-canvas-wrap').appendChild(box);
+  }
+
+  window.setCropRatio=function(ratio,btn){
+    cropRatio=ratio;
+    document.querySelectorAll('.crop-ratio-btn').forEach(function(b){b.classList.remove('active');});
+    if(btn) btn.classList.add('active');
+    selW=0; selH=0;
+    var ex=document.querySelector('.crop-selection'); if(ex) ex.remove();
+  };
+
+  window.confirmCrop=function(){
+    var img=document.getElementById('crop-img');
+    var canvas=document.createElement('canvas');
+    var rect=img.getBoundingClientRect();
+    var scaleX=img.naturalWidth/rect.width;
+    var scaleY=img.naturalHeight/rect.height;
+    var cx,cy,cw,ch;
+    if(selW>10){
+      cx=Math.round(selX*scaleX); cy=Math.round(selY*scaleY);
+      cw=Math.round(selW*scaleX); ch=Math.round(selH*scaleY);
+    } else {
+      cx=0; cy=0; cw=img.naturalWidth; ch=img.naturalHeight;
+    }
+    canvas.width=cw; canvas.height=ch;
+    var ctx=canvas.getContext('2d');
+    ctx.drawImage(img,cx,cy,cw,ch,0,0,cw,ch);
+    coverBase64=canvas.toDataURL('image/jpeg',0.88);
+    // Show preview
+    var up=document.getElementById('img-upload');
+    var ex2=up.querySelector('img'); if(ex2) ex2.remove();
+    var preview=document.createElement('img'); preview.src=coverBase64; up.appendChild(preview);
+    var hint=up.querySelector('.img-hint'); if(hint) hint.style.display='none';
+    var clr=document.getElementById('img-clear'); if(clr) clr.style.display='block';
+    closeCrop();
+  };
+
+  window.closeCrop=function(){
+    document.getElementById('crop-overlay').classList.remove('show');
+    var ex=document.querySelector('.crop-selection'); if(ex) ex.remove();
+    selW=0; selH=0;
+  };
+
+  /* ── BETTER ERROR ── */
+  function showError(msg){
+    var panel=document.getElementById('save-error-panel');
+    var msgEl=document.getElementById('save-error-msg');
+    if(panel&&msgEl){msgEl.textContent=msg;panel.classList.add('show');panel.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    showToast(msg,true);
+  }
 
   /* ── INIT ── */
   loadDashboard();
