@@ -327,6 +327,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
       var groupTag=a.group?'<span class="card-group-tag"'+(tagColor?' style="background:'+tagColor+'22;color:'+tagColor+'"':'')+'>'+a.group+'</span>':'';
       var views=a.views?'<span class="card-views"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'+a.views+'</span>':'';
       var q=currentQuery;
+      var articleColor=a.color||null;
       return '<a class="card'+(a.pinned?' pinned':'')+' card-animate" href="article.html?id='+encodeURIComponent(a.id)+'" style="animation-delay:'+(i%PAGE_SIZE*0.03)+'s">'
         +'<div class="card-accent"'+(articleColor?' style="background:'+articleColor+'"':'')+' ></div>'
         +imgHtml
