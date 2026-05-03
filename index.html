@@ -541,7 +541,14 @@ footer{
     window.db.ref('articles').once('value').then(function(snap){
       var val=snap.val();
       if(!val){allArticles=[];}
-      else{allArticles=Object.values(val).filter(function(a){return !a.draft;}).sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});}
+      else{allArticles=Object.values(val).filter(function(a){return !a.draft;}).sort(function(a,b){
+        var aHas=a.sortOrder!==undefined&&a.sortOrder!==null;
+        var bHas=b.sortOrder!==undefined&&b.sortOrder!==null;
+        if(aHas&&bHas) return a.sortOrder-b.sortOrder;
+        if(aHas) return -1;
+        if(bHas) return 1;
+        return new Date(b.createdAt)-new Date(a.createdAt);
+      });}
 
       // Pinned banner
       var pinned0=allArticles.find(function(a){return a.pinned;});
