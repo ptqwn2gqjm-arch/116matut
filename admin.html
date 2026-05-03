@@ -748,7 +748,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   function loadArticlesFromFirebase(cb){
     window.db.ref('articles').once('value').then(function(snap){
       var val=snap.val();
-      cachedArticles=val?Object.values(val).sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);}):[];
+      cachedArticles=val?Object.values(val).sort(function(a,b){
+        // sortOrder first, then createdAt
+        var aHas=a.sortOrder!==undefined&&a.sortOrder!==null;
+        var bHas=b.sortOrder!==undefined&&b.sortOrder!==null;
+        if(aHas&&bHas) return a.sortOrder-b.sortOrder;
+        if(aHas) return -1;
+        if(bHas) return 1;
+        return new Date(b.createdAt)-new Date(a.createdAt);
+      }):[];
       checkScheduled();
       if(cb) cb();
     }).catch(function(e){showToast('載入失敗: '+e.message,true);if(cb) cb();});
