@@ -234,7 +234,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
   });
   window.db.ref('articles').once('value').then(function(s){
     var val=s.val();
-    articles=val?Object.values(val).filter(function(a){return !a.draft&&a.eventTime;}):[];
+    articles=val?Object.values(val).filter(function(a){return !a.draft&&a.eventTime&&a.showInCalendar!==false;}):[];
     renderCalendar();
     renderUpcoming();
   });
