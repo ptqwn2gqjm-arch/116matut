@@ -955,10 +955,36 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     }
   });
 
+  // Store event date/time in global vars to avoid Safari hidden input issue
+  window._eventDate=''; window._eventTime='23:59';
+  window._startDate=''; window._startTime='00:00';
+
+  function bindDateInputs(){
+    var ed=document.getElementById('f-eventdate');
+    var et=document.getElementById('f-eventtime-hm');
+    var sd=document.getElementById('f-startdate');
+    var st=document.getElementById('f-starttime-hm');
+    if(ed) ed.addEventListener('change',function(){window._eventDate=this.value;});
+    if(et) et.addEventListener('change',function(){window._eventTime=this.value;});
+    if(sd) sd.addEventListener('change',function(){window._startDate=this.value;});
+    if(st) st.addEventListener('change',function(){window._startTime=this.value;});
+    // Also read on input event for Safari
+    if(ed) ed.addEventListener('input',function(){window._eventDate=this.value;});
+    if(et) et.addEventListener('input',function(){window._eventTime=this.value;});
+    if(sd) sd.addEventListener('input',function(){window._startDate=this.value;});
+    if(st) st.addEventListener('input',function(){window._startTime=this.value;});
+  }
+  // Bind on load
+  document.addEventListener('DOMContentLoaded', bindDateInputs);
+  // Also bind immediately in case DOM already ready
+  bindDateInputs();
+
   window.toggleEventFields=function(){
     var type=document.getElementById('f-post-type').value;
     var fields=document.getElementById('event-fields');
     if(fields) fields.style.display=type==='event'?'block':'none';
+    // Re-bind after showing
+    if(type==='event') bindDateInputs();
   };
 
   function resetForm(){
@@ -972,6 +998,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('f-pinned').checked=false;
     document.getElementById('f-group-pinned').checked=false;
     document.getElementById('f-show-cal').checked=true;
+    window._eventDate=''; window._eventTime='23:59'; window._startDate=''; window._startTime='00:00';
     document.getElementById('f-draft').checked=false;
     clearImgUI(); updateWordCount();
     var cp=document.getElementById('f-custom-color');
@@ -1000,11 +1027,17 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('f-post-type').value=a.postType||'normal';
     window.toggleEventFields();
     var et=a.eventTime?new Date(a.eventTime):null;
-    document.getElementById('f-eventdate').value=et?(et.getFullYear()+'-'+(et.getMonth()+1+'').padStart(2,'0')+'-'+(et.getDate()+'').padStart(2,'0')):'';
-    document.getElementById('f-eventtime-hm').value=et?((et.getHours()+'').padStart(2,'0')+':'+(et.getMinutes()+'').padStart(2,'0')):'';
+    var etDateVal=et?(et.getFullYear()+'-'+(et.getMonth()+1+'').padStart(2,'0')+'-'+(et.getDate()+'').padStart(2,'0')):'';
+    var etTimeVal=et?((et.getHours()+'').padStart(2,'0')+':'+(et.getMinutes()+'').padStart(2,'0')):'23:59';
+    document.getElementById('f-eventdate').value=etDateVal;
+    document.getElementById('f-eventtime-hm').value=etTimeVal;
+    window._eventDate=etDateVal; window._eventTime=etTimeVal;
     var es=a.eventStart?new Date(a.eventStart):null;
-    var sdEl=document.getElementById('f-startdate'); if(sdEl) sdEl.value=es?(es.getFullYear()+'-'+(es.getMonth()+1+'').padStart(2,'0')+'-'+(es.getDate()+'').padStart(2,'0')):'';
-    var stEl=document.getElementById('f-starttime-hm'); if(stEl) stEl.value=es?((es.getHours()+'').padStart(2,'0')+':'+(es.getMinutes()+'').padStart(2,'0')):'';
+    var esDateVal=es?(es.getFullYear()+'-'+(es.getMonth()+1+'').padStart(2,'0')+'-'+(es.getDate()+'').padStart(2,'0')):'';
+    var esTimeVal=es?((es.getHours()+'').padStart(2,'0')+':'+(es.getMinutes()+'').padStart(2,'0')):'00:00';
+    var sdEl=document.getElementById('f-startdate'); if(sdEl) sdEl.value=esDateVal;
+    var stEl=document.getElementById('f-starttime-hm'); if(stEl) stEl.value=esTimeVal;
+    window._startDate=esDateVal; window._startTime=esTimeVal;
     document.getElementById('f-content').innerHTML=a.content||'';
     document.getElementById('f-show-cal').checked=a.showInCalendar!==false;
     document.getElementById('f-pinned').checked=!!a.pinned;
@@ -1051,25 +1084,12 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       eventTime:(function(){
         var type=document.getElementById('f-post-type').value;
         if(type!=='event') return null;
-        // Temporarily show hidden fields to read values in Safari
-        var fields=document.getElementById('event-fields');
-        var wasHidden=fields&&fields.style.display==='none';
-        if(wasHidden) fields.style.display='block';
-        var d=document.getElementById('f-eventdate').value;
-        var t=document.getElementById('f-eventtime-hm').value||'23:59';
-        if(wasHidden) fields.style.display='none';
-        return d?(d+'T'+t):null;
+        return window._eventDate&&window._eventTime?(window._eventDate+'T'+window._eventTime):null;
       }()),
       eventStart:(function(){
         var type=document.getElementById('f-post-type').value;
         if(type!=='event') return null;
-        var fields=document.getElementById('event-fields');
-        var wasHidden=fields&&fields.style.display==='none';
-        if(wasHidden) fields.style.display='block';
-        var d=document.getElementById('f-startdate').value;
-        var t=document.getElementById('f-starttime-hm').value||'00:00';
-        if(wasHidden) fields.style.display='none';
-        return d?(d+'T'+t):null;
+        return window._startDate?(window._startDate+'T'+(window._startTime||'00:00')):null;
       }()),
       content:document.getElementById('f-content').innerHTML,
       color:(function(){var cp=document.getElementById('f-custom-color');return(cp&&cp.dataset.custom==='1')?cp.value:null;}()),
