@@ -167,7 +167,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
 .stat-card{background:white;border:1px solid var(--border);border-radius:10px;padding:18px 20px;min-width:0;}
-.stat-card-button{font:inherit;text-align:left;color:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;}
+.stat-card-button{display:block;width:100%;background:white;font:inherit;text-align:left;color:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;}
 .stat-card-button:hover{border-color:var(--mid);box-shadow:0 6px 18px rgba(13,59,92,.08);transform:translateY(-1px);}
 .stat-card-button:focus-visible{outline:3px solid var(--light);outline-offset:2px;}
 .dashboard-columns{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:20px;align-items:start;}
