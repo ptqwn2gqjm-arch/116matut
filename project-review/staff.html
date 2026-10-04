@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0D3B5C">
+  <title>幹部專區｜1151106大專第一次專題會審</title>
+  <style>
+    :root{--ink:#0D3B5C;--muted:#496477;--mint:#D6EAF8;--paper:#F4F8FB;--line:#D0E4F0;--card:#fff}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.65}
+    header{background:var(--ink);color:var(--mint);padding:32px max(20px,calc((100vw - 900px)/2))}header a{color:var(--mint);font-size:14px}header h1{margin:10px 0 0;font-size:clamp(27px,5vw,40px);line-height:1.25}
+    main{width:min(900px,calc(100% - 32px));margin:28px auto 60px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 8px 26px #0D3B5C10}
+    #loginPanel{max-width:480px;margin:9vh auto 0}h2{margin:0 0 8px;font-size:24px}p{color:var(--muted);margin:0 0 18px}.field{display:flex;gap:10px}input{min-width:0;flex:1;padding:12px 14px;border:1px solid #B8D8EA;border-radius:10px;font:inherit}button{border:0;border-radius:10px;padding:12px 18px;background:var(--ink);color:white;font:inherit;font-weight:700;cursor:pointer}button:hover{background:#075080}#error{color:#a11d36;font-size:14px;margin:10px 0 0;min-height:1.5em}
+    .privacy{font-size:13px;color:#71656a;margin-top:18px}#flowPanel[hidden],#loginPanel[hidden]{display:none}
+    .intro{margin-bottom:18px}.timeline{display:grid;gap:10px}.row{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:16px 18px;border-radius:13px;background:#D6EAF8}.row strong{color:var(--ink)}.row span{color:var(--muted)}.row.feature{background:#fff3d8;border:1px solid #f2dca9}.foot{margin:16px 0 0;color:#74666b;font-size:13px}
+    .meal{margin-top:12px;padding:15px 17px;border-radius:13px;background:#fff3d8;border:1px solid #f2dca9;color:var(--muted)}.meal strong{color:var(--ink)}
+    .group-section{margin-top:26px;padding:0 18px}.group-section>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:62px;cursor:pointer;list-style:none;color:var(--ink)}.group-section>summary::-webkit-details-marker{display:none}.group-section>summary::after{content:"＋";font-size:20px;color:var(--muted)}.group-section[open]>summary::after{content:"−"}.group-section>summary h2{margin:0;font-size:20px}.group-section>summary span{margin-left:auto;color:var(--muted);font-size:14px}.group-section-body{padding:0 0 18px}.group-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0}.group-tools p{margin:0;font-size:14px}.group-tools input{max-width:260px}.group-list{display:grid;gap:8px}.group-entry{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 15px}.group-entry summary{display:flex;align-items:center;gap:12px;min-height:52px;cursor:pointer;color:var(--ink);font-weight:700}.group-entry summary span{font-weight:500;color:var(--muted)}.group-entry ul{margin:0 0 14px;padding-left:21px;color:var(--muted)}.group-entry p{margin:0 0 14px}.group-entry[hidden]{display:none}
+    .ops-section{margin-top:14px;padding:0 18px}.ops-section>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:62px;cursor:pointer;list-style:none;color:var(--ink)}.ops-section>summary::-webkit-details-marker{display:none}.ops-section>summary::after{content:"＋";font-size:20px;color:var(--muted)}.ops-section[open]>summary::after{content:"−"}.ops-section>summary h2{margin:0;font-size:20px}.ops-content{padding:0 0 18px}.ops-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}.ops-list li{padding:13px 15px;border-radius:12px;background:#D6EAF8;color:var(--muted)}.ops-list strong{color:var(--ink)}
+    @media(max-width:560px){header{padding-top:26px;padding-bottom:26px}.panel{padding:18px}.field{flex-direction:column}.row{grid-template-columns:1fr;gap:4px;padding:13px 15px}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回學生資訊</a>
+    <h1>幹部專區</h1>
+  </header>
+  <main>
+    <section class="panel" id="loginPanel" aria-labelledby="loginTitle">
+      <h2 id="loginTitle">請輸入幹部密碼</h2>
+      <p>此區提供會審工作細流。</p>
+      <form id="loginForm">
+        <div class="field">
+          <input id="password" type="password" inputmode="numeric" autocomplete="off" maxlength="20" aria-label="幹部密碼" placeholder="輸入密碼" required>
+          <button type="submit">進入</button>
+        </div>
+        <div id="error" role="status" aria-live="polite"></div>
+      </form>
+      <div class="privacy">此頁目前不含組別順序或組別對應時段。共用密碼請只提供給工作幹部。</div>
+    </section>
+    <section class="panel" id="flowPanel" hidden aria-labelledby="flowTitle">
+      <div class="intro">
+        <h2 id="flowTitle">會審工作細流</h2>
+        <p>2026 年 11 月 6 日（五）｜D904</p>
+      </div>
+      <div class="timeline">
+        <div class="row"><strong>08:40–08:50</strong><span>各組簽到進場；逾時不候。</span></div>
+        <div class="row"><strong>09:00</strong><span>會審準時開始。</span></div>
+        <div class="row feature"><strong>每組 6 分鐘；3 號形象組 8 分鐘</strong><span>每組：4 分鐘作品呈現（報告＋播放影片，超時強制暫停）→ 2 分鐘老師提問。3 號形象組：6 分鐘報告與影片＋2 分鐘老師提問，審查總時間 8 分鐘。工作人員負責換場銜接。</span></div>
+        <div class="row"><strong>10:30–10:40</strong><span>休息 10 分鐘，之後接續審查。</span></div>
+        <div class="row"><strong>12:00–13:00</strong><span>午休；13:00 接續審查。</span></div>
+        <div class="row"><strong>14:00–14:10</strong><span>休息 10 分鐘，之後接續審查。</span></div>
+        <div class="row feature"><strong>15:00 起｜彈性時間</strong><span>流程預計 15:00 結束，請預留 1–2 小時彈性時間，依現場進度調整。</span></div>
+      </div>
+      <div class="meal"><strong>業師午餐接待：</strong>幹部購買三位業師的便當與飲料，並引導業師至系辦用餐。</div>
+      <p class="foot">組別順序與對應時段不顯示於此頁。</p>
+      <details class="panel group-section">
+        <summary><h2 id="groupTitle">各組準備項目</h2><span>共 39 組（3 號為形象組）｜點擊展開</span></summary>
+        <div class="group-section-body">
+          <div class="group-tools"><p>依評分表的組別編號與作品類別對照。</p><input id="groupSearch" type="search" placeholder="搜尋組別編號" aria-label="搜尋組別編號"></div>
+          <div class="group-list" id="groupList"></div>
+          <p class="foot">類別尚未標示的組別先列為待確認，請依最新資料補核。</p>
+        </div>
+      </details>
+      <details class="panel ops-section">
+        <summary><h2>器材與影像留存</h2><span>工作人員備忘</span></summary>
+        <div class="ops-content">
+          <ul class="ops-list">
+            <li><strong>業師錄影：</strong>三位業師各需有 8 小時的影片留存。</li>
+            <li><strong>需借用：</strong>小錄 2 台。</li>
+            <li><strong>電腦：</strong>Mac、PC 各一台。</li>
+            <li><strong>簽到用品：</strong>簽到光球。</li>
+            <li><strong>備用器材：</strong>黑金剛。</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+  </main>
+  <script>
+    const groupData = [
+      [1,'2D動畫'],[2,'數位遊戲設計'],[3,'形象組'],[4,'2D動畫'],[5,'2D動畫'],[6,'虛擬偶像'],[7,'視覺小說'],[8,'互動設計'],[9,'實驗動畫'],[10,'3D動畫'],[11,'2D動畫'],[12,'論文'],[13,'2D動畫'],[14,'數位遊戲設計'],[15,'2D動畫'],[16,'3D動畫'],[17,'互動設計'],[18,'數位遊戲設計'],[20,'2D動畫'],[21,'電子繪本'],[22,'紀錄片'],[23,'2D動畫'],[24,'互動設計'],[25,'2D動畫'],[26,'2D動畫'],[27,'電子繪本'],[28,'2D動畫'],[29,'2D動畫'],[30,'自媒體電影製作'],[31,'電子繪本'],[32,'電子繪本'],[33,''],[34,'數位遊戲設計'],[35,'2D動畫'],[36,''],[37,'3D動畫'],[38,''],[39,''],[40,'']
+    ];
+    const checklists = {
+      '2D動畫':['大專企劃書（PDF）','大專簡報','動態分鏡','動態測試'],
+      '形象組':['大專企劃書（PDF）','大專簡報','動態分鏡','動態測試'],
+      '3D動畫':['大專企劃書（PDF）','大專簡報','動態分鏡','動態測試'],
+      '實驗動畫':['大專企劃書（PDF）','大專簡報','動態分鏡','動態測試'],
+      '電子繪本':['大專企劃書（PDF）','大專簡報','繪本頁面動態'],
+      '視覺小說':['大專企劃書（PDF）','大專簡報','視覺開發與美術：角色姿勢表情、場景、UI 介面、事件 CG'],
+      '互動設計':['企劃書（PDF）；簡報含設計動機、技術架構、測試結果、期末收尾排程','可實際體驗的主要互動流程、原型或功能展示','主要介面定稿、互動回饋與使用者流程','1–2 分鐘概念或操作 Demo 影片初剪版'],
+      '數位遊戲設計':['大專企劃書（PDF）與大專簡報','遊戲流程、核心玩法、UI 草圖、美術概念圖','遊戲測試'],
+      '紀錄片':['大專企劃書（PDF）','大專簡報','試拍測試'],
+      '自媒體電影製作':['大專企劃書（PDF）','大專簡報','試拍測試'],
+      '虛擬偶像':['大專企劃書（PDF）與大專簡報','角色視覺定稿及可供製作的拆件／模型','展示基礎綁定、表情、口型與基本動態','以追蹤系統實際驅動角色的基本 VTuber 展示'],
+      '論文':['口頭報告簡報：研究方法、分析發現與學術／實務貢獻','論文章節：緒論、文獻探討、研究方法、結果與分析、結論與建議','大專企劃書（PDF）']
+    };
+    const groupList = document.querySelector('#groupList');
+    groupData.forEach(([number, category]) => {
+      const details = document.createElement('details');
+      details.className = 'group-entry';
+      details.dataset.group = String(number);
+      const summary = document.createElement('summary');
+      const numberLabel = document.createElement('strong');
+      numberLabel.textContent = `第 ${number} 組`;
+      const categoryLabel = document.createElement('span');
+      categoryLabel.textContent = category || '作品類別待確認';
+      summary.append(numberLabel, categoryLabel);
+      details.append(summary);
+      if (category && checklists[category]) {
+        const list = document.createElement('ul');
+        checklists[category].forEach(task => {
+          const item = document.createElement('li');
+          item.textContent = task;
+          list.append(item);
+        });
+        details.append(list);
+      } else {
+        const note = document.createElement('p');
+        note.textContent = '目前資料未標示作品類別，請先核對這組的實際作品類別，再依相應清單確認準備項目。';
+        details.append(note);
+      }
+      groupList.append(details);
+    });
+    document.querySelector('#groupSearch').addEventListener('input', event => {
+      const query = event.target.value.trim().replace(/^第\s*/, '').replace(/\s*組$/, '');
+      document.querySelectorAll('.group-entry').forEach(entry => {
+        entry.hidden = Boolean(query) && !entry.dataset.group.includes(query);
+      });
+    });
+
+    const form = document.querySelector('#loginForm');
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const entered = document.querySelector('#password').value;
+      if (entered === '0000') {
+        document.querySelector('#loginPanel').hidden = true;
+        document.querySelector('#flowPanel').hidden = false;
+        document.querySelector('#flowTitle').focus?.();
+      } else {
+        document.querySelector('#error').textContent = '密碼不正確，請再試一次。';
+      }
+    });
+  </script>
+</body>
+</html>
