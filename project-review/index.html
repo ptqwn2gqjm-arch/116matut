@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#76152d">
+  <title>大專專題審查｜學生資訊</title>
+  <script>document.documentElement.classList.add('js');</script>
+  <style>
+    :root{--ink:#76152d;--muted:#624b53;--green:#76152d;--lime:#8af5d5;--paper:#edfbf6;--card:#fff;--line:#cce9de;--orange:#f5d58a}
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.65}
+    .hero{background:var(--green);color:var(--lime);padding:54px max(22px,calc((100vw - 1080px)/2)) 48px;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;width:390px;height:390px;border:1px solid #8af5d544;border-radius:50%;right:8%;top:-250px;box-shadow:0 0 0 45px #8af5d51a,0 0 0 90px #8af5d50d;animation:orbit 28s linear infinite}
+    .hero-top{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1080px;position:relative;z-index:1}.eyebrow{font-size:13px;letter-spacing:.14em;color:var(--lime);font-weight:700;user-select:none;-webkit-user-select:none}.back-link{color:var(--lime);font-size:13px;font-weight:700;text-decoration:none;border:1px solid #8af5d566;border-radius:999px;padding:7px 12px;white-space:nowrap;transition:background .2s,color .2s}.back-link:hover{background:var(--lime);color:var(--ink)}.hero h1{font-size:clamp(34px,5vw,54px);line-height:1.18;margin:14px 0 12px;max-width:700px;position:relative;z-index:1}.hero p{color:#f8e7ec;max-width:600px;margin:0;font-size:17px;position:relative;z-index:1}
+    .js .eyebrow,.js .hero h1,.js .hero p{animation:rise-in .7s cubic-bezier(.2,.7,.2,1) both}.js .hero h1{animation-delay:.08s}.js .hero p{animation-delay:.16s}
+    .wrap{width:min(1080px,calc(100% - 36px));margin:0 auto}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:-22px;position:relative;z-index:2}.fact{background:var(--card);padding:20px 22px;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 26px #76152d12;transition:transform .22s ease,box-shadow .22s ease}.fact:hover{transform:translateY(-4px);box-shadow:0 13px 30px #76152d1a}.fact span{display:block;color:var(--muted);font-size:13px}.fact strong{display:block;font-size:19px;margin-top:3px}
+    main{padding:38px 0 68px}.section{margin-top:38px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:16px}.section h2{font-size:25px;line-height:1.3;margin:0}.section-head p{color:var(--muted);margin:0;font-size:14px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:21px 23px;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}.card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #76152d14;border-color:#b9dfd2}.card h3{font-size:17px;margin:0 0 10px}.card p{margin:0;color:#624b53}.card ul{margin:0;padding-left:19px;color:#624b53}.card li+li{margin-top:4px}.wide{grid-column:1/-1}
+    .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.step{background:#d8f5eb;border-radius:14px;padding:17px}.step b{display:block;font-size:19px}.step span{color:var(--muted);font-size:14px}
+    .name-list{display:flex;flex-wrap:wrap;gap:9px;list-style:none;padding:0!important}.name-list li{background:#d8f5eb;border-radius:999px;padding:7px 13px;color:var(--ink)!important}
+    .people-block{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-top:14px}
+    .people-block>h3{margin:0;font-size:18px}
+    .faculty-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:14px 0 0}
+    .faculty-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;transition:transform .22s ease,box-shadow .22s ease}
+    .faculty-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #76152d14}
+    .faculty-card img{display:block;width:96px;max-width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;object-position:center 38%;margin:0 auto 10px}
+    .faculty-card h3{margin:0 0 2px;font-size:17px}.faculty-card p{margin:0;color:#8b8588;font-size:13px;line-height:1.45}
+    .source-note{font-size:13px;color:var(--muted);margin:10px 0 0}
+    .notice{border-left:4px solid var(--orange);background:#fff8e9;padding:16px 18px;border-radius:0 12px 12px 0;color:#624b53}.notice strong{display:block;margin-bottom:3px}.upload{display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--green);color:white;border-radius:20px;padding:28px 30px}.upload h2{margin:0 0 5px;font-size:24px}.upload p{margin:0;color:#f8e7ec}.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:var(--lime);color:#76152d;font-weight:800;padding:13px 20px;border-radius:999px;white-space:nowrap;transition:transform .15s,background .15s,box-shadow .15s}.button:hover{transform:translateY(-2px);background:#b9f5e3;box-shadow:0 7px 18px #76152d33}.small{font-size:13px;color:var(--muted);margin-top:14px}footer{background:#d8f5eb;padding:22px;text-align:center;font-size:13px;color:var(--muted)}
+    @keyframes rise-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes orbit{to{transform:rotate(360deg)}}
+    .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+    .js .reveal.is-visible{opacity:1;transform:translateY(0)}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+    @media(max-width:900px){.faculty-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:720px){.facts{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.flow{grid-template-columns:1fr}.people-block{padding:16px 12px}.faculty-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.faculty-card{padding:13px 8px}.faculty-card img{width:82px}.faculty-card h3{font-size:16px}.upload{align-items:flex-start;flex-direction:column}.section-head{align-items:flex-start;flex-direction:column}.hero{padding-top:42px}}
+  @media(max-width:720px){.hero-top{align-items:flex-start}.back-link{font-size:12px;padding:6px 10px}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-top"><div class="eyebrow">2026 專題審查</div><a class="back-link" href="../index.html">返回 116 畢籌會</a></div>
+    <h1>1151106大專第一次專題會審</h1>
+    <p>審查資訊、各類別準備清單與資料上傳入口都在這裡。</p>
+  </header>
+  <div class="wrap">
+    <section class="facts" aria-label="活動資訊">
+      <div class="fact"><span>審查日期</span><strong>2026 年 11 月 6 日（五）</strong></div>
+      <div class="fact"><span>地點</span><strong>D904</strong></div>
+      <div class="fact"><span>活動時段</span><strong>09:00–15:00</strong></div>
+    </section>
+    <div class="notice"><strong>重要提醒</strong>請全體組員著正裝，並於 08:40–08:50 簽到進場；逾時不候，09:00 準時開始。組員未到場將扣分。</div>
+      </div>
+  <main class="wrap">
+    <section class="section">
+      <div class="section-head"><h2>當天流程</h2></div>
+      <div class="card">
+        <div class="flow">
+          <div class="step"><b>一般組 6 分鐘；3 號形象組 8 分鐘</b><span>一般組：4 分鐘（報告＋播放影片，超時強制暫停）＋2 分鐘老師提問。3 號形象組 8 分鐘為報告、影片與老師提問的審查總時間。</span></div>
+          <div class="step"><b>08:40–08:50 簽到進場</b><span>逾時不候；09:00 準時開始。</span></div>
+          <div class="step"><b>10:30、14:00 休息</b><span>各休息 10 分鐘；12:00–13:00 午休。</span></div>
+        </div>
+      </div>
+      <p class="small">為保留各組順序，網站不公布組別順序與組別對應時段。</p>
+      <div class="notice"><strong>時間提醒</strong>請預留 1–2 小時彈性時間；當天如有其他安排，請往後預留時間。</div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>審查資料準備清單</h2><p>請依作品類別準備；企劃書請備 PDF。</p></div>
+      <div class="grid">
+        <article class="card"><h3>2D 動畫／形象組（3 號）</h3><ul><li>大專企劃書（PDF）</li><li>大專簡報</li><li>動態分鏡</li><li>動態測試</li></ul></article>
+        <article class="card"><h3>3D 動畫／實驗動畫</h3><ul><li>大專企劃書（PDF）</li><li>大專簡報</li><li>動態分鏡</li><li>動態測試</li></ul></article>
+        <article class="card"><h3>電子繪本</h3><ul><li>大專企劃書（PDF）</li><li>大專簡報</li><li>繪本頁面動態</li></ul></article>
+        <article class="card"><h3>視覺小說</h3><ul><li>大專企劃書（PDF）</li><li>大專簡報</li><li>視覺開發與美術：角色姿勢表情、場景、UI 介面、事件 CG</li></ul></article>
+        <article class="card"><h3>互動設計</h3><ul><li>企劃書（PDF）；簡報含設計動機、技術架構、測試結果、期末收尾排程</li><li>可實際體驗的主要互動流程、原型或功能展示</li><li>主要介面定稿、互動回饋與使用者流程</li><li>1–2 分鐘概念或操作 Demo 影片初剪版</li></ul></article>
+        <article class="card"><h3>數位遊戲設計</h3><ul><li>大專企劃書（PDF）與大專簡報</li><li>遊戲流程、核心玩法、UI 草圖、美術概念圖</li><li>遊戲測試</li></ul></article>
+        <article class="card"><h3>紀錄片／自媒體電影製作</h3><ul><li>大專企劃書（PDF）</li><li>大專簡報</li><li>試拍測試</li></ul></article>
+        <article class="card"><h3>虛擬偶像</h3><ul><li>大專企劃書（PDF）與大專簡報</li><li>角色視覺定稿及可供製作的拆件／模型</li><li>展示基礎綁定、表情、口型與基本動態</li><li>以追蹤系統實際驅動角色的基本 VTuber 展示</li></ul></article>
+        <article class="card wide"><h3>論文</h3><ul><li>口頭報告簡報，聚焦研究方法、分析發現與學術／實務貢獻</li><li>論文章節：緒論、文獻探討、研究方法、結果與分析、結論與建議</li><li>本次論文組亦依每組 6 分鐘審查時限進行。</li></ul></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>評審委員</h2></div>
+      <div class="people-block">
+        <h3>評分老師</h3>
+        <div class="faculty-grid">
+        <article class="faculty-card"><img src="images/teachers/ya-herui.jpg" alt="亞河瑞老師官方照片" loading="lazy"><h3>亞河瑞</h3><p>專技講師</p></article>
+        <article class="faculty-card"><img src="images/teachers/li-mingxian.jpg" alt="李明憲老師官方照片" loading="lazy"><h3>李明憲</h3><p>專技助理教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/yang-songzheng.jpg" alt="楊崧正老師官方照片" loading="lazy"><h3>楊崧正</h3><p>專技副教授兼系主任</p></article>
+        <article class="faculty-card"><img src="images/teachers/chen-shangbo.jpg" alt="陳尚柏老師官方照片" loading="lazy"><h3>陳尚柏</h3><p>專技助理教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/lai-yizhen.jpg" alt="賴怡臻老師官方照片" loading="lazy"><h3>賴怡臻</h3><p>助理教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/liu-yijun.jpg" alt="劉怡君老師官方照片" loading="lazy"><h3>劉怡君</h3><p>助理教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/deng-weixin.jpg" alt="鄧偉炘老師官方照片" loading="lazy"><h3>鄧偉炘</h3><p>助理教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/li-jiajie.jpg" alt="李佳潔老師官方照片" loading="lazy"><h3>李佳潔</h3><p>專案助理教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/xie-minzhai.jpg" alt="謝旻儕老師官方照片" loading="lazy"><h3>謝旻儕</h3><p>副教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/qiu-naiyi.jpg" alt="邱廼懿老師官方照片" loading="lazy"><h3>邱廼懿</h3><p>副教授</p></article>
+        <article class="faculty-card"><img src="images/teachers/huang-junlun.jpg" alt="黃俊綸老師官方照片" loading="lazy"><h3>黃俊綸</h3><p>副教授</p></article>
+        </div>
+        <p class="source-note">教師姓名、職稱與照片來源：<a href="https://dma.tut.edu.tw/p/403-1070-737.php?Lang=zh-tw" target="_blank" rel="noopener noreferrer">多媒體動畫系師資介紹 ↗</a></p>
+      </div>
+      <div class="people-block">
+        <h3>業師</h3>
+        <div class="faculty-grid">
+        <article class="faculty-card"><img src="images/teachers/li-daihong.jpg" alt="李岱虹業師照片" loading="lazy"><h3>李岱虹</h3><p>混合編碼動畫原創與分鏡</p></article>
+        <article class="faculty-card"><img src="images/teachers/wang-zhaoxiong.jpg" alt="王昭雄業師照片" loading="lazy"><h3>王昭雄</h3><p>艾帝爾數位設計總監</p></article>
+        <article class="faculty-card"><img src="images/teachers/zhan-yaru.jpg" alt="詹雅如業師照片" loading="lazy"><h3>詹雅如</h3><p>賀鶴行銷影像專案與設計</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>上傳審查資料</h2><p>請由組內一位代表填寫並提交。</p></div>
+      <div class="upload">
+        <div><h2>前往資料上傳表單</h2><p>收件截止：2026 年 11 月 1 日（日）晚上 11:59。</p></div>
+        <a class="button" href="https://forms.gle/g1jLLbWR2f4euqcp7" target="_blank" rel="noopener noreferrer">開啟上傳表單 ↗</a>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>上傳規格</h3>
+        <ul>
+          <li>請依各組的審查資料準備清單備齊檔案，全部放在同一資料夾內上傳；散落檔案一概不收。</li>
+          <li>檔名請依資料項目與作品名稱命名，例如：大專簡報＿作品名稱、動態分鏡＿作品名稱。</li>
+          <li>企劃書等書面資料限 PDF 格式，非 PDF 檔案不予收件。</li>
+          <li>未依規格提交而造成的損失，由各組自行負責。</li>
+        </ul>
+      </div>
+      <p class="small">提交前請確認組別資料正確、檔案可正常開啟，影片與展示檔案能順利播放。</p>
+    </section>
+
+    <section class="section">
+      <div class="notice"><strong>資料提醒</strong>影片、簡報及展示內容請預先測試，並確認資料夾內的檔案與 PDF 文件可正常開啟。</div>
+    </section>
+  </main>
+  <footer>2026 專題審查｜學生資訊頁</footer>
+  <script>
+    const revealItems = document.querySelectorAll('.section, .facts, .notice');
+    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      revealItems.forEach(item => item.classList.add('reveal'));
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      revealItems.forEach(item => observer.observe(item));
+    }
+  </script>
+</body>
+</html>
