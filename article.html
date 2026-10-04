@@ -256,6 +256,9 @@ textarea#comment-input:focus{border-color:var(--mid);}
 .comment-item-name{font-size:13px;font-weight:600;}
 .comment-item-date{font-size:11px;color:var(--muted);margin-left:auto;}
 .comment-item-body{font-size:14px;line-height:1.7;white-space:pre-wrap;}
+.comment-admin-reply{margin:14px 0 0 40px;padding:11px 13px;background:var(--pale);border-left:3px solid var(--mid);border-radius:0 7px 7px 0;}
+.comment-admin-reply-label{font-size:11px;font-weight:700;color:var(--mid);margin-bottom:4px;}
+.comment-admin-reply-body{font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
 .no-comments{text-align:center;padding:28px;font-size:14px;color:var(--muted);}
 
 /* NOT FOUND */
@@ -554,6 +557,7 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
           +'<div class="comment-item-name">'+escHtml(c.name||'匿名')+'</div>'
           +'<div class="comment-item-date">'+fmtDate(c.createdAt)+'</div></div>'
           +'<div class="comment-item-body">'+escHtml(c.body||'')+'</div>'
+          +(c.adminReply?'<div class="comment-admin-reply"><div class="comment-admin-reply-label">畢籌會回覆</div><div class="comment-admin-reply-body">'+escHtml(c.adminReply)+'</div></div>':'')
           +'</div>';
       }).join('');
     });
