@@ -74,6 +74,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .form-row input:focus,.form-row textarea:focus,.form-row select:focus{border-color:var(--mid);}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .form-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+.form-row.has-error input,.form-row.has-error textarea,.form-row.has-error select{border-color:var(--red);}
+.field-error-message{font-size:12px;color:var(--red);margin-top:5px;}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+@media(max-width:768px){
+  #page-new-post{padding-bottom:86px;}
+  .form-actions{position:fixed;left:0;right:0;bottom:0;z-index:180;margin:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--border);box-shadow:0 -5px 18px rgba(13,59,92,.1);gap:8px;}
+  .form-actions .btn{flex:1!important;min-width:0!important;padding:10px 8px;font-size:13px;}
+}
 
 /* TOGGLE */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);}
@@ -404,7 +412,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       <div class="card-title">基本資訊</div>
       <div class="form-row">
         <label>標題 *</label>
-        <input type="text" id="f-title" placeholder="公告標題">
+        <input type="text" id="f-title" placeholder="公告標題" required aria-required="true">
       </div>
       <div class="form-grid">
         <div class="form-row">
@@ -444,8 +452,8 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
           <div class="form-row">
             <label>活動截止時間 *</label>
             <div style="display:flex;gap:8px;">
-              <input type="date" id="f-eventdate" style="flex:1">
-              <input type="time" id="f-eventtime-hm" style="width:110px" value="23:59">
+              <input type="date" id="f-eventdate" style="flex:1" required aria-required="true">
+              <input type="time" id="f-eventtime-hm" style="width:110px" value="23:59" required aria-required="true">
             </div>
             <div class="form-hint">前台顯示進度條和倒數計時</div>
           </div>
@@ -510,11 +518,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       </div>
       <div class="toggle-row">
         <div><div class="toggle-label">儲存為草稿</div><div class="toggle-sub">草稿不顯示在前台</div></div>
-        <label class="toggle"><input type="checkbox" id="f-draft"><span class="toggle-slider"></span></label>
+        <label class="toggle"><input type="checkbox" id="f-draft" onchange="updateSaveButtonLabel()"><span class="toggle-slider"></span></label>
       </div>
       <div class="form-row" style="margin-top:16px;margin-bottom:0">
         <label>排程發布（選填）</label>
-        <input type="datetime-local" id="f-schedule">
+        <input type="datetime-local" id="f-schedule" oninput="updateSaveButtonLabel()" onchange="updateSaveButtonLabel()">
         <div class="form-hint">設定時間後儲存為草稿，到時間自動發布</div>
       </div>
     </div>
@@ -526,7 +534,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       </div>
       <button class="error-panel-close" onclick="document.getElementById('save-error-panel').style.display='none'">✕</button>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+    <div class="form-actions">
       <button class="btn btn-primary" onclick="savePost()" style="flex:1;min-width:130px;justify-content:center;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
         <span id="save-btn-text">發布公告</span>
@@ -748,6 +756,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   var ADMIN_PW_KEY='116_admin_pw';
   var DEFAULT_PW='116admin';
   var editingId=null;
+  var formDirty=false;
   var coverBase64=null;
   var cachedArticles=[];
   var currentGroups=['行政組','場務組','公關組','美宣組','活動組','資訊組'];
@@ -772,6 +781,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
   /* ── PAGE SWITCH ── */
   window.switchPage=function(name,el){
+    var editorPage=document.getElementById('page-new-post');
+    if(name!=='new-post'&&editorPage&&editorPage.classList.contains('active')&&formDirty){
+      if(!window.confirm('這則公告尚未儲存，離開後輸入內容會消失。確定要離開嗎？')) return;
+      formDirty=false;
+    }
     document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
     document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
     var page=document.getElementById('page-'+name);
@@ -785,6 +799,40 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     if(name==='settings') loadSettings();
     if(name==='new-post'&&!editingId) resetForm();
   };
+  window.markEditorDirty=function(){
+    var page=document.getElementById('page-new-post');
+    if(page&&page.classList.contains('active')) formDirty=true;
+  };
+  window.updateSaveButtonLabel=function(){
+    var label=document.getElementById('save-btn-text');
+    if(!label) return;
+    var scheduled=!!document.getElementById('f-schedule').value;
+    var draft=document.getElementById('f-draft').checked;
+    if(editingId) label.textContent=scheduled?'更新排程':(draft?'更新草稿':'儲存變更');
+    else label.textContent=scheduled?'排程發布':(draft?'儲存草稿':'發布公告');
+  };
+  function clearFieldError(input){
+    if(!input) return;
+    input.removeAttribute('aria-invalid');
+    var row=input.closest('.form-row');
+    if(row){row.classList.remove('has-error');var msg=row.querySelector('.field-error-message');if(msg) msg.remove();}
+  }
+  function showFieldError(input,message){
+    clearFieldError(input);
+    if(!input) return;
+    input.setAttribute('aria-invalid','true');
+    var row=input.closest('.form-row');
+    if(row){
+      row.classList.add('has-error');
+      var msg=document.createElement('div');msg.className='field-error-message';msg.setAttribute('role','alert');msg.textContent=message;
+      row.appendChild(msg);
+      row.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+    input.focus();
+  }
+  function clearAllFieldErrors(){
+    document.querySelectorAll('#page-new-post [aria-invalid="true"]').forEach(clearFieldError);
+  }
   window.goToPage=function(name){
     var navItem=Array.from(document.querySelectorAll('.sidebar-nav .nav-item')).find(function(item){
       return item.getAttribute('onclick')&&item.getAttribute('onclick').indexOf("switchPage('"+name+"'")>=0;
@@ -1077,10 +1125,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   };
 
   function resetForm(){
-    editingId=null; coverBase64=null;
+    editingId=null; formDirty=false; clearAllFieldErrors(); coverBase64=null;
     document.getElementById('form-page-title').innerHTML='新增<span>公告</span>';
     document.getElementById('form-page-sub').textContent='填寫以下欄位後發布';
-    document.getElementById('save-btn-text').textContent='發布公告';
+    updateSaveButtonLabel();
     ['f-title','f-eventdate','f-eventtime-hm','f-startdate','f-starttime-hm','f-form-url','f-form-embed','f-schedule'].forEach(function(id){var el=document.getElementById(id);if(el) el.value='';}); document.getElementById('f-post-type').value='normal'; window.toggleEventFields();;
     document.getElementById('f-group').value='';
     document.getElementById('f-content').innerHTML='';
@@ -1093,6 +1141,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var cp=document.getElementById('f-custom-color');
     if(cp){cp.value='#1A6B9A';cp.dataset.custom='0';}
     renderColorSwatches();
+    formDirty=false;clearAllFieldErrors();updateSaveButtonLabel();
   }
 
   window.editPost=function(id){
@@ -1107,10 +1156,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       }).catch(function(){showToast('載入失敗',true);});
       return;
     }
-    editingId=id; coverBase64=a.image||null;
+    editingId=id; formDirty=false; coverBase64=a.image||null;
     document.getElementById('form-page-title').innerHTML='編輯<span>公告</span>';
     document.getElementById('form-page-sub').textContent='ID: '+id;
-    document.getElementById('save-btn-text').textContent='儲存變更';
+    updateSaveButtonLabel();
     document.getElementById('f-title').value=a.title||'';
     document.getElementById('f-group').value=a.group||'';
     document.getElementById('f-post-type').value=a.postType||'normal';
@@ -1144,6 +1193,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       if(clr) clr.style.display='block';
     } else {clearImgUI();}
     updateWordCount();
+    clearAllFieldErrors();formDirty=false;updateSaveButtonLabel();
 
     // Set article color
     var cp=document.getElementById('f-custom-color');
@@ -1162,9 +1212,24 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   };
 
   window.savePost=function(){
-    var title=(document.getElementById('f-title').value||'').trim();
-    if(!title){showToast('請填寫標題',true);document.getElementById('f-title').focus();return;}
-    var isDraft=document.getElementById('f-draft').checked;
+    var titleInput=document.getElementById('f-title');
+    var title=(titleInput.value||'').trim();
+    clearAllFieldErrors();
+    if(!title){showFieldError(titleInput,'請填寫公告標題');showToast('請填寫公告標題',true);return;}
+    var postType=document.getElementById('f-post-type').value;
+    if(postType==='event'){
+      var eventDateInput=document.getElementById('f-eventdate');
+      var eventTimeInput=document.getElementById('f-eventtime-hm');
+      if(!eventDateInput.value){showFieldError(eventDateInput,'活動公告必須設定截止日期');showToast('請設定活動截止日期',true);return;}
+      if(!eventTimeInput.value){showFieldError(eventTimeInput,'請設定活動截止時間');showToast('請設定活動截止時間',true);return;}
+    }
+    var scheduleInput=document.getElementById('f-schedule');
+    var scheduleValue=scheduleInput.value;
+    var isScheduled=!!scheduleValue;
+    if(isScheduled&&new Date(scheduleValue).getTime()<=Date.now()){
+      showFieldError(scheduleInput,'排程時間必須晚於現在');showToast('排程時間必須晚於現在',true);return;
+    }
+    var isDraft=document.getElementById('f-draft').checked||isScheduled;
     var now=new Date().toISOString();
     var data={
       title:title,
@@ -1186,7 +1251,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       pinned:document.getElementById('f-pinned').checked,
       groupPinned:document.getElementById('f-group-pinned').checked,
       draft:isDraft,
-      scheduleTime:document.getElementById('f-schedule').value||null,
+      scheduleTime:scheduleValue||null,
       formUrl:document.getElementById('f-form-url').value||null,
       formEmbed:document.getElementById('f-form-embed').value||null,
       image:coverBase64||null,
@@ -1198,8 +1263,8 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       data.createdAt=existing?existing.createdAt:now;
       data.views=existing?existing.views||0:0;
       window.db.ref('articles/'+editingId).update(data).then(function(){
-        showToast(isDraft?'草稿已更新 ✓':'公告已更新 ✓');
-        editingId=null;
+        showToast(isScheduled?'排程已更新 ✓':(isDraft?'草稿已更新 ✓':'公告已更新 ✓'));
+        editingId=null;formDirty=false;
         switchPage('all-posts',document.querySelectorAll('.nav-item')[3]);
         loadAllPosts();
       }).catch(function(e){showError('更新失敗：'+e.message);});
@@ -1207,8 +1272,8 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       var newId=Date.now();
       data.id=newId; data.createdAt=now; data.views=0;
       window.db.ref('articles/'+newId).set(data).then(function(){
-        showToast(isDraft?'草稿已儲存 ✓':'公告已發布 ✓');
-        editingId=null;
+        showToast(isScheduled?'公告已排程 ✓':(isDraft?'草稿已儲存 ✓':'公告已發布 ✓'));
+        editingId=null;formDirty=false;
         switchPage('all-posts',document.querySelectorAll('.nav-item')[3]);
         loadAllPosts();
       }).catch(function(e){showError('發布失敗：'+e.message);});
@@ -1249,7 +1314,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var file=input.files[0]; if(!file) return;
     var reader=new FileReader();
     reader.onload=function(e){
-      coverBase64=e.target.result;
+      coverBase64=e.target.result;window.markEditorDirty();
       var up=document.getElementById('img-upload');
       var ex=up.querySelector('img'); if(ex) ex.remove();
       var img=document.createElement('img'); img.src=coverBase64; up.appendChild(img);
@@ -1259,7 +1324,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     reader.readAsDataURL(file);
   };
   window.clearImg=function(e){
-    e.stopPropagation(); coverBase64=null; clearImgUI();
+    e.stopPropagation(); coverBase64=null; clearImgUI();window.markEditorDirty();
   };
   function clearImgUI(){
     var up=document.getElementById('img-upload');
@@ -1803,6 +1868,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     }
     showToast(msg,true);
   }
+
+  document.querySelectorAll('#page-new-post input,#page-new-post select,#page-new-post textarea,#page-new-post .rich-editor').forEach(function(input){
+    input.addEventListener('input',function(){window.markEditorDirty();clearFieldError(input);});
+    input.addEventListener('change',function(){window.markEditorDirty();clearFieldError(input);});
+  });
+  window.addEventListener('beforeunload',function(event){
+    if(formDirty){event.preventDefault();event.returnValue='';}
+  });
 
   /* ── INIT ── */
   loadDashboard();
