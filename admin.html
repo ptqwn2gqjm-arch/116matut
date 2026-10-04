@@ -165,8 +165,22 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .icon-btn svg{width:14px;height:14px;}
 
 /* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
-.stat-card{background:white;border:1px solid var(--border);border-radius:10px;padding:18px 22px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:white;border:1px solid var(--border);border-radius:10px;padding:18px 20px;min-width:0;}
+.stat-card-button{font:inherit;text-align:left;color:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;}
+.stat-card-button:hover{border-color:var(--mid);box-shadow:0 6px 18px rgba(13,59,92,.08);transform:translateY(-1px);}
+.stat-card-button:focus-visible{outline:3px solid var(--light);outline-offset:2px;}
+.dashboard-columns{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:20px;align-items:start;}
+.dashboard-columns .card{min-width:0;}
+.upcoming-list{display:flex;flex-direction:column;gap:9px;}
+.upcoming-event{display:flex;align-items:center;gap:12px;padding:11px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;}
+.upcoming-event-date{min-width:88px;color:var(--mid);font-size:12px;font-weight:700;line-height:1.5;}
+.upcoming-event-info{min-width:0;flex:1;}
+.upcoming-event-title{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.upcoming-event-group{font-size:11px;color:var(--muted);margin-top:2px;}
+.posts-filter-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,.45fr) minmax(145px,.4fr);gap:10px;margin-bottom:14px;}
+.posts-filter-row select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'Noto Sans TC',sans-serif;font-size:13px;background:white;color:var(--text);outline:none;}
+.posts-filter-row select:focus{border-color:var(--mid);}
 .stat-card-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:38px;line-height:1;color:var(--deep);margin-bottom:3px;}
 .stat-card-label{font-size:12px;color:var(--muted);}
 
@@ -247,6 +261,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   .main{margin-left:0;padding:66px 16px 28px;}
   .mobile-topbar{display:flex;}
   .stats-grid{grid-template-columns:1fr 1fr;}
+  .dashboard-columns{grid-template-columns:1fr;}
+  .posts-filter-row{grid-template-columns:1fr 1fr;}
+  .posts-filter-row .admin-search{grid-column:1/-1;margin-bottom:0;}
   .form-grid{grid-template-columns:1fr;}
   .card{padding:18px 14px;}
   .page-title{font-size:30px;}
@@ -262,6 +279,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   .sidebar{width:200px;}
   .main{margin-left:200px;padding:28px;}
   .stats-grid{grid-template-columns:1fr 1fr;}
+  .dashboard-columns{grid-template-columns:1fr;}
+  .posts-filter-row{grid-template-columns:1fr 1fr;}
+  .posts-filter-row .admin-search{grid-column:1/-1;margin-bottom:0;}
   .form-grid{grid-template-columns:1fr;}
 }
   /* IMAGE CROP MODAL */
@@ -356,13 +376,21 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       <div class="page-sub">歡迎回來，管理員</div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-card-num" id="stat-total">0</div><div class="stat-card-label">則公告</div></div>
+      <div class="stat-card"><div class="stat-card-num" id="stat-total">0</div><div class="stat-card-label">則已發布公告</div></div>
+      <button type="button" class="stat-card stat-card-button" onclick="goToPage('drafts')" aria-label="查看草稿"><div class="stat-card-num" id="stat-drafts">0</div><div class="stat-card-label">則草稿</div></button>
       <div class="stat-card"><div class="stat-card-num" id="stat-pinned">0</div><div class="stat-card-label">則置頂</div></div>
-      <div class="stat-card"><div class="stat-card-num" id="stat-upcoming">0</div><div class="stat-card-label">個活動倒數中</div></div>
+      <button type="button" class="stat-card stat-card-button" onclick="goToPage('calendar')" aria-label="查看近期活動"><div class="stat-card-num" id="stat-upcoming">0</div><div class="stat-card-label">個近期活動</div></button>
+      <button type="button" class="stat-card stat-card-button" onclick="goToPage('comments')" aria-label="查看留言"><div class="stat-card-num" id="stat-comments">0</div><div class="stat-card-label">則留言</div></button>
     </div>
-    <div class="card">
-      <div class="card-title">最近公告</div>
-      <div id="recent-list" class="article-list"></div>
+    <div class="dashboard-columns">
+      <div class="card">
+        <div class="card-title">最近公告 <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="goToPage('all-posts')">查看全部</button></div>
+        <div id="recent-list" class="article-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">近期活動</div>
+        <div id="upcoming-list" class="upcoming-list"></div>
+      </div>
     </div>
   </div>
 
@@ -518,9 +546,19 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       <div class="page-sub" id="all-posts-count"></div>
     </div>
     <div class="card" style="padding:20px 22px">
-      <div class="admin-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="搜尋公告標題⋯" oninput="filterPostsList(this.value)">
+      <div class="posts-filter-row">
+        <div class="admin-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="posts-search" placeholder="搜尋公告標題⋯" oninput="filterPostsList(this.value)">
+        </div>
+        <select id="posts-group-filter" aria-label="依組別篩選" onchange="filterPostsList(document.getElementById('posts-search').value)">
+          <option value="">所有組別</option>
+        </select>
+        <select id="posts-type-filter" aria-label="依公告類型篩選" onchange="filterPostsList(document.getElementById('posts-search').value)">
+          <option value="">所有類型</option>
+          <option value="event">活動型</option>
+          <option value="normal">一般公告</option>
+        </select>
       </div>
       <div id="all-posts-list" class="article-list"></div>
     </div>
@@ -747,6 +785,16 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     if(name==='settings') loadSettings();
     if(name==='new-post'&&!editingId) resetForm();
   };
+  window.goToPage=function(name){
+    var navItem=Array.from(document.querySelectorAll('.sidebar-nav .nav-item')).find(function(item){
+      return item.getAttribute('onclick')&&item.getAttribute('onclick').indexOf("switchPage('"+name+"'")>=0;
+    });
+    window.switchPage(name,navItem||null);
+    if(window.innerWidth<=768){
+      document.getElementById('sidebar').classList.remove('mobile-open');
+      document.getElementById('mobile-overlay').classList.remove('show');
+    }
+  };
 
   /* ── LOAD FROM FIREBASE ── */
   function loadArticlesFromFirebase(cb){
@@ -769,17 +817,43 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   function getArticles(){return cachedArticles;}
 
   /* ── DASHBOARD ── */
+  function escapeHtml(value){
+    return String(value==null?'':value).replace(/[&<>"']/g,function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
   function loadDashboard(){
     loadArticlesFromFirebase(function(){
       var articles=getArticles();
       var now=Date.now();
-      document.getElementById('stat-total').textContent=articles.filter(function(a){return !a.draft;}).length;
-      document.getElementById('stat-pinned').textContent=articles.filter(function(a){return a.pinned;}).length;
-      document.getElementById('stat-upcoming').textContent=articles.filter(function(a){return a.eventTime&&new Date(a.eventTime)>now&&!a.draft;}).length;
+      var published=articles.filter(function(a){return !a.draft;});
+      var upcoming=published.filter(function(a){return a.eventTime&&new Date(a.eventTime)>now;})
+        .sort(function(a,b){return new Date(a.eventTime)-new Date(b.eventTime);});
+      document.getElementById('stat-total').textContent=published.length;
+      document.getElementById('stat-drafts').textContent=articles.filter(function(a){return a.draft;}).length;
+      document.getElementById('stat-pinned').textContent=published.filter(function(a){return a.pinned;}).length;
+      document.getElementById('stat-upcoming').textContent=upcoming.length;
       var list=document.getElementById('recent-list');
-      var recent=articles.filter(function(a){return !a.draft;}).slice(0,5);
-      if(!recent.length){list.innerHTML='<div class="list-empty"><div class="list-empty-icon">📭</div>還沒有公告</div>';return;}
-      list.innerHTML=recent.map(function(a){return articleItemHtml(a);}).join('');
+      var recent=published.slice(0,5);
+      list.innerHTML=recent.length?recent.map(function(a){return articleItemHtml(a);}).join('')
+        :'<div class="list-empty"><div class="list-empty-icon">📭</div>還沒有公告</div>';
+      var upcomingList=document.getElementById('upcoming-list');
+      upcomingList.innerHTML=upcoming.length?upcoming.slice(0,4).map(function(a){
+        var date=new Date(a.eventTime);
+        var dateLabel=fmtDate(a.eventTime)+(isNaN(date.getTime())?'':' '+date.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false}));
+        return '<div class="upcoming-event"><div class="upcoming-event-date">'+escapeHtml(dateLabel)+'</div>'
+          +'<div class="upcoming-event-info"><div class="upcoming-event-title">'+escapeHtml(a.title||'未命名公告')+'</div>'
+          +(a.group?'<div class="upcoming-event-group">'+escapeHtml(a.group)+'</div>':'')
+          +'</div></div>';
+      }).join(''):'<div class="list-empty" style="padding:24px 12px"><div class="list-empty-icon">🗓️</div>目前沒有近期活動</div>';
+      window.db.ref('comments').once('value').then(function(snap){
+        var comments=snap.val(),count=0;
+        if(comments) Object.keys(comments).forEach(function(aid){
+          if(comments[aid]&&typeof comments[aid]==='object') count+=Object.keys(comments[aid]).filter(function(cid){return comments[aid][cid]!=null;}).length;
+        });
+        document.getElementById('stat-comments').textContent=count;
+      }).catch(function(){document.getElementById('stat-comments').textContent='—';});
     });
   }
 
@@ -789,11 +863,18 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       var articles=getArticles().filter(function(a){return !a.draft;});
       var countEl=document.getElementById('all-posts-count');
       if(countEl) countEl.textContent='共 '+articles.length+' 則';
+      var groupFilter=document.getElementById('posts-group-filter');
+      if(groupFilter){
+        var options='<option value="">所有組別</option>';
+        currentGroups.forEach(function(group){options+='<option value="'+escapeHtml(group)+'">'+escapeHtml(group)+'</option>';});
+        groupFilter.innerHTML=options;
+      }
       var list=document.getElementById('all-posts-list');
       if(!articles.length){list.innerHTML='<div class="list-empty"><div class="list-empty-icon">📭</div>還沒有公告</div>';return;}
       var pinned=articles.filter(function(a){return a.pinned;});
       var rest=articles.filter(function(a){return !a.pinned;});
       list.innerHTML=pinned.concat(rest).map(function(a){return articleItemHtml(a);}).join('');
+      window.filterPostsList(document.getElementById('posts-search').value);
     });
   }
 
@@ -898,9 +979,17 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
   /* ── SEARCH POSTS ── */
   window.filterPostsList=function(q){
+    var query=String(q||'').trim().toLocaleLowerCase();
+    var group=(document.getElementById('posts-group-filter')||{}).value||'';
+    var type=(document.getElementById('posts-type-filter')||{}).value||'';
     document.querySelectorAll('#all-posts-list .article-item').forEach(function(item){
-      var t=item.querySelector('.article-item-title');
-      item.style.display=(t&&t.textContent.toLowerCase().indexOf(q.toLowerCase())>=0)?'':'none';
+      var article=cachedArticles.find(function(a){return String(a.id)===String(item.dataset.id);});
+      var title=item.querySelector('.article-item-title');
+      var matchesTitle=!query||(title&&title.textContent.toLocaleLowerCase().indexOf(query)>=0);
+      var matchesGroup=!group||(article&&article.group===group);
+      var isEvent=!!(article&&article.eventTime);
+      var matchesType=!type||(type==='event'?isEvent:!isEvent);
+      item.style.display=matchesTitle&&matchesGroup&&matchesType?'':'none';
     });
   };
 
