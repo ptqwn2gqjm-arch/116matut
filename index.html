@@ -576,6 +576,7 @@ footer{
     var filtered=allArticles.filter(function(a){
       var deadline=a.eventTime?new Date(a.eventTime).getTime():NaN;
       if(Number.isFinite(deadline) && deadline<=now) return false;
+      if(a.hideFromLatest) return false;
       if(currentFilter!=='all' && a.group!==currentFilter) return false;
       if(q){
         var inT=(a.title||'').toLowerCase().indexOf(q)>=0;
