@@ -241,6 +241,8 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .comment-reply-box textarea:focus{border-color:var(--mid);}
 .comment-reply-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;}
 .comment-reply-status{font-size:11px;color:var(--muted);}
+.comment-live-status{margin-left:8px;color:var(--green);font-size:11px;}
+.comment-live-status::before{content:'';display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:currentColor;vertical-align:1px;}
 .comment-thread-admin{display:flex;flex-direction:column;gap:7px;margin:12px 0;}
 .comment-thread-entry{padding:9px 11px;border-radius:6px;background:var(--bg);font-size:12px;line-height:1.6;white-space:pre-wrap;}
 .comment-thread-entry.admin{background:var(--pale);border-left:3px solid var(--mid);}
@@ -617,7 +619,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   <div class="page" id="page-comments">
     <div class="page-header">
       <div class="page-title">留言<span>管理</span></div>
-      <div class="page-sub" id="comments-admin-count"></div>
+      <div class="page-sub"><span id="comments-admin-count"></span> <span class="comment-live-status" id="comments-admin-live-status">開啟留言管理時即時更新</span></div>
     </div>
     <div class="card" style="padding:20px 22px">
       <div id="comments-admin-list"></div>
@@ -799,6 +801,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       if(!window.confirm('這則公告尚未儲存，離開後輸入內容會消失。確定要離開嗎？')) return;
       formDirty=false;
     }
+    if(name!=='comments'&&commentsAdminRef&&commentsAdminListener){commentsAdminRef.off('value',commentsAdminListener);commentsAdminRef=null;commentsAdminListener=null;}
     document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
     document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
     var page=document.getElementById('page-'+name);
@@ -1524,51 +1527,69 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   };
 
   /* ── COMMENTS ── */
+  var commentsAdminRef=null, commentsAdminListener=null;
   function loadCommentsAdmin(){
     var list=document.getElementById('comments-admin-list');
+    var status=document.getElementById('comments-admin-live-status');
     if(!list) return;
     list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">載入中⋯</div>';
     loadArticlesFromFirebase(function(){
-      window.db.ref('comments').once('value').then(function(snap){
+      if(commentsAdminRef&&commentsAdminListener) commentsAdminRef.off('value',commentsAdminListener);
+      commentsAdminRef=window.db.ref('comments');
+      commentsAdminListener=commentsAdminRef.on('value',function(snap){
+        var drafts={};
+        list.querySelectorAll('.comment-reply-box textarea').forEach(function(el){drafts[el.id]=el.value;});
         var val=snap.val();
-        if(!val){list.innerHTML='<div class="list-empty"><div class="list-empty-icon">💬</div>還沒有留言</div>';document.getElementById('comments-admin-count').textContent='';return;}
-        var allComments=[];
-        Object.keys(val).forEach(function(aid){
-          var ac=val[aid]; if(!ac) return;
-          var article=cachedArticles.find(function(a){return String(a.id)===String(aid);});
-          var articleTitle=article?article.title:'（已刪除的公告）';
-          Object.keys(ac).forEach(function(cid){
-            allComments.push(Object.assign({},ac[cid],{_aid:aid,_cid:cid,_articleTitle:articleTitle}));
+        if(!val){
+          list.innerHTML='<div class="list-empty"><div class="list-empty-icon">💬</div>還沒有留言</div>';
+          document.getElementById('comments-admin-count').textContent='';
+        }else{
+          var allComments=[];
+          Object.keys(val).forEach(function(aid){
+            var ac=val[aid]; if(!ac) return;
+            var article=cachedArticles.find(function(a){return String(a.id)===String(aid);});
+            var articleTitle=article?article.title:'（已刪除的公告）';
+            Object.keys(ac).forEach(function(cid){
+              allComments.push(Object.assign({},ac[cid],{_aid:aid,_cid:cid,_articleTitle:articleTitle}));
+            });
           });
-        });
-        allComments.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
-        document.getElementById('comments-admin-count').textContent='共 '+allComments.length+' 則留言';
-        if(!allComments.length){list.innerHTML='<div class="list-empty"><div class="list-empty-icon">💬</div>還沒有留言</div>';return;}
-        list.innerHTML=allComments.map(function(c){
-          var aid=escapeHtml(c._aid), cid=escapeHtml(c._cid);
-          return '<div class="comment-manage-item">'
-            +'<div class="comment-manage-header">'
-            +'<div class="comment-manage-avatar">'+escapeHtml((c.name||'?').charAt(0).toUpperCase())+'</div>'
-            +'<div class="comment-manage-name">'+escapeHtml(c.name||'匿名')+'</div>'
-            +'<div class="comment-manage-date">'+escapeHtml(fmtDate(c.createdAt))+'</div>'
-            +'<div class="comment-manage-article">'+escapeHtml(c._articleTitle)+'</div>'
-            +'</div>'
-            +'<div class="comment-manage-body">'+escapeHtml(c.body||'')+'</div>'
-            +'<div class="comment-thread-admin">'
-            +(c.adminReply?'<div class="comment-thread-entry admin"><strong>畢籌會 · '+escapeHtml(fmtDate(c.adminReplyAt||c.createdAt))+'</strong><div>'+escapeHtml(c.adminReply)+'</div></div>':'')
-            +(c.replies?Object.keys(c.replies).map(function(rid){var r=c.replies[rid]||{};return '<div class="comment-thread-entry '+(r.role==='admin'?'admin':'student')+'"><strong>'+escapeHtml(r.role==='admin'?'畢籌會':(r.name||'學生'))+' · '+escapeHtml(fmtDate(r.createdAt))+'</strong><div>'+escapeHtml(r.body||'')+'</div></div>';}).join(''):'')
-            +'</div>'
-            +'<div class="comment-reply-box">'
-            +'<label for="reply-'+aid+'-'+cid+'">接續回覆此討論串</label>'
-            +'<textarea id="reply-'+aid+'-'+cid+'" maxlength="1000" placeholder="輸入新的回覆⋯"></textarea>'
-            +'<div class="comment-reply-actions"><span class="comment-reply-status">可持續新增回覆，對話紀錄會保留</span>'
-            +'<button class="btn btn-primary" style="padding:7px 14px;font-size:13px" onclick="saveCommentReply(this)" data-aid="'+aid+'" data-cid="'+cid+'">送出回覆</button></div>'
-            +'</div>'
-            +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(this)" data-aid="'+aid+'" data-cid="'+cid+'">'
-            +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
-            +'刪除</button>'
-            +'</div>';
-        }).join('');
+          allComments.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
+          document.getElementById('comments-admin-count').textContent='共 '+allComments.length+' 則留言';
+          if(!allComments.length){
+            list.innerHTML='<div class="list-empty"><div class="list-empty-icon">💬</div>還沒有留言</div>';
+          }else{
+            list.innerHTML=allComments.map(function(c){
+              var aid=escapeHtml(c._aid), cid=escapeHtml(c._cid);
+              return '<div class="comment-manage-item">'
+                +'<div class="comment-manage-header">'
+                +'<div class="comment-manage-avatar">'+escapeHtml((c.name||'?').charAt(0).toUpperCase())+'</div>'
+                +'<div class="comment-manage-name">'+escapeHtml(c.name||'匿名')+'</div>'
+                +'<div class="comment-manage-date">'+escapeHtml(fmtDate(c.createdAt))+'</div>'
+                +'<div class="comment-manage-article">'+escapeHtml(c._articleTitle)+'</div>'
+                +'</div>'
+                +'<div class="comment-manage-body">'+escapeHtml(c.body||'')+'</div>'
+                +'<div class="comment-thread-admin">'
+                +(c.adminReply?'<div class="comment-thread-entry admin"><strong>畢籌會 · '+escapeHtml(fmtDate(c.adminReplyAt||c.createdAt))+'</strong><div>'+escapeHtml(c.adminReply)+'</div></div>':'')
+                +(c.replies?Object.keys(c.replies).map(function(rid){var r=c.replies[rid]||{};return '<div class="comment-thread-entry '+(r.role==='admin'?'admin':'student')+'"><strong>'+escapeHtml(r.role==='admin'?'畢籌會':(r.name||'學生'))+' · '+escapeHtml(fmtDate(r.createdAt))+'</strong><div>'+escapeHtml(r.body||'')+'</div></div>';}).join(''):'')
+                +'</div>'
+                +'<div class="comment-reply-box">'
+                +'<label for="reply-'+aid+'-'+cid+'">接續回覆此討論串</label>'
+                +'<textarea id="reply-'+aid+'-'+cid+'" maxlength="1000" placeholder="輸入新的回覆⋯"></textarea>'
+                +'<div class="comment-reply-actions"><span class="comment-reply-status">可持續新增回覆，對話紀錄會保留</span>'
+                +'<button class="btn btn-primary" style="padding:7px 14px;font-size:13px" onclick="saveCommentReply(this)" data-aid="'+aid+'" data-cid="'+cid+'">送出回覆</button></div>'
+                +'</div>'
+                +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(this)" data-aid="'+aid+'" data-cid="'+cid+'">'
+                +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
+                +'刪除</button>'
+                +'</div>';
+            }).join('');
+            Object.keys(drafts).forEach(function(id){var el=document.getElementById(id);if(el)el.value=drafts[id];});
+          }
+        }
+        if(status) status.textContent='即時同步中 · '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      },function(error){
+        if(status) status.textContent='同步暫時中斷，請確認網路連線';
+        console.error('留言即時同步失敗',error);
       });
     });
   }
