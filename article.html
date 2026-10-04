@@ -258,7 +258,21 @@ textarea#comment-input:focus{border-color:var(--mid);}
 .comment-item-body{font-size:14px;line-height:1.7;white-space:pre-wrap;}
 .comment-admin-reply{margin:14px 0 0 40px;padding:11px 13px;background:var(--pale);border-left:3px solid var(--mid);border-radius:0 7px 7px 0;}
 .comment-admin-reply-label{font-size:11px;font-weight:700;color:var(--mid);margin-bottom:4px;}
-.comment-admin-reply-body{font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
+
+.comment-thread-entry{margin:12px 0 0 40px;padding:10px 13px;border-radius:0 7px 7px 0;background:var(--bg);border-left:3px solid var(--border);}
+.comment-thread-entry.admin{background:var(--pale);border-left-color:var(--mid);}
+.comment-thread-entry-label{font-size:11px;font-weight:700;color:var(--mid);margin-bottom:4px;}
+.comment-thread-entry-body{font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
+.thread-reply-form{margin:12px 0 0 40px;padding:12px;background:#fff;border:1px solid var(--border);border-radius:8px;}
+.thread-reply-form input:not(.thread-reply-honeypot),.thread-reply-form textarea{display:block;width:100%;margin-bottom:8px;padding:9px 11px;border:1.5px solid var(--border);border-radius:6px;font:13px 'Noto Sans TC',sans-serif;outline:none;}
+.thread-reply-form textarea{min-height:68px;resize:vertical;line-height:1.6;}
+.thread-reply-form input:focus,.thread-reply-form textarea:focus{border-color:var(--mid);}
+.thread-reply-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important;}
+.thread-reply-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.thread-reply-note{font-size:11px;color:var(--muted);}
+.thread-reply-submit{border:0;border-radius:6px;background:var(--deep);color:#fff;padding:8px 14px;font:600 13px 'Noto Sans TC',sans-serif;cursor:pointer;}
+.thread-reply-submit:disabled{opacity:.55;cursor:not-allowed;}
+@media(max-width:600px){.comment-thread-entry,.thread-reply-form{margin-left:16px;}}
 .no-comments{text-align:center;padding:28px;font-size:14px;color:var(--muted);}
 
 /* NOT FOUND */
@@ -543,12 +557,23 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
 
   // Comments
   var commentsKey='comments/'+id;
+  function renderCommentThread(c){
+    var entries=[];
+    if(c.adminReply) entries.push({name:'畢籌會',role:'admin',body:c.adminReply,createdAt:c.adminReplyAt||c.createdAt});
+    if(c.replies) Object.keys(c.replies).forEach(function(rid){if(c.replies[rid])entries.push(c.replies[rid]);});
+    entries.sort(function(a,b){return new Date(a.createdAt||0)-new Date(b.createdAt||0);});
+    return entries.map(function(r){
+      var isAdmin=r.role==='admin';
+      return '<div class="comment-thread-entry '+(isAdmin?'admin':'student')+'"><div class="comment-thread-entry-label">'+(isAdmin?'畢籌會回覆':escHtml(r.name||'學生'))+' · '+fmtDate(r.createdAt)+'</div><div class="comment-thread-entry-body">'+escHtml(r.body||'')+'</div></div>';
+    }).join('');
+  }
+
   function renderComments(){
     var list=document.getElementById('comments-list'); if(!list) return;
     list.innerHTML='<div class="no-comments">載入中⋯</div>';
     window.db.ref(commentsKey).once('value').then(function(snap){
       var val=snap.val();
-      var comments=val?Object.values(val).sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt);}):[];
+      var comments=val?Object.keys(val).map(function(cid){return Object.assign({},val[cid],{_cid:cid});}).sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt);}):[];
       if(!comments.length){list.innerHTML='<div class="no-comments">還沒有留言，成為第一個！</div>';return;}
       list.innerHTML=comments.map(function(c){
         var av=c.photo?'<img src="'+c.photo+'" alt="">':escHtml((c.name||'?').charAt(0).toUpperCase());
@@ -557,11 +582,49 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
           +'<div class="comment-item-name">'+escHtml(c.name||'匿名')+'</div>'
           +'<div class="comment-item-date">'+fmtDate(c.createdAt)+'</div></div>'
           +'<div class="comment-item-body">'+escHtml(c.body||'')+'</div>'
-          +(c.adminReply?'<div class="comment-admin-reply"><div class="comment-admin-reply-label">畢籌會回覆</div><div class="comment-admin-reply-body">'+escHtml(c.adminReply)+'</div></div>':'')
+          +renderCommentThread(c)
+          +'<div class="thread-reply-form" data-cid="'+escHtml(c._cid)+'">'
+          +'<input type="text" maxlength="30" class="thread-reply-name" placeholder="你的暱稱（必填）" aria-label="回覆暱稱" value="'+escHtml(localStorage.getItem('116_comment_name')||'')+'">'
+          +'<textarea maxlength="1000" class="thread-reply-body" placeholder="接著回覆這則討論⋯" aria-label="回覆內容"></textarea>'
+          +'<input type="text" class="thread-reply-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">'
+          +'<div class="thread-reply-actions"><span class="thread-reply-note"></span><button type="button" class="thread-reply-submit" onclick="postThreadReply(this)">回覆此討論</button></div>'
+          +'</div>'
           +'</div>';
       }).join('');
     });
   }
+
+  function postThreadReply(btn){
+    var form=btn.closest('.thread-reply-form');
+    if(!form)return;
+    var cid=form.dataset.cid;
+    var nameInput=form.querySelector('.thread-reply-name');
+    var bodyInput=form.querySelector('.thread-reply-body');
+    var honey=form.querySelector('.thread-reply-honeypot');
+    var note=form.querySelector('.thread-reply-note');
+    var name=(nameInput?nameInput.value:'').trim();
+    var body=(bodyInput?bodyInput.value:'').trim();
+    if(honey&&honey.value)return;
+    if(!name){if(note)note.textContent='請先填寫暱稱';if(nameInput)nameInput.focus();return;}
+    if(!body){if(note)note.textContent='請先輸入回覆內容';if(bodyInput)bodyInput.focus();return;}
+    if(name.length>30||body.length>1000){if(note)note.textContent='暱稱最多 30 字，回覆最多 1000 字';return;}
+    var now=Date.now();
+    var lastPost=Number(localStorage.getItem('116_comment_last_reply')||0);
+    if(now-lastPost<15000){if(note)note.textContent='請稍候再送出回覆';return;}
+    btn.disabled=true;
+    window.db.ref(commentsKey+'/'+cid+'/replies').push({name:name,role:'student',body:body,createdAt:new Date(now).toISOString()}).then(function(){
+      localStorage.setItem('116_comment_last_reply',String(now));
+      localStorage.setItem('116_comment_name',name);
+      if(bodyInput)bodyInput.value='';
+      if(note)note.textContent='回覆已送出。';
+      btn.disabled=false;
+      renderComments();
+    }).catch(function(){
+      btn.disabled=false;
+      if(note)note.textContent='回覆送出失敗，請稍後再試。';
+    });
+  }
+  window.postThreadReply=postThreadReply;
 
   function postComment(){
     var nameInput=document.getElementById('comment-name');
@@ -585,6 +648,7 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
       createdAt:new Date(now).toISOString()
     }).then(function(){
       localStorage.setItem('116_comment_last_post',String(now));
+      localStorage.setItem('116_comment_name',name);
       nameInput.value='';input.value='';btn.disabled=false;renderComments();
       if(note)note.textContent='留言已送出。';
     }).catch(function(){
