@@ -572,7 +572,10 @@ footer{
   function applyFilters(){
     var list=document.getElementById('cards-list'); if(!list) return;
     var q=currentQuery.toLowerCase().trim();
+    var now=Date.now();
     var filtered=allArticles.filter(function(a){
+      var deadline=a.eventTime?new Date(a.eventTime).getTime():NaN;
+      if(Number.isFinite(deadline) && deadline<=now) return false;
       if(currentFilter!=='all' && a.group!==currentFilter) return false;
       if(q){
         var inT=(a.title||'').toLowerCase().indexOf(q)>=0;
@@ -595,7 +598,7 @@ footer{
     if(!sorted.length){
       list.innerHTML=q||currentFilter!=='all'
         ?'<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">找不到符合的公告</div><div class="empty-sub">試試其他關鍵字</div></div>'
-        :'<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">目前還沒有公告</div></div>';
+        :'<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">目前沒有尚未截止的消息</div></div>';
       var vaw=document.getElementById('view-all-wrap'); if(vaw) vaw.style.display='none';
       return;
     }
