@@ -772,7 +772,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   // Check scheduled posts
   function checkScheduled(){
     var now=new Date().toISOString();
-    cachedArticles.filter(function(a){return a.draft&&a.scheduleTime&&a.scheduleTime<=now;}).forEach(function(a){
+    cachedArticles.filter(function(a){return a.draft&&a.scheduleTime&&new Date(a.scheduleTime).getTime()<=Date.now();}).forEach(function(a){
       window.db.ref('articles/'+a.id).update({draft:false,scheduleTime:null,updatedAt:new Date().toISOString()}).then(function(){
         showToast('「'+a.title+'」已自動發布');
       });
@@ -1181,7 +1181,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     document.getElementById('f-pinned').checked=!!a.pinned;
     document.getElementById('f-group-pinned').checked=!!a.groupPinned;
     document.getElementById('f-draft').checked=!!a.draft;
-    document.getElementById('f-schedule').value=a.scheduleTime?a.scheduleTime.slice(0,16):'';
+    var scheduleDate=a.scheduleTime?new Date(a.scheduleTime):null;
+    var scheduleValue=scheduleDate&&!isNaN(scheduleDate.getTime())?
+      scheduleDate.getFullYear()+'-'+(scheduleDate.getMonth()+1+'').padStart(2,'0')+'-'+(scheduleDate.getDate()+'').padStart(2,'0')+'T'+(scheduleDate.getHours()+'').padStart(2,'0')+':'+(scheduleDate.getMinutes()+'').padStart(2,'0'):'';
+    document.getElementById('f-schedule').value=scheduleValue;
     document.getElementById('f-form-url').value=a.formUrl||'';
     document.getElementById('f-form-embed').value=a.formEmbed||'';
     if(a.image){
@@ -1251,7 +1254,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       pinned:document.getElementById('f-pinned').checked,
       groupPinned:document.getElementById('f-group-pinned').checked,
       draft:isDraft,
-      scheduleTime:scheduleValue||null,
+      scheduleTime:scheduleValue?new Date(scheduleValue).toISOString():null,
       formUrl:document.getElementById('f-form-url').value||null,
       formEmbed:document.getElementById('f-form-embed').value||null,
       image:coverBase64||null,
