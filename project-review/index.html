@@ -25,7 +25,7 @@
     .faculty-card img{display:block;width:96px;max-width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;object-position:center 38%;margin:0 auto 10px}
     .faculty-card h3{margin:0 0 2px;font-size:17px}.faculty-card p{margin:0;color:#7B9BB3;font-size:13px;line-height:1.45}
     .source-note{font-size:13px;color:var(--muted);margin:10px 0 0}
-    .notice{border-left:4px solid var(--orange);background:#FEF3DC;padding:16px 18px;border-radius:0 12px 12px 0;color:#496477}.notice strong{display:block;margin-bottom:3px}.upload{display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--green);color:white;border-radius:20px;padding:28px 30px}.upload h2{margin:0 0 5px;font-size:24px}.upload p{margin:0;color:#D6EAF8}.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:var(--lime);color:#0D3B5C;font-weight:800;padding:13px 20px;border-radius:999px;white-space:nowrap;transition:transform .15s,background .15s,box-shadow .15s}.button:hover{transform:translateY(-2px);background:#A8D8F0;box-shadow:0 7px 18px #0D3B5C33}.small{font-size:13px;color:var(--muted);margin-top:14px}footer{background:#D6EAF8;padding:22px;text-align:center;font-size:13px;color:var(--muted)}
+    .notice{margin-top:28px;border-left:4px solid var(--orange);background:#FEF3DC;padding:18px 20px;border-radius:0 12px 12px 0;color:#496477;box-shadow:0 8px 22px #0D3B5C0a}.notice>strong{display:block;margin-bottom:6px;color:#8A4B00;font-size:17px}.notice-copy strong{color:#6D3B00}.js .notice.reveal.is-visible{animation:notice-arrive .85s cubic-bezier(.2,.7,.2,1) both}@keyframes notice-arrive{0%{opacity:0;transform:translateY(20px);box-shadow:0 0 0 #E8A02000}65%{opacity:1;transform:translateY(-2px);box-shadow:0 0 0 5px #E8A02022}100%{opacity:1;transform:translateY(0);box-shadow:0 8px 22px #0D3B5C0a}}.upload{display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--green);color:white;border-radius:20px;padding:28px 30px}.upload h2{margin:0 0 5px;font-size:24px}.upload p{margin:0;color:#D6EAF8}.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:var(--lime);color:#0D3B5C;font-weight:800;padding:13px 20px;border-radius:999px;white-space:nowrap;transition:transform .15s,background .15s,box-shadow .15s}.button:hover{transform:translateY(-2px);background:#A8D8F0;box-shadow:0 7px 18px #0D3B5C33}.small{font-size:13px;color:var(--muted);margin-top:14px}footer{background:#D6EAF8;padding:22px;text-align:center;font-size:13px;color:var(--muted)}
     @keyframes rise-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     @keyframes orbit{to{transform:rotate(360deg)}}
     .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
@@ -48,7 +48,7 @@
       <div class="fact"><span>地點</span><strong>D904</strong></div>
       <div class="fact"><span>活動時段</span><strong>09:00–15:00</strong></div>
     </section>
-    <div class="notice"><strong>重要提醒</strong>請全體組員著正裝，並於 08:40–08:50 簽到進場；逾時不候，09:00 準時開始。組員未到場將扣分。</div>
+    <div class="notice"><strong>重要提醒</strong><span class="notice-copy">請全體組員著正裝，並於 <strong>08:40–08:50 簽到進場</strong>；<strong>逾時不候，09:00 準時開始</strong>。<strong>組員未到場將扣分</strong>。</span></div>
       </div>
   <main class="wrap">
     <section class="section">
