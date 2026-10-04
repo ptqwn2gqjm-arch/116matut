@@ -235,6 +235,12 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .comment-manage-date{font-size:11px;color:var(--muted);}
 .comment-manage-article{font-size:11px;color:var(--light);margin-left:auto;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .comment-manage-body{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;}
+.comment-reply-box{margin:12px 0;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;}
+.comment-reply-box label{display:block;font-size:12px;font-weight:700;color:var(--deep);margin-bottom:6px;}
+.comment-reply-box textarea{display:block;width:100%;min-height:74px;resize:vertical;border:1.5px solid var(--border);border-radius:6px;padding:9px 11px;font:13px/1.6 'Noto Sans TC',sans-serif;color:var(--text);outline:none;}
+.comment-reply-box textarea:focus{border-color:var(--mid);}
+.comment-reply-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;}
+.comment-reply-status{font-size:11px;color:var(--muted);}
 
 /* PREVIEW */
 .preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;}
@@ -1534,15 +1540,22 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
         document.getElementById('comments-admin-count').textContent='共 '+allComments.length+' 則留言';
         if(!allComments.length){list.innerHTML='<div class="list-empty"><div class="list-empty-icon">💬</div>還沒有留言</div>';return;}
         list.innerHTML=allComments.map(function(c){
+          var aid=escapeHtml(c._aid), cid=escapeHtml(c._cid);
           return '<div class="comment-manage-item">'
             +'<div class="comment-manage-header">'
-            +'<div class="comment-manage-avatar">'+(c.name||'?').charAt(0).toUpperCase()+'</div>'
-            +'<div class="comment-manage-name">'+(c.name||'匿名')+'</div>'
-            +'<div class="comment-manage-date">'+fmtDate(c.createdAt)+'</div>'
-            +'<div class="comment-manage-article">'+c._articleTitle+'</div>'
+            +'<div class="comment-manage-avatar">'+escapeHtml((c.name||'?').charAt(0).toUpperCase())+'</div>'
+            +'<div class="comment-manage-name">'+escapeHtml(c.name||'匿名')+'</div>'
+            +'<div class="comment-manage-date">'+escapeHtml(fmtDate(c.createdAt))+'</div>'
+            +'<div class="comment-manage-article">'+escapeHtml(c._articleTitle)+'</div>'
             +'</div>'
-            +'<div class="comment-manage-body">'+(c.body||'')+'</div>'
-            +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(this)" data-aid="'+c._aid+'" data-cid="'+c._cid+'">'
+            +'<div class="comment-manage-body">'+escapeHtml(c.body||'')+'</div>'
+            +'<div class="comment-reply-box">'
+            +'<label for="reply-'+aid+'-'+cid+'">管理員回覆</label>'
+            +'<textarea id="reply-'+aid+'-'+cid+'" maxlength="1000" placeholder="輸入要顯示在這則留言下方的回覆⋯">'+escapeHtml(c.adminReply||'')+'</textarea>'
+            +'<div class="comment-reply-actions"><span class="comment-reply-status">'+(c.adminReply?'已回覆':'尚未回覆')+'</span>'
+            +'<button class="btn btn-primary" style="padding:7px 14px;font-size:13px" onclick="saveCommentReply(this)" data-aid="'+aid+'" data-cid="'+cid+'">儲存回覆</button></div>'
+            +'</div>'
+            +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(this)" data-aid="'+aid+'" data-cid="'+cid+'">'
             +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
             +'刪除</button>'
             +'</div>';
@@ -1550,6 +1563,18 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       });
     });
   }
+  window.saveCommentReply=function(btn){
+    var aid=btn.dataset.aid, cid=btn.dataset.cid;
+    var textarea=document.getElementById('reply-'+aid+'-'+cid);
+    var reply=(textarea?textarea.value:'').trim();
+    if(reply.length>1000){showToast('回覆最多 1000 字',true);return;}
+    btn.disabled=true;
+    var updates=reply?{adminReply:reply,adminReplyAt:new Date().toISOString()}:{adminReply:null,adminReplyAt:null};
+    window.db.ref('comments/'+aid+'/'+cid).update(updates).then(function(){
+      showToast(reply?'回覆已儲存':'回覆已清除');
+      loadCommentsAdmin();
+    }).catch(function(){btn.disabled=false;showToast('回覆儲存失敗',true);});
+  };
   window.deleteComment=function(btn){
     var aid=btn.dataset.aid; var cid=btn.dataset.cid;
     showModal('刪除留言','確定要刪除這則留言嗎？',function(){
