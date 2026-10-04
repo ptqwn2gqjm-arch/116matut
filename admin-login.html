@@ -95,7 +95,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <div class="form-row">
       <label>密碼</label>
       <div class="input-wrap">
-        <input type="password" id="pw-input" placeholder="輸入密碼" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="password" id="pw-input" inputmode="numeric" pattern="[0-9]*" autocomplete="current-password" placeholder="輸入密碼" oninput="this.value=this.value.replace(/[^0-9]/g,'')" onkeydown="if(event.key==='Enter') doLogin()">
         <button class="toggle-pw" onclick="togglePw()" type="button" tabindex="-1">
           <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -108,7 +108,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       </div>
     </div>
     <button class="login-btn" id="login-btn" onclick="doLogin()">進入後台</button>
-    <div class="hint"><strong>預設密碼：</strong>116admin<br>進入後台後可以在設定頁面更改密碼。</div>
   </div>
 </div>
 <script>
