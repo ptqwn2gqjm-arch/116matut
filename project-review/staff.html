@@ -14,9 +14,10 @@
     .privacy{font-size:13px;color:#71656a;margin-top:18px}#flowPanel[hidden],#loginPanel[hidden]{display:none}
     .intro{margin-bottom:18px}.timeline{display:grid;gap:10px}.row{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:16px 18px;border-radius:13px;background:#D6EAF8}.row strong{color:var(--ink)}.row span{color:var(--muted)}.row.feature{background:#fff3d8;border:1px solid #f2dca9}.foot{margin:16px 0 0;color:#74666b;font-size:13px}
     .meal{margin-top:12px;padding:15px 17px;border-radius:13px;background:#fff3d8;border:1px solid #f2dca9;color:var(--muted)}.meal strong{color:var(--ink)}
+    .batch-plan{margin-top:18px;padding:18px;border-radius:15px;background:#EEF6FC;border:1px solid var(--line)}.batch-plan h3{margin:0 0 12px;color:var(--ink);font-size:19px}.batch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.batch-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;background:#fff;border:1px solid var(--line);color:var(--muted)}.batch-item strong{color:var(--ink)}.batch-item span{white-space:nowrap}.batch-note{margin:12px 0 0;font-size:14px}
     .group-section{margin-top:26px;padding:0 18px}.group-section>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:62px;cursor:pointer;list-style:none;color:var(--ink)}.group-section>summary::-webkit-details-marker{display:none}.group-section>summary::after{content:"＋";font-size:20px;color:var(--muted)}.group-section[open]>summary::after{content:"−"}.group-section>summary h2{margin:0;font-size:20px}.group-section>summary span{margin-left:auto;color:var(--muted);font-size:14px}.group-section-body{padding:0 0 18px}.group-tools{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0}.group-tools p{margin:0;font-size:14px}.group-tools input{max-width:260px}.group-list{display:grid;gap:8px}.group-entry{background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 15px}.group-entry summary{display:flex;align-items:center;gap:12px;min-height:52px;cursor:pointer;color:var(--ink);font-weight:700}.group-entry summary span{font-weight:500;color:var(--muted)}.group-entry ul{margin:0 0 14px;padding-left:21px;color:var(--muted)}.group-entry p{margin:0 0 14px}.group-entry[hidden]{display:none}
     .ops-section{margin-top:14px;padding:0 18px}.ops-section>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:62px;cursor:pointer;list-style:none;color:var(--ink)}.ops-section>summary::-webkit-details-marker{display:none}.ops-section>summary::after{content:"＋";font-size:20px;color:var(--muted)}.ops-section[open]>summary::after{content:"−"}.ops-section>summary h2{margin:0;font-size:20px}.ops-content{padding:0 0 18px}.ops-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}.ops-list li{padding:13px 15px;border-radius:12px;background:#D6EAF8;color:var(--muted)}.ops-list strong{color:var(--ink)}
-    @media(max-width:560px){header{padding-top:26px;padding-bottom:26px}.panel{padding:18px}.field{flex-direction:column}.row{grid-template-columns:1fr;gap:4px;padding:13px 15px}}
+    @media(max-width:560px){header{padding-top:26px;padding-bottom:26px}.panel{padding:18px}.field{flex-direction:column}.row{grid-template-columns:1fr;gap:4px;padding:13px 15px}.batch-grid{grid-template-columns:1fr}.batch-item{align-items:flex-start;flex-direction:column;gap:2px}}
   </style>
 </head>
 <body>
@@ -51,6 +52,18 @@
         <div class="row"><strong>14:00–14:10</strong><span>休息 10 分鐘，之後接續審查。</span></div>
         <div class="row feature"><strong>15:00 起｜彈性時間</strong><span>流程預計 15:00 結束，請預留 1–2 小時彈性時間，依現場進度調整。</span></div>
       </div>
+      <section class="batch-plan" aria-labelledby="batchTitle">
+        <h3 id="batchTitle">分梯進度｜共 39 組</h3>
+        <div class="batch-grid">
+          <div class="batch-item"><strong>第 1 梯｜7 組</strong><span>09:00–09:42</span></div>
+          <div class="batch-item"><strong>第 2 梯｜8 組</strong><span>09:42–10:30</span></div>
+          <div class="batch-item"><strong>第 3 梯｜7 組</strong><span>10:40–11:22</span></div>
+          <div class="batch-item"><strong>第 4 梯｜6 組</strong><span>11:22–12:00</span></div>
+          <div class="batch-item"><strong>第 5 梯｜6 組</strong><span>13:00–13:36</span></div>
+          <div class="batch-item"><strong>第 6 梯｜5 組</strong><span>13:36–14:16（含 14:00 休息）</span></div>
+        </div>
+        <p class="batch-note">依每組 6 分鐘、形象組 8 分鐘估算；第 6 梯於 14:00–14:10 休息，最後一組預計 14:16 結束。分梯僅供工作人員掌握進度，現場依實際狀況調整。</p>
+      </section>
       <div class="meal"><strong>業師午餐接待：</strong>幹部購買三位業師的便當與飲料，並引導業師至系辦用餐。</div>
       <p class="foot">組別順序與對應時段不顯示於此頁。</p>
       <details class="panel group-section">
