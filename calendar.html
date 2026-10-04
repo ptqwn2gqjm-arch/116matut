@@ -478,10 +478,13 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
     bodyEl.innerHTML=evs.map(function(a){
       var color=getColor(a.group,a.color);
       var end=new Date(a.eventTime).getTime();
+      var start=a.eventStart?new Date(a.eventStart).getTime():null;
+      var hasStart=Number.isFinite(start);
       var diff=end-now;
       var isDone=diff<=0;
-      var statusText=isDone?'已結束':(diff<86400000?'即將截止':'進行中');
-      var statusColor=isDone?'#999':(diff<86400000?'#e74c3c':'#27ae60');
+      var isUpcoming=hasStart&&now<start;
+      var statusText=isDone?(hasStart?'已結束':'已截止'):(isUpcoming?'尚未開始':(hasStart?'進行中':(diff<86400000?'即將截止':'剩餘 '+Math.ceil(diff/86400000)+' 天')));
+      var statusColor=isDone?'#999':(isUpcoming?'#2980b9':(hasStart?'#27ae60':(diff<86400000?'#e74c3c':'#2980b9')));
       return '<a class="day-event-item" href="article.html?id='+encodeURIComponent(a.id)+'">'
         +'<div class="day-event-dot" style="background:'+color+'"></div>'
         +'<div class="day-event-info">'
