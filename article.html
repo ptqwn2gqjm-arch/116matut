@@ -222,6 +222,14 @@ nav{
 .comment-user-email{font-size:12px;color:var(--muted);}
 .logout-btn{margin-left:auto;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif;}
 .logout-btn:hover{background:var(--pale);color:var(--deep);}
+.comment-name-input{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:12px 14px;font-family:'Noto Sans TC',sans-serif;
+  font-size:14px;outline:none;background:white;color:var(--text);
+  margin-bottom:10px;
+}
+.comment-name-input:focus{border-color:var(--mid);}
+.comment-anon-note{font-size:12px;color:var(--muted);margin:0 0 10px;}
 textarea#comment-input{
   width:100%;border:1.5px solid var(--border);border-radius:8px;
   padding:12px 14px;font-family:'Noto Sans TC',sans-serif;
@@ -470,11 +478,10 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
     // comments
     html+='<div class="comments-section">'
       +'<div class="comments-title">留言</div>'
-      +'<div id="login-prompt" class="login-prompt"><p>用學校 Google 帳號登入才能留言</p>'
-      +'<button class="google-btn" onclick="signInGoogle()"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>用 Google 帳號登入</button></div>'
-      +'<div id="comment-form" class="comment-form">'
-      +'<div class="comment-user"><div class="comment-avatar" id="user-avatar"></div><div><div class="comment-user-name" id="user-name"></div><div class="comment-user-email" id="user-email"></div></div><button class="logout-btn" onclick="signOut()">登出</button></div>'
-      +'<textarea id="comment-input" placeholder="留下你的想法⋯"></textarea>'
+      +'<div class="comment-form show" id="comment-form">'
+      +'<input class="comment-name-input" id="comment-name" type="text" maxlength="30" placeholder="你的暱稱（必填）" aria-label="留言暱稱">'
+      +'<textarea id="comment-input" maxlength="1000" placeholder="留下你的想法⋯"></textarea>'
+      +'<div class="comment-anon-note" id="comment-auth-note">免登入留言。送出時會建立匿名留言連線。</div>'
       +'<div class="comment-submit"><button class="submit-btn" id="submit-btn" onclick="postComment()">送出留言</button></div>'
       +'</div>'
       +'<div class="comments-list" id="comments-list"><div class="no-comments">還沒有留言</div></div>'
@@ -507,7 +514,7 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
     }
 
     // Auth
-    window.auth.onAuthStateChanged(function(user){updateAuthUI(user);});
+    // 訪客留言時才建立匿名驗證，不需手動登入。
     renderComments();
 
     // Share
@@ -551,44 +558,39 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
   }
 
   function postComment(){
+    var nameInput=document.getElementById('comment-name');
     var input=document.getElementById('comment-input');
     var btn=document.getElementById('submit-btn');
+    var name=(nameInput?nameInput.value:'').trim();
     var body=(input?input.value:'').trim();
-    if(!body) return;
-    var user=window.auth.currentUser; if(!user) return;
+    var note=document.getElementById('comment-auth-note');
+    if(!name){alert('請先填寫留言暱稱');if(nameInput)nameInput.focus();return;}
+    if(!body){alert('請先輸入留言內容');if(input)input.focus();return;}
+    if(name.length>30||body.length>1000){alert('暱稱最多 30 字，留言最多 1000 字');return;}
     btn.disabled=true;
-    window.db.ref(commentsKey).push({
-      name:user.displayName||user.email,
-      email:user.email,
-      photo:user.photoURL||null,
-      body:body,
-      createdAt:new Date().toISOString()
-    }).then(function(){
-      input.value=''; btn.disabled=false; renderComments();
-    }).catch(function(){btn.disabled=false; alert('留言失敗，請再試一次');});
-  }
-
-  function updateAuthUI(user){
-    var prompt=document.getElementById('login-prompt');
-    var form=document.getElementById('comment-form');
-    var nameEl=document.getElementById('user-name');
-    var emailEl=document.getElementById('user-email');
-    var avEl=document.getElementById('user-avatar');
-    if(!prompt||!form) return;
-    if(user){
-      prompt.style.display='none';
-      form.classList.add('show');
-      if(nameEl) nameEl.textContent=user.displayName||user.email;
-      if(emailEl) emailEl.textContent=user.email;
-      if(avEl) avEl.innerHTML=user.photoURL?'<img src="'+user.photoURL+'" alt="">':(user.displayName||'?').charAt(0).toUpperCase();
-    } else {
-      prompt.style.display='';
-      form.classList.remove('show');
+    function saveComment(){
+      window.db.ref(commentsKey).push({
+        name:name,
+        body:body,
+        createdAt:new Date().toISOString()
+      }).then(function(){
+        nameInput.value='';input.value='';btn.disabled=false;renderComments();
+        if(note)note.textContent='留言已送出。';
+      }).catch(function(){
+        btn.disabled=false;
+        if(note)note.textContent='留言送出失敗，請稍後再試。';
+        alert('留言失敗，請再試一次');
+      });
     }
+    if(window.auth.currentUser){saveComment();return;}
+    if(note)note.textContent='正在建立匿名留言連線⋯';
+    window.auth.signInAnonymously().then(saveComment).catch(function(error){
+      btn.disabled=false;
+      if(note)note.textContent='匿名留言尚未啟用，請管理者在 Firebase Authentication 開啟「匿名」登入方式。';
+      alert('目前尚未開啟匿名留言功能。請管理者至 Firebase Authentication 啟用「匿名」登入。');
+    });
   }
 
-  window.signInGoogle=function(){window.auth.signInWithPopup(window.googleProvider).catch(function(e){alert('登入失敗：'+e.message);});};
-  window.signOut=function(){window.auth.signOut();};
   window.postComment=postComment;
 
   function fmtDate(iso){
