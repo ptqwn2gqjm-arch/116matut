@@ -546,7 +546,7 @@ footer{
     });
 
     // Load articles
-    window.db.ref('articles').once('value').then(function(snap){
+    window.db.ref('articles').on('value',function(snap){
       var val=snap.val();
       if(!val){allArticles=[];}
       else{allArticles=Object.values(val).filter(function(a){return !a.draft;}).sort(function(a,b){
@@ -558,13 +558,8 @@ footer{
         return new Date(b.createdAt)-new Date(a.createdAt);
       });}
 
-      // Pinned banner
-      var pinned0=allArticles.find(function(a){return a.pinned;});
-
-
-
       applyFilters();
-    }).catch(function(){
+    },function(){
       list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">載入失敗，請重新整理</div></div>';
     });
   }
