@@ -222,6 +222,7 @@ nav{
 .comment-user-email{font-size:12px;color:var(--muted);}
 .logout-btn{margin-left:auto;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif;}
 .logout-btn:hover{background:var(--pale);color:var(--deep);}
+.comment-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
 .comment-name-input{
   width:100%;border:1.5px solid var(--border);border-radius:8px;
   padding:12px 14px;font-family:'Noto Sans TC',sans-serif;
@@ -480,8 +481,9 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
       +'<div class="comments-title">留言</div>'
       +'<div class="comment-form show" id="comment-form">'
       +'<input class="comment-name-input" id="comment-name" type="text" maxlength="30" placeholder="你的暱稱（必填）" aria-label="留言暱稱">'
+      +'<label class="comment-honeypot" aria-hidden="true">網站<input id="comment-website" type="text" tabindex="-1" autocomplete="off"></label>'
       +'<textarea id="comment-input" maxlength="1000" placeholder="留下你的想法⋯"></textarea>'
-      +'<div class="comment-anon-note" id="comment-auth-note">免登入留言。送出時會建立匿名留言連線。</div>'
+      +'<div class="comment-anon-note" id="comment-auth-note">免登入即可留言；暱稱最多 30 字，留言最多 1000 字。</div>'
       +'<div class="comment-submit"><button class="submit-btn" id="submit-btn" onclick="postComment()">送出留言</button></div>'
       +'</div>'
       +'<div class="comments-list" id="comments-list"><div class="no-comments">還沒有留言</div></div>'
@@ -514,7 +516,7 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
     }
 
     // Auth
-    // 訪客留言時才建立匿名驗證，不需手動登入。
+    // 訪客可直接留言，不需登入。
     renderComments();
 
     // Share
@@ -560,37 +562,33 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
   function postComment(){
     var nameInput=document.getElementById('comment-name');
     var input=document.getElementById('comment-input');
+    var honeyInput=document.getElementById('comment-website');
     var btn=document.getElementById('submit-btn');
     var name=(nameInput?nameInput.value:'').trim();
     var body=(input?input.value:'').trim();
     var note=document.getElementById('comment-auth-note');
+    if(honeyInput&&honeyInput.value)return;
     if(!name){alert('請先填寫留言暱稱');if(nameInput)nameInput.focus();return;}
     if(!body){alert('請先輸入留言內容');if(input)input.focus();return;}
     if(name.length>30||body.length>1000){alert('暱稱最多 30 字，留言最多 1000 字');return;}
+    var now=Date.now();
+    var lastPost=Number(localStorage.getItem('116_comment_last_post')||0);
+    if(now-lastPost<15000){alert('請稍候再送出留言');return;}
     btn.disabled=true;
-    function saveComment(){
-      window.db.ref(commentsKey).push({
-        name:name,
-        body:body,
-        createdAt:new Date().toISOString()
-      }).then(function(){
-        nameInput.value='';input.value='';btn.disabled=false;renderComments();
-        if(note)note.textContent='留言已送出。';
-      }).catch(function(){
-        btn.disabled=false;
-        if(note)note.textContent='留言送出失敗，請稍後再試。';
-        alert('留言失敗，請再試一次');
-      });
-    }
-    if(window.auth.currentUser){saveComment();return;}
-    if(note)note.textContent='正在建立匿名留言連線⋯';
-    window.auth.signInAnonymously().then(saveComment).catch(function(error){
+    window.db.ref(commentsKey).push({
+      name:name,
+      body:body,
+      createdAt:new Date(now).toISOString()
+    }).then(function(){
+      localStorage.setItem('116_comment_last_post',String(now));
+      nameInput.value='';input.value='';btn.disabled=false;renderComments();
+      if(note)note.textContent='留言已送出。';
+    }).catch(function(){
       btn.disabled=false;
-      if(note)note.textContent='匿名留言尚未啟用，請管理者在 Firebase Authentication 開啟「匿名」登入方式。';
-      alert('目前尚未開啟匿名留言功能。請管理者至 Firebase Authentication 啟用「匿名」登入。');
+      if(note)note.textContent='留言送出失敗，請稍後再試。';
+      alert('留言失敗，請再試一次');
     });
   }
-
   window.postComment=postComment;
 
   function fmtDate(iso){
