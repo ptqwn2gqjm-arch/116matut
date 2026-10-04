@@ -241,6 +241,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .comment-reply-box textarea:focus{border-color:var(--mid);}
 .comment-reply-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;}
 .comment-reply-status{font-size:11px;color:var(--muted);}
+.comment-thread-admin{display:flex;flex-direction:column;gap:7px;margin:12px 0;}
+.comment-thread-entry{padding:9px 11px;border-radius:6px;background:var(--bg);font-size:12px;line-height:1.6;white-space:pre-wrap;}
+.comment-thread-entry.admin{background:var(--pale);border-left:3px solid var(--mid);}
+.comment-thread-entry.student{border-left:3px solid var(--border);}
+.comment-thread-entry strong{display:block;font-size:11px;color:var(--mid);margin-bottom:3px;}
 
 /* PREVIEW */
 .preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;}
@@ -1549,11 +1554,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
             +'<div class="comment-manage-article">'+escapeHtml(c._articleTitle)+'</div>'
             +'</div>'
             +'<div class="comment-manage-body">'+escapeHtml(c.body||'')+'</div>'
+            +'<div class="comment-thread-admin">'
+            +(c.adminReply?'<div class="comment-thread-entry admin"><strong>畢籌會 · '+escapeHtml(fmtDate(c.adminReplyAt||c.createdAt))+'</strong><div>'+escapeHtml(c.adminReply)+'</div></div>':'')
+            +(c.replies?Object.keys(c.replies).map(function(rid){var r=c.replies[rid]||{};return '<div class="comment-thread-entry '+(r.role==='admin'?'admin':'student')+'"><strong>'+escapeHtml(r.role==='admin'?'畢籌會':(r.name||'學生'))+' · '+escapeHtml(fmtDate(r.createdAt))+'</strong><div>'+escapeHtml(r.body||'')+'</div></div>';}).join(''):'')
+            +'</div>'
             +'<div class="comment-reply-box">'
-            +'<label for="reply-'+aid+'-'+cid+'">管理員回覆</label>'
-            +'<textarea id="reply-'+aid+'-'+cid+'" maxlength="1000" placeholder="輸入要顯示在這則留言下方的回覆⋯">'+escapeHtml(c.adminReply||'')+'</textarea>'
-            +'<div class="comment-reply-actions"><span class="comment-reply-status">'+(c.adminReply?'已回覆':'尚未回覆')+'</span>'
-            +'<button class="btn btn-primary" style="padding:7px 14px;font-size:13px" onclick="saveCommentReply(this)" data-aid="'+aid+'" data-cid="'+cid+'">儲存回覆</button></div>'
+            +'<label for="reply-'+aid+'-'+cid+'">接續回覆此討論串</label>'
+            +'<textarea id="reply-'+aid+'-'+cid+'" maxlength="1000" placeholder="輸入新的回覆⋯"></textarea>'
+            +'<div class="comment-reply-actions"><span class="comment-reply-status">可持續新增回覆，對話紀錄會保留</span>'
+            +'<button class="btn btn-primary" style="padding:7px 14px;font-size:13px" onclick="saveCommentReply(this)" data-aid="'+aid+'" data-cid="'+cid+'">送出回覆</button></div>'
             +'</div>'
             +'<button class="btn btn-danger" style="padding:6px 14px;font-size:13px" onclick="deleteComment(this)" data-aid="'+aid+'" data-cid="'+cid+'">'
             +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>'
@@ -1567,13 +1576,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     var aid=btn.dataset.aid, cid=btn.dataset.cid;
     var textarea=document.getElementById('reply-'+aid+'-'+cid);
     var reply=(textarea?textarea.value:'').trim();
+    if(!reply){showToast('請先輸入回覆內容',true);if(textarea)textarea.focus();return;}
     if(reply.length>1000){showToast('回覆最多 1000 字',true);return;}
     btn.disabled=true;
-    var updates=reply?{adminReply:reply,adminReplyAt:new Date().toISOString()}:{adminReply:null,adminReplyAt:null};
-    window.db.ref('comments/'+aid+'/'+cid).update(updates).then(function(){
-      showToast(reply?'回覆已儲存':'回覆已清除');
+    window.db.ref('comments/'+aid+'/'+cid+'/replies').push({
+      name:'畢籌會',role:'admin',body:reply,createdAt:new Date().toISOString()
+    }).then(function(){
+      showToast('回覆已送出');
       loadCommentsAdmin();
-    }).catch(function(){btn.disabled=false;showToast('回覆儲存失敗',true);});
+    }).catch(function(){btn.disabled=false;showToast('回覆送出失敗',true);});
   };
   window.deleteComment=function(btn){
     var aid=btn.dataset.aid; var cid=btn.dataset.cid;
