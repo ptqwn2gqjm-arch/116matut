@@ -202,8 +202,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
   <div class="list-controls">
     <span class="result-count" id="result-count"></span>
     <select class="sort-select" id="sort-select" onchange="applySort()">
-      <option value="custom">自訂排序</option>
-      <option value="newest">最新發布</option>
+      <option value="newest" selected>最新發布</option>
       <option value="oldest">最早發布</option>
       <option value="views">瀏覽最多</option>
     </select>
@@ -242,7 +241,7 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
   var filtered=[];
   var currentFilter='all';
   var currentQuery='';
-  var currentSort='custom';
+  var currentSort='newest';
   var PAGE_SIZE=20;
   var displayCount=PAGE_SIZE;
 
@@ -263,11 +262,9 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
   window.db.ref('articles').once('value').then(function(snap){
     var val=snap.val();
     var raw=val?Object.values(val).filter(function(a){return !a.draft;}):[];
-    // Sort by custom order first, then by createdAt
+    // Pinned announcements first, then newest publication date
     raw.sort(function(a,b){
-      if(a.sortOrder!==undefined&&b.sortOrder!==undefined) return a.sortOrder-b.sortOrder;
-      if(a.sortOrder!==undefined) return -1;
-      if(b.sortOrder!==undefined) return 1;
+      if(!!a.pinned!==!!b.pinned) return a.pinned?-1:1;
       return new Date(b.createdAt)-new Date(a.createdAt);
     });
     allArticles=raw;
@@ -294,12 +291,14 @@ footer{padding:28px 32px;border-top:1px solid var(--border);display:flex;align-i
   window.applySort=function(){
     var sel=document.getElementById('sort-select');
     currentSort=sel?sel.value:'custom';
-    var sorted=filtered.slice();
-    if(currentSort==='newest') sorted.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
-    else if(currentSort==='oldest') sorted.sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt);});
-    else if(currentSort==='views') sorted.sort(function(a,b){return (b.views||0)-(a.views||0);});
-    // custom: already sorted by sortOrder/createdAt from load
-    filtered=sorted;
+    var sortWithinGroup=function(a,b){
+      if(currentSort==='oldest') return new Date(a.createdAt)-new Date(b.createdAt);
+      if(currentSort==='views') return (b.views||0)-(a.views||0);
+      return new Date(b.createdAt)-new Date(a.createdAt);
+    };
+    var pinned=filtered.filter(function(a){return !!a.pinned;}).sort(sortWithinGroup);
+    var regular=filtered.filter(function(a){return !a.pinned;}).sort(sortWithinGroup);
+    filtered=pinned.concat(regular);
     displayCount=PAGE_SIZE;
     renderList();
   };
