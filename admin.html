@@ -898,7 +898,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
       document.getElementById('stat-pinned').textContent=published.filter(function(a){return a.pinned;}).length;
       document.getElementById('stat-upcoming').textContent=upcoming.length;
       var list=document.getElementById('recent-list');
-      var recent=published.slice(0,5);
+      var recent=published.slice().sort(function(a,b){
+        if(!!a.pinned!==!!b.pinned) return a.pinned?-1:1;
+        return new Date(b.createdAt)-new Date(a.createdAt);
+      }).slice(0,5);
       list.innerHTML=recent.length?recent.map(function(a){return articleItemHtml(a,false,true);}).join('')
         :'<div class="list-empty"><div class="list-empty-icon">📭</div>還沒有公告</div>';
       var upcomingList=document.getElementById('upcoming-list');
