@@ -388,8 +388,8 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
     document.title=(a.title||'公告')+' · 116 畢籌會';
     var hasCountdown=!!a.eventTime;
     var hasImage=!!a.image;
-    var hasFormUrl=!!a.formUrl;
-    var hasFormEmbed=!!a.formEmbed;
+    function isHttpUrl(value){if(typeof value!=='string'||!/^https?:\/\//i.test(value.trim()))return false;try{var parsed=new URL(value.trim());return parsed.protocol==='http:'||parsed.protocol==='https:';}catch(e){return false;}}function isDriveFileUrl(value){if(!isHttpUrl(value))return false;try{var parsed=new URL(value.trim());return /^(drive|docs)\.google\.com$/i.test(parsed.hostname)&&/^\/(file\/d|document\/d|spreadsheets\/d|presentation\/d)\//i.test(parsed.pathname);}catch(e){return false;}}var formLinkUrl=isHttpUrl(a.formUrl)?a.formUrl:(isDriveFileUrl(a.formEmbed)?a.formEmbed:'');var hasFormUrl=!!formLinkUrl;
+    var hasFormEmbed=isHttpUrl(a.formEmbed)&&!isDriveFileUrl(a.formEmbed);
     var pageUrl=location.href;
     var lineShareUrl='https://social-plugins.line.me/lineit/share?url='+encodeURIComponent(pageUrl);
 
@@ -485,7 +485,7 @@ footer{padding:28px 40px;border-top:1px solid var(--border);display:flex;align-i
     if(hasFormUrl||hasFormEmbed){
       html+='<div class="form-section show">'
         +'<div class="form-header"><div class="form-header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="form-header-title">相關表單</div><div class="form-header-sub">請填寫以下表單</div></div></div>';
-      if(hasFormUrl) html+='<a href="'+a.formUrl+'" target="_blank" rel="noopener" class="form-link-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>開啟表單</a>';
+      if(hasFormUrl) html+='<a href="'+formLinkUrl+'" target="_blank" rel="noopener" class="form-link-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>開啟表單</a>';
       if(hasFormEmbed) html+='<iframe class="form-embed" src="'+a.formEmbed+'" frameborder="0"></iframe>';
       html+='</div>';
     }
